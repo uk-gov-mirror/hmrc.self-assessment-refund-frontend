@@ -39,6 +39,7 @@ final case class Journey(
 ) {
   def toLogMessage: String =
     s"""
+       |
        |[sessionId: ${sessionId.getOrElse("sessionId missing")}]
        |[journeyId: ${id.value}]
        |[amount: ${amount.toString}]

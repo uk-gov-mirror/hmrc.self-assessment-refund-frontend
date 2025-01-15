@@ -40,4 +40,11 @@ object AmountFormatter {
     val strippedAmount = amount.bigDecimal.stripTrailingZeros
     formatter.format(strippedAmount).replace(".00", "")
   }
+
+  def sanitize(amount: Option[String]): String = {
+    amount match {
+      case Some(value) if value.nonEmpty => value.trim.replaceAll("[\\s,£]", "")
+      case other                         => throw new IllegalArgumentException(s"[AmountFormatter][sanitize] Expected non-empty string, got: ${other.toString}")
+    }
+  }
 }

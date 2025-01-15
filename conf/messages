@@ -24,6 +24,7 @@ selectamount.amount.label = Enter an amount
 selectamount.amount.hint = Enter an amount up to {0}
 selectamount.amount.error.empty = Enter a refund amount
 selectamount.amount.error.outsideRange = Refund amount must be between one penny and {0}
+selectamount.amount.error.invalid = Refund must be an amount, like £100 or £250.75
 
 how-you-will-get-your-refund.individual.title = How you will get the refund
 how-you-will-get-your-refund.individual.message.1 = We will send the refund to the card used to pay your last Self Assessment tax bill.

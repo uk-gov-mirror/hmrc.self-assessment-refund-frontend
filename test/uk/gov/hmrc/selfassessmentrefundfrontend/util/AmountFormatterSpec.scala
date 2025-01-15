@@ -55,6 +55,25 @@ class AmountFormatterSpec extends AnyWordSpec with RichMatchers {
     "return the formatted amount, ROUNDED DOWN" in {
       AmountFormatter.formatAmount(BigDecimal(4000.804)) shouldBe "£4,000.80"
     }
+  }
 
+  "sanitize" should {
+    for (sample <- Seq(" 1000.00", " 1000.00 ", "1,000.00", "1 000.00", "  1, 000.00  ", "£1,000.00")) {
+      s"remove the whitespaces, commas, pound signs from the amount: [$sample]" in {
+        AmountFormatter.sanitize(Some(sample)) shouldBe "1000.00"
+      }
+    }
+
+    "throw IllegalArgumentException if provided amount is an empty string" in {
+      an[IllegalArgumentException] shouldBe thrownBy {
+        AmountFormatter.sanitize(Some(""))
+      }
+    }
+
+    "throw IllegalArgumentException if provided value is None" in {
+      an[IllegalArgumentException] shouldBe thrownBy {
+        AmountFormatter.sanitize(None)
+      }
+    }
   }
 }
