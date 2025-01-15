@@ -17,7 +17,6 @@
 package uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney
 
 import cats.syntax.eq._
-import javax.inject.{Inject, Singleton}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -30,10 +29,13 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.controllers
 import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.action.Actions
 import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.action.request.BarsVerifiedRequest
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.PaymentMethod.{BACS, Card, PaymentOrder}
+import uk.gov.hmrc.selfassessmentrefundfrontend.model.SelectAmountChoice.{Full, Partial, Suggested}
 import uk.gov.hmrc.selfassessmentrefundfrontend.model._
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.page.SelectAmountPageModel
+import uk.gov.hmrc.selfassessmentrefundfrontend.util.AmountFormatter
 import uk.gov.hmrc.selfassessmentrefundfrontend.views.html.refundrequestjourney.SelectAmountPage
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.math.BigDecimal.RoundingMode
 
@@ -111,6 +113,7 @@ class SelectRepaymentAmountController @Inject() (
         amount match {
           case Amount(_, _, _, Some(availableCredit), Some(balanceDueWithin30Days), _) =>
             val model = SelectAmountPageModel(availableCredit = availableCredit, suggestedAmount = suggestedAmount(balanceDueWithin30Days, availableCredit), isAgent = request.isAgent).withFormBound()
+            val formData = model.form.data
               def auditRefundAmount(amountChosen: Option[BigDecimal]): Unit = {
                 auditService.auditRefundAmount(
                   balanceDueWithin30Days = Some(balanceDueWithin30Days),
@@ -121,31 +124,23 @@ class SelectRepaymentAmountController @Inject() (
                 )
               }
 
-              def selectAmount(): String = model.form.data.getOrElse("amount", "0.00")
-              def storeChosenAmount(): Future[Unit] = model.form.data.get("choice") match {
-                case Some(choice) if choice === "suggested" => {
+              def storeChosenAmount(): Future[Unit] = formData.get("choice").map(SelectAmountChoice.withNameLowercaseOnly) match {
+                case Some(Suggested) =>
                   auditRefundAmount(amount.suggestedAmount)
-
                   journeyConnector.setJourney(journey.id, journey.copy(amount = Some(amount.setSuggestedRepayment(amount.suggestedAmount))))
-                }
-                case Some(choice) if choice === "full" => {
+                case Some(Full) =>
                   auditRefundAmount(amount.availableCredit)
-
                   journeyConnector.setJourney(journey.id, journey.copy(amount = Some(amount.setFullRepayment(amount.availableCredit))))
-                }
-                case Some(choice) if choice === "partial" => {
-                  val partialAmount = Some(BigDecimal(selectAmount()))
+                case Some(Partial) =>
+                  val partialAmount = Some(BigDecimal(AmountFormatter.sanitize(formData.get("amount"))))
                   auditRefundAmount(partialAmount)
-
                   journeyConnector.setJourney(journey.id, journey.copy(amount = Some(amount.setPartialRepayment(partialAmount))))
-                }
-                case _ => throw new Throwable("amount not found in the submitted form")
+                case _ => sys.error(s"[SelectRepaymentAmountController][storeChosenAmount] Data not found in the submitted form.")
               }
 
             if (model.form.hasErrors) {
               Future.successful(Ok(selectAmountPage(model)))
             } else {
-
               storeChosenAmount()
                 .flatMap(_ => handleRedirect(redirectToCYA)(request))
             }

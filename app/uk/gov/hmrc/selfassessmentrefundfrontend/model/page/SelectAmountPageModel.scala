@@ -17,16 +17,20 @@
 package uk.gov.hmrc.selfassessmentrefundfrontend.model.page
 
 import cats.syntax.eq._
-import play.api.data.Forms.{bigDecimal, mapping, optional, text}
+import play.api.data.Forms.{mapping, optional, text}
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
 import play.api.data.{Form, FormBinding, FormError, Mapping}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.ErrorSummary
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.errorsummary.ErrorLink
+import uk.gov.hmrc.selfassessmentrefundfrontend.model.SelectAmountChoice
+import uk.gov.hmrc.selfassessmentrefundfrontend.model.SelectAmountChoice.{Full, Partial, Suggested}
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.page.SelectAmountPageModel.SelectAmountForm
 import uk.gov.hmrc.selfassessmentrefundfrontend.util.AmountFormatter
 import uk.gov.voa.play.form.ConditionalMappings.{isEqual, mandatoryIf}
+
+import scala.util.Try
 
 final case class SelectAmountPageModel(
     selectAmount:               Option[String],
@@ -94,49 +98,65 @@ object SelectAmountPageModel {
       partialRepaymentSelected,
       AmountFormatter.formatAmount(availableCredit),
       suggestedAmount.map(AmountFormatter.formatAmount),
-      SelectAmountForm.form(availableCredit),
+      SelectAmountForm.form(availableCredit, suggestedAmount),
       suggestedRepaymentSelected,
       isAgent
     )
   }
 
-  final case class SelectAmountForm(amount: BigDecimal)
+  final case class SelectAmountForm(amount: BigDecimal, choice: SelectAmountChoice)
 
+  @SuppressWarnings(Array(
+    "org.wartremover.warts.Serializable",
+    "org.wartremover.warts.JavaSerializable",
+    "org.wartremover.warts.Product"
+  ))
   object SelectAmountForm {
     val min: BigDecimal = 0.01
 
     private def amountOutsideExpectedRange(max: BigDecimal): Constraint[BigDecimal] = {
       val error = ValidationError("selectamount.amount.error.outsideRange", AmountFormatter.formatAmount(max))
 
-      Constraint((t: BigDecimal) => if (t <= max && t >= min) Valid else Invalid(Seq(error)))
+      Constraint { (amount: BigDecimal) =>
+        if (amount >= min && amount <= max) Valid
+        else
+          Invalid(Seq(error))
+      }
     }
 
-    def form(availableCredit: BigDecimal): Form[SelectAmountForm] = {
-      val boundedDecimal = bigDecimal(10, 2)
+    def form(availableCredit: BigDecimal, suggestedAmount: Option[BigDecimal]): Form[SelectAmountForm] = {
+      val amountMapping: Mapping[BigDecimal] = text
+        .transform[String](chosenAmount => AmountFormatter.sanitize(Some(chosenAmount)), identity)
+        .verifying("selectamount.amount.error.invalid", str =>
+          Try(BigDecimal(str)).toOption.exists(amount => amount.scale <= 2 && amount.precision <= 10))
+        .transform[BigDecimal](BigDecimal(_), _.toString())
         .verifying(amountOutsideExpectedRange(availableCredit))
 
-        def amount: Mapping[BigDecimal] = optional(boundedDecimal)
+        def amount: Mapping[BigDecimal] = optional(amountMapping)
           .verifying("selectamount.amount.error.empty", _.nonEmpty)
-          .transform[BigDecimal](_.getOrElse(sys.error("Could not find amount")), Some(_))
+          .transform[BigDecimal](_.getOrElse(throw new IllegalArgumentException("[SelectAmountForm][amount] Amount is missing")), Some(_))
 
-        def coerce(amount: Option[BigDecimal]): SelectAmountForm =
-          SelectAmountForm(amount.getOrElse(availableCredit))
-
-        def uncoerce(data: SelectAmountForm): Option[(Some[BigDecimal], Some[String])] = {
-          val different = if (data.amount =!= availableCredit) "partial" else "full"
-
-          Option {
-            (Some(data.amount), Some(different))
+        def apply(choice: Option[SelectAmountChoice], amount: Option[BigDecimal]): SelectAmountForm = {
+          choice match {
+            case Some(Full)      => SelectAmountForm(availableCredit, Full)
+            case Some(Suggested) => SelectAmountForm(suggestedAmount.getOrElse(availableCredit), Suggested)
+            case Some(Partial)   => SelectAmountForm(amount.getOrElse(availableCredit), Partial)
+            case other           => throw new IllegalArgumentException(s"[SelectAmountForm][apply] Expected SelectAmountChoice, got: ${other.toString}")
           }
         }
 
+        def unapply(data: SelectAmountForm): Option[(Option[SelectAmountChoice], Option[BigDecimal])] = {
+          val different = if (data.amount =!= availableCredit) Partial else Full
+
+          Some((Some(different), Some(data.amount)))
+        }
+
       Form(mapping(
-        "amount" -> mandatoryIf(isEqual("choice", "partial"), amount),
         "choice" -> optional(text)
-          .verifying("selectamount.choice.error.required", {
-            _.isDefined
-          })
-      ){ case (amount, _) => coerce(amount) }(uncoerce))
+          .verifying("selectamount.choice.error.required", { _.isDefined })
+          .transform[Option[SelectAmountChoice]](choice => choice.map(SelectAmountChoice.withNameLowercaseOnly), choice => choice.map(_.toString)),
+        "amount" -> mandatoryIf(isEqual("choice", "partial"), amount)
+      )(apply)(unapply))
     }
   }
 }

@@ -24,6 +24,7 @@ selectamount.amount.label = Nodwch swm
 selectamount.amount.hint = Nodwch swm hyd at {0}
 selectamount.amount.error.empty = Nodwch swm ar gyfer yr ad-daliad
 selectamount.amount.error.outsideRange = Mae’n rhaid i swm yr ad-daliad fod rhwng un geiniog a {0}
+selectamount.amount.error.invalid = Mae’n rhaid i’r ad-daliad fod yn swm, megis £100 neu £250.75
 
 how-you-will-get-your-refund.individual.title = Sut y byddwch yn cael yr ad-daliad
 how-you-will-get-your-refund.individual.message.1 = Byddwn yn anfon yr ad-daliad i’r cerdyn a ddefnyddiwyd i dalu’ch bil treth Hunanasesiad diwethaf.

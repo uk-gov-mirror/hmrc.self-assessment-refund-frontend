@@ -17,20 +17,26 @@
 package uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney
 
 import org.scalatest.TestSuite
-import support.stubbing.AuthStub
-import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status
 import play.api.mvc.{Cookie, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import support.stubbing.AuthStub
 import support.{ItSpec, WireMockSupport}
-import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.selfassessmentrefundfrontend.model.Amount
+import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, ConfidenceLevel}
+import uk.gov.hmrc.http.SessionId
+import uk.gov.hmrc.selfassessmentrefundfrontend.audit.model.AuditFlags
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.PaymentMethod.{BACS, Card}
+import uk.gov.hmrc.selfassessmentrefundfrontend.model.customer.Nino
+import uk.gov.hmrc.selfassessmentrefundfrontend.model.journey.{Journey, JourneyTypes}
+import uk.gov.hmrc.selfassessmentrefundfrontend.model.repayment.RequestNumber
+import uk.gov.hmrc.selfassessmentrefundfrontend.model._
 import uk.gov.hmrc.selfassessmentrefundfrontend.pages.SelectAmountPageTesting
+import uk.gov.hmrc.selfassessmentrefundfrontend.testdata.TdAll
 import uk.gov.hmrc.selfassessmentrefundfrontend.testdata.TdSupport.FakeRequestOps
 
+import java.time.OffsetDateTime
 import scala.concurrent.Future
 
 class SelectRepaymentAmountControllerSpec
@@ -377,68 +383,99 @@ class SelectRepaymentAmountControllerSpec
       }
     }
 
-    "a partial amount has been selected" when {
-      val fakeRequestWithValidFormPartialAmount = fakeRequestBase
-        .withFormUrlEncodedBody("nino" -> "AA999999A", "fullAmount" -> "123", "choice" -> "partial", "amount" -> "80")
+    for (amountSamples <- Seq("80", " 80 ", "80.00", "8 0", " 8,0 ", "8,0.0", "£80", "£ 80.0")) //amounts with allowed characters: spaces, commas, full stops, pound sign
+      s"a partial amount has been selected [$amountSamples]" when {
+        val fakeRequestWithValidFormPartialAmount = fakeRequestBase
+          .withFormUrlEncodedBody("nino" -> "AA999999A", "fullAmount" -> "123", "choice" -> "partial", "amount" -> amountSamples)
+        val testAmount: Amount = Amount(Some(BigDecimal(123)), Some(BigDecimal(80)), Some(true), availableCredit = Some(BigDecimal(123)), balanceDueWithin30Days = Some(BigDecimal(45)), Some(false))
 
-      "affinity is Individual" when {
-        "users last payment was by card" should {
-          "set the amount via the backend and redirect to /how-you-will-get-the-refund" in {
-            stubBackendJourneyId()
-            stubPOSTJourney()
-            stubBackendBusinessJourney()
-            stubBackendLastPaymentMethod(Card)
+        val journey: Journey = Journey(
+          Some(SessionId(TdAll.sessionId).value),
+          TdAll.journeyId,
+          AuditFlags(),
+          JourneyTypes.RefundJourney,
+          Some(testAmount),
+          Some(Nino("AA111111A")),
+          None,
+          None,
+          Some(AccountType("Business")),
+          Some(BankAccountInfo("Jon Smith", SortCode("111111"), AccountNumber("12345678"))),
+          None,
+          Some(true),
+          Some(RepaymentResponse(OffsetDateTime.parse("2023-12-01T17:35:30+01:00"), RequestNumber("1234567890"))),
+          None
+        )
 
-            val result = amountController.submitAmount(fakeRequestWithValidFormPartialAmount)
-            status(result) shouldBe Status.SEE_OTHER
-            redirectLocation(result) shouldBe Some("/request-a-self-assessment-refund/how-you-will-get-the-refund")
+        "affinity is Individual" when {
+          "users last payment was by card" should {
+            "set the amount via the backend and redirect to /how-you-will-get-the-refund" in {
+              stubBarsVerifyStatus()
+              stubBackendJourneyId()
+              stubPOSTJourney()
+              stubBackendBusinessJourney(journey.nino)
+              stubBackendLastPaymentMethod(Card)
+
+              val result = amountController.submitAmount(fakeRequestWithValidFormPartialAmount)
+              status(result) shouldBe Status.SEE_OTHER
+              redirectLocation(result) shouldBe Some("/request-a-self-assessment-refund/how-you-will-get-the-refund")
+
+              verifyUpdateJourneyCalled(journey)
+            }
+          }
+
+          "users last payment was by BACS or P0" should {
+            "set the amount via the backend and redirect to /we-need-your-bank-details" in {
+              stubBarsVerifyStatus()
+              stubBackendJourneyId()
+              stubPOSTJourney()
+              stubBackendBusinessJourney(journey.nino)
+              stubBackendLastPaymentMethod(BACS)
+
+              val result = amountController.submitAmount(fakeRequestWithValidFormPartialAmount)
+              status(result) shouldBe Status.SEE_OTHER
+              redirectLocation(result) shouldBe Some("/request-a-self-assessment-refund/we-need-your-bank-details")
+
+              verifyUpdateJourneyCalled(journey)
+            }
           }
         }
 
-        "users last payment was by BACS or P0" should {
-          "set the amount via the backend and redirect to /we-need-your-bank-details" in {
-            stubBackendJourneyId()
-            stubPOSTJourney()
-            stubBackendBusinessJourney()
-            stubBackendLastPaymentMethod(BACS)
+        "affinity is Agent" when {
+          "users last payment was by card" should {
+            "set the amount via the backend and redirect to /how-your-client-will-get-the-refund" in {
+              stubBarsVerifyStatus()
+              AuthStub.authorise(AffinityGroup.Agent, ConfidenceLevel.L50)
+              stubBackendJourneyId()
+              stubPOSTJourney()
+              stubBackendBusinessJourney(journey.nino)
+              stubBackendLastPaymentMethod(Card)
 
-            val result = amountController.submitAmount(fakeRequestWithValidFormPartialAmount)
-            status(result) shouldBe Status.SEE_OTHER
-            redirectLocation(result) shouldBe Some("/request-a-self-assessment-refund/we-need-your-bank-details")
+              val result = amountController.submitAmount(fakeRequestWithValidFormPartialAmount)
+              status(result) shouldBe Status.SEE_OTHER
+              redirectLocation(result) shouldBe Some("/request-a-self-assessment-refund/how-your-client-will-get-the-refund")
+
+              verifyUpdateJourneyCalled(journey)
+            }
+          }
+
+          "users last payment was by BACS or P0" should {
+            "set the amount via the backend and redirect to /we-need-your-clients-bank-details" in {
+              stubBarsVerifyStatus()
+              AuthStub.authorise(AffinityGroup.Agent, ConfidenceLevel.L50)
+              stubBackendJourneyId()
+              stubPOSTJourney()
+              stubBackendBusinessJourney(journey.nino)
+              stubBackendLastPaymentMethod(BACS)
+
+              val result = amountController.submitAmount(fakeRequestWithValidFormPartialAmount)
+              status(result) shouldBe Status.SEE_OTHER
+              redirectLocation(result) shouldBe Some("/request-a-self-assessment-refund/we-need-your-clients-bank-details")
+
+              verifyUpdateJourneyCalled(journey)
+            }
           }
         }
       }
-
-      "affinity is Agent" when {
-        "users last payment was by card" should {
-          "set the amount via the backend and redirect to /how-your-client-will-get-the-refund" in {
-            AuthStub.authorise(AffinityGroup.Agent, ConfidenceLevel.L50)
-            stubBackendJourneyId()
-            stubPOSTJourney()
-            stubBackendBusinessJourney()
-            stubBackendLastPaymentMethod(Card)
-
-            val result = amountController.submitAmount(fakeRequestWithValidFormPartialAmount)
-            status(result) shouldBe Status.SEE_OTHER
-            redirectLocation(result) shouldBe Some("/request-a-self-assessment-refund/how-your-client-will-get-the-refund")
-          }
-        }
-
-        "users last payment was by BACS or P0" should {
-          "set the amount via the backend and redirect to /we-need-your-clients-bank-details" in {
-            AuthStub.authorise(AffinityGroup.Agent, ConfidenceLevel.L50)
-            stubBackendJourneyId()
-            stubPOSTJourney()
-            stubBackendBusinessJourney()
-            stubBackendLastPaymentMethod(BACS)
-
-            val result = amountController.submitAmount(fakeRequestWithValidFormPartialAmount)
-            status(result) shouldBe Status.SEE_OTHER
-            redirectLocation(result) shouldBe Some("/request-a-self-assessment-refund/we-need-your-clients-bank-details")
-          }
-        }
-      }
-    }
 
     "a suggested amount has been selected" when {
       val fakeRequestWithValidFormSuggestedAmount = fakeRequestBase
