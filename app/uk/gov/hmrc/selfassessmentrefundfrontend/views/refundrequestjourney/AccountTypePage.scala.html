@@ -1,0 +1,75 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.govukfrontend.views.Aliases._
+@import uk.gov.hmrc.govukfrontend.views.html.components.{FormWithCSRF, GovukButton, GovukErrorSummary}
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage.errorMessageWithDefaultStringsTranslated
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.errorsummary.ErrorSummary
+@import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.AccountTypeController.AccountTypePageModel
+@import uk.gov.hmrc.selfassessmentrefundfrontend.views.components.{FormComponents, PageTitle}
+@import uk.gov.hmrc.selfassessmentrefundfrontend.views.html.components.Layout
+
+@this(layout: Layout, form: FormWithCSRF, button: GovukButton, errorSummary: GovukErrorSummary, forms: FormComponents)
+
+@(model: AccountTypePageModel)(implicit messages: Messages, request: Request[_])
+
+@layout(
+    pageTitle = Some(PageTitle(model.title, messages("service.name.refund"))),
+    serviceName = Some(messages("service.name.refund")),
+    isAgent = model.isAgent
+) {
+
+    @if(model.form.hasErrors) {
+        @errorSummary(ErrorSummary(
+            title = HtmlContent(s"""<span id="error-summary-title">${messages("accountType.summaryText")}</span>"""),
+            errorList = model.form.errors.map { error =>
+                ErrorLink(href = Some(s"#${error.key}"),
+                    content = HtmlContent(messages(error.message)),
+                    attributes = Map("id" -> s"${error.key}-error-summary"))
+            }))
+    }
+
+    @form(model.postAccountType) {
+        @forms.radios(Radios(
+            fieldset = Some(Fieldset(
+                legend = Some(Legend(
+                    content = Text(model.heading),
+                    classes = "govuk-fieldset__legend--l",
+                    isPageHeading = true
+                ))
+            )),
+            hint = Some(Hint(
+                content = Text(model.text)
+            )),
+            idPrefix = Some("accountType"),
+            name = "accountType",
+            items = Seq(
+                RadioItem(content = HtmlContent(messages("accountType.business")),
+                    value = Some("business"),
+                    checked = model.isBusinessAccount),
+                RadioItem(content = HtmlContent(messages("accountType.personal")),
+                    value = Some("personal"),
+                    checked = model.isPersonalAccount)
+            ),
+            errorMessage = model.form.errors.headOption.map(fe => errorMessageWithDefaultStringsTranslated(content = HtmlContent(messages(fe.message))))
+        ))
+
+        @button(Button(content = HtmlContent(messages("accountType.submit")),
+            name = Some("continue"),
+            inputType = Some("submit"), attributes = Map("id" -> "continue")))
+    }
+
+}

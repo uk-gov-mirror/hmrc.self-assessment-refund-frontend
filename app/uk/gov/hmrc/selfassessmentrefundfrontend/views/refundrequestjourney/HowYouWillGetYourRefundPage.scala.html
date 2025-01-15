@@ -1,0 +1,41 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.selfassessmentrefundfrontend.views.components.{FormComponents, PageTitle}
+@import uk.gov.hmrc.selfassessmentrefundfrontend.views.html.components.Layout
+
+@this(layout: Layout, forms: FormComponents)
+
+@(isAgent: Boolean)(implicit request: Request[_], messages: Messages)
+
+@agentOrIndividual = @{ if(isAgent) { "agent" } else { "individual" } }
+
+@layout(
+    pageTitle = Some(PageTitle(messages(s"how-you-will-get-your-refund.$agentOrIndividual.title"), messages("service.name.refund"))),
+    serviceName = Some(messages("service.name.refund")),
+    isAgent = isAgent
+) {
+    <h1 class="govuk-heading-l">@messages(s"how-you-will-get-your-refund.$agentOrIndividual.title")</h1>
+    @forms.form(action = uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.routes.HowYouWillGetYourRefundController.onSubmit) {
+    <ol class="govuk-list govuk-list--number">
+    <li>@messages(s"how-you-will-get-your-refund.$agentOrIndividual.message.1")</li>
+    <li>@messages(s"how-you-will-get-your-refund.$agentOrIndividual.message.2")</li>
+    @if(!isAgent){<li>@messages(s"how-you-will-get-your-refund.$agentOrIndividual.message.3")</li>}
+    </ol>
+
+        @forms.continue()
+    }
+}

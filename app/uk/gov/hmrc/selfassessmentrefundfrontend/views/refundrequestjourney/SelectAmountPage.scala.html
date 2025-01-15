@@ -1,0 +1,108 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.twirl.api.HtmlFormat
+@import uk.gov.hmrc.govukfrontend.views.Aliases._
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukErrorSummary
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.input.PrefixOrSuffix
+@import uk.gov.hmrc.selfassessmentrefundfrontend.model.page.SelectAmountPageModel
+@import uk.gov.hmrc.selfassessmentrefundfrontend.views.components.{FormComponents, PageTitle}
+@import uk.gov.hmrc.selfassessmentrefundfrontend.views.html.components.Layout
+
+@this(
+layout: Layout,
+forms: FormComponents,
+errorSummary: GovukErrorSummary
+)
+
+@(model: SelectAmountPageModel)(implicit request: Request[_], messages: Messages)
+
+@title = @{messages("selectamount.title")}
+
+@optionalRadioItem = @{
+    model.suggestedAmount.map { suggestedAmount =>
+        RadioItem(
+            content = Text(suggestedAmount),
+            hint = Some(Hint(content = HtmlContent(messages("selectamount.choice.suggested.hint")))),
+            id = Some("choice-suggested"),
+            value = Some("suggested"),
+            checked = model.form("choice").value.contains("suggested") || model.suggestedRepaymentSelected.contains(true)
+        )
+    }
+}
+
+@enterAmountPanel = {
+    @forms.input(Input(
+        id = "different-amount",
+        name = "amount",
+        label = Label(content = Text(messages("selectamount.amount.label"))),
+        prefix = Some(PrefixOrSuffix(content = Text("£"))),
+        value = model.form("amount").value.orElse(if(model.partialRepaymentSelected.contains(true)) model.selectAmount else None),
+        hint = Some(Hint(content = Text(messages("selectamount.amount.hint", model.availableCredit)))),
+        classes = "govuk-!-width-one-quarter",
+        errorMessage = model.form.error("amount").map(e =>
+            ErrorMessage(
+                content = Text(messages(e.message, e.args: _*)),
+                visuallyHiddenText = Some(messages("service.visuallyHiddenText"))
+            )
+        )
+    ))
+}
+
+@layout(
+    pageTitle = Some(PageTitle(title, messages("service.name.refund"), model.form)),
+    serviceName = Some(messages("service.name.refund")),
+    isAgent = model.isAgent
+) {
+
+    @model.errorSummary.fold(HtmlFormat.empty) { s =>
+        @errorSummary(s)
+    }
+
+    @forms.form(action = uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.routes.SelectRepaymentAmountController.submitAmount) {
+        @forms.radios(Radios(
+            fieldset = Some(Fieldset(
+                legend = Some(Legend(
+                    content = Text(title),
+                    classes = "govuk-fieldset__legend--l",
+                    isPageHeading = true
+                ))
+            )),
+            name = "choice",
+            items = List(
+                optionalRadioItem,
+                Some(RadioItem(
+                    content = Text(model.availableCredit),
+                    id = Some("choice-full"),
+                    value = Some("full"),
+                    checked = model.form("choice").value.contains("full") || (model.partialRepaymentSelected.contains(false) && model.suggestedRepaymentSelected.contains(false))
+                )),
+                Some(RadioItem(
+                    content = Text(messages("selectamount.choice.different")),
+                    id = Some("choice-different"),
+                    value = Some("partial"),
+                    checked = model.form("choice").value.contains("partial") || model.partialRepaymentSelected.contains(true),
+                    conditionalHtml = Some(enterAmountPanel)
+                ))
+            ).flatten,
+            errorMessage = model.form.error("choice").map(fe => ErrorMessage.errorMessageWithDefaultStringsTranslated(content = HtmlContent(messages(fe.message))))
+        ))
+
+        @forms.continue()
+    }
+}

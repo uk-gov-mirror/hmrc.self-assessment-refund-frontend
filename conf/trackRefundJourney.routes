@@ -1,0 +1,14 @@
+# this file contains routes specific to SA Track Refund journey
+
+GET         /refund-request-tracker/start       uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.RefundTrackerController.startRefundTracker
+GET         /refund-request-tracker             uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.RefundTrackerController.refundTracker
+
+GET         /refund-being-processed/:number     uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.RefundProcessingController.onPageLoad(number: RequestNumber)
+
+GET         /refund-approved/:reqNum            uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.RefundApprovedController.showApprovedPage(reqNum: RequestNumber)
+
+GET         /refund-rejected/:number            uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.RefundRejectedController.onPageLoad(number: RequestNumber)
+
+GET         /cannot-confirm-identity            uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.WeCannotConfirmYourIdentityController.failedUplift(userType: String)
+
+GET         /refund-status/:number              uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.RepaymentStatusController.statusOf(number: RequestNumber)

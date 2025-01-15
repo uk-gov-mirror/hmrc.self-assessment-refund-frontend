@@ -1,0 +1,12 @@
+.govuk-back-link:hover, a:hover {
+    text-decoration-thickness: max(3px, 0.1875rem, 0.12em);
+    -webkit-text-decoration-skip-ink: none;
+    text-decoration-skip-ink: none;
+    -webkit-text-decoration-skip: none;
+    text-decoration-skip: none;
+}
+
+.hmrc-language-select::after {
+      clear: none;
+    }
+

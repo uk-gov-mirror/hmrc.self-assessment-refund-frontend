@@ -1,0 +1,114 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.selfassessmentrefundfrontend.config.AppConfig
+@import uk.gov.hmrc.selfassessmentrefundfrontend.model.page.RefundConfirmationPageModel
+@import uk.gov.hmrc.selfassessmentrefundfrontend.views.components.PageTitle
+@import uk.gov.hmrc.selfassessmentrefundfrontend.views.html.components.Layout
+@import uk.gov.hmrc.selfassessmentrefundfrontend.views.html.components.{confirmation_box, help_us_improve_our_services}
+@import views.html.helper.CSPNonce
+
+@this(layout: Layout)
+
+@(model: RefundConfirmationPageModel)(implicit request: Request[_], appConfig: AppConfig, messages: Messages)
+
+@agentOrIndividual = @{ if(model.isAgent) { "agent" } else { "individual" } }
+
+@scripts = {
+    <script @CSPNonce.attr src='@controllers.routes.Assets.versioned("javascripts/print.js")'></script>
+}
+
+@layout(
+    pageTitle = Some(PageTitle(messages("repaymentConfirmation.title"), messages("service.name.refund"))),
+    serviceName = Some(messages("service.name.refund")),
+    scripts = Some(scripts),
+    hasBackLink = false,
+    isAgent = model.isAgent
+) {
+
+    @confirmation_box(messages("repaymentConfirmation.box.title"),  model.reference.value)
+
+    <dl class="govuk-summary-list">
+        @if(model.isAgent){<div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                @messages("repaymentConfirmation.recipient")
+            </dt>
+            <dd class="govuk-summary-list__value">
+                @model.bankAccountName
+            </dd>
+        </div>}
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+            @messages("repaymentConfirmation.amountRepaid")
+            </dt>
+            <dd class="govuk-summary-list__value">
+            @model.amount
+            </dd>
+        </div>
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+            @messages("repaymentConfirmation.date")
+            </dt>
+            <dd class="govuk-summary-list__value">
+            @model.theDate
+            </dd>
+        </div>
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+            @messages("repaymentConfirmation.tax")
+            </dt>
+            <dd class="govuk-summary-list__value">
+            @messages("repaymentConfirmation.selfAssessment")
+            </dd>
+        </div>
+    </dl>
+
+    <p class="govuk-body govuk-!-display-none-print js-visible">
+        <a id="printLink" class="remove-print govuk-link" href="#">@messages("repaymentConfirmation.print")</a>
+    </p>
+
+    <h2 class="govuk-heading-m print">@messages("repaymentConfirmation.whatNext")</h2>
+    <p class="govuk-body">
+        @if(model.isLastPaymentByCard) {
+            @messages(s"repaymentConfirmation.message1b.$agentOrIndividual", model.bankAccountEndingDigits)
+        } else {
+            @messages("repaymentConfirmation.message1a", model.bankAccountEndingDigits)
+        }
+
+    </p>
+    <p class="govuk-body">
+        @messages(s"repaymentConfirmation.message2.$agentOrIndividual", model.refundByDate)
+    </p>
+    <p class="govuk-body">
+        @messages("repaymentConfirmation.message3a") <a class="govuk-link" href="@appConfig.refundTrackerUrl">@messages("repaymentConfirmation.message3b")</a> @messages("repaymentConfirmation.message3c")
+    </p>
+    <p class="govuk-body">
+        @messages("repaymentConfirmation.message4a", model.refundByDate) <a class="govuk-link" href=@messages(s"repaymentConfirmation.message4b.link.$agentOrIndividual")>@messages("repaymentConfirmation.message4b")</a>. @messages("repaymentConfirmation.message4c")
+    </p>
+
+    @if(model.isAgent){<a id="return-to-tax-account" class="govuk-button govuk-!-display-none-print js-visible" data-module="govuk-button" href=@messages("repaymentConfirmation.button.link")>@messages("repaymentConfirmation.button")</a>}
+
+    <br>
+
+    <noscript>
+        <style>
+                .js-visible {display: none}
+        </style>
+    </noscript>
+
+    @help_us_improve_our_services()
+
+}
