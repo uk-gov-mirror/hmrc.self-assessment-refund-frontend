@@ -1,0 +1,136 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import cats.syntax.eq._
+@import uk.gov.hmrc.govukfrontend.views.Aliases.{ErrorMessage, Hint, HtmlContent, Label}
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.FormGroup
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.button.Button
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.errorsummary.{ErrorLink, ErrorSummary}
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.input.Input
+@import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.BankAccountDetailsController.AccountPageModel
+@import uk.gov.hmrc.selfassessmentrefundfrontend.views.components.PageTitle
+@import uk.gov.hmrc.selfassessmentrefundfrontend.views.html.components.Layout
+
+@this(layout: Layout, form: FormWithCSRF, input: GovukInput, button: GovukButton,  errorSummary: GovukErrorSummary)
+
+@(model: AccountPageModel)(implicit messages: Messages, request: Request[_])
+
+@fieldErrorMessage(key: String) = @{
+    if (model.fieldMessageOverrides.exists(_.key === key)) {
+        None
+    } else {
+        model.form.error(key)
+                .map(e => ErrorMessage.errorMessageWithDefaultStringsTranslated(
+            content = Text(messages(s"${e.message}"))
+        ))
+    }
+}
+
+@sortCodeAndAccountNumberFormError= @{ model.fieldMessageOverrides.find(_.key === "sortCodeAndAccountNumber") }
+
+@layout(
+    pageTitle = Some(PageTitle(model.title, messages("service.name.refund"))),
+    serviceName = Some(messages("service.name.refund")),
+    isAgent = model.isAgent
+) {
+
+    @if(model.form.hasErrors) {
+        @errorSummary(ErrorSummary(
+            title = HtmlContent(s"""<span id="error-summary-title">${messages("enter-bank-details.error.summaryText")}</span>"""),
+            errorList = model.form.errors.map { error =>
+                ErrorLink(href = Some(s"#${error.key}"),
+                    content = HtmlContent(messages(error.message)),
+                    attributes = Map("id" -> s"${error.key}-error-summary"))
+            }))
+    }
+
+    <h1 class="govuk-heading-l">@messages("enter-bank-details.title")</h1>
+
+    @form(model.postAccountDetails) {
+
+        @input(Input(
+            id = model.form("accountName").name,
+            name = model.form("accountName").name,
+            value = model.form("accountName").value,
+            attributes = Map("autocomplete" -> "name", "spellcheck" -> "false"),
+            label = Label(content = HtmlContent(messages("enter-bank-details.accountName.label"))),
+            formGroup = FormGroup(classes = Some("form-field-group")),
+            errorMessage = fieldErrorMessage("accountName")
+        ))
+
+        @defining(sortCodeAndAccountNumberFormError) { barsFormError =>
+        <fieldset class="govuk-fieldset long-word-wrap" @if(barsFormError.isDefined) {
+            aria-describedby="bars-invalid-error"}>
+            <legend class="govuk-label govuk-visually-hidden">@messages("enter-bank-details.view-bank-details-hidden")</legend>
+
+            <div id="bars-invalid" class="form-field @barsFormError.map { _ => govuk-form-group--error }">
+                @barsFormError.map { error =>
+                    <span class="govuk-error-message" id="bars-invalid-error">
+                        <span class="govuk-visually-hidden">@messages("service.title.error-prefix")</span> @messages(error.message)
+                    </span>
+                }
+
+                @input(Input(
+                    id = model.form("sortCode").name,
+                    name = model.form("sortCode").name,
+                    classes = "govuk-input--width-5",
+                    value = model.form("sortCode").value,
+                    label = Label(content = HtmlContent(messages("enter-bank-details.sortCode.label"))),
+                    autocomplete = Some("off"),
+                    formGroup = FormGroup(classes = Some("form-field-group")),
+                    hint = Some(Hint(content = HtmlContent(messages("enter-bank-details.sortCode.hint")))),
+                    pattern=Some("[0-9]*"),
+                    inputmode=Some("numeric"),
+                    errorMessage = fieldErrorMessage("sortCode")
+                ))
+
+                @input(Input(
+                    id = model.form("accountNumber").name,
+                    name = model.form("accountNumber").name,
+                    classes = "govuk-input--width-10",
+                    value = model.form("accountNumber").value,
+                    label = Label(content = HtmlContent(messages("enter-bank-details.accountNumber.label"))),
+                    autocomplete = Some("off"),
+                    formGroup = FormGroup(classes = Some("form-field-group")),
+                    hint = Some(Hint(content = HtmlContent(messages("enter-bank-details.accountNumber.hint")))),
+                    pattern=Some("[0-9]*"),
+                    inputmode=Some("numeric"),
+                    errorMessage = fieldErrorMessage("accountNumber")
+                ))
+
+            </div>
+        </fieldset>
+
+        @input(Input(
+            id = model.form("rollNumber").name,
+            name = model.form("rollNumber").name,
+            classes = "govuk-input--width-10",
+            value = model.form("rollNumber").value,
+            label = Label(content = HtmlContent(messages("enter-bank-details.rollNumber.label"))),
+            formGroup = FormGroup(classes = Some("form-field-group")),
+            hint = Some(Hint(content = HtmlContent(messages("enter-bank-details.rollNumber.hint")))),
+            errorMessage = fieldErrorMessage("rollNumber")
+        ))
+
+    @button(Button(content = HtmlContent(messages("enter-bank-details.submitButton.label")),
+        name = Some("continue"),
+        inputType = Some("submit"), attributes = Map("id" -> "continue")))
+
+    }
+  }
+
+}

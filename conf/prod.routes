@@ -1,3 +1,5 @@
 # Add all the application routes to the app.routes file
-->         /self-assessment-refund-frontend              app.Routes
-->         /                          health.Routes
+->         /self-assessment-refund                  app.Routes
+->         /request-a-self-assessment-refund        refundRequestJourney.Routes
+->         /track-a-self-assessment-refund          trackRefundJourney.Routes
+->         /                                        health.Routes

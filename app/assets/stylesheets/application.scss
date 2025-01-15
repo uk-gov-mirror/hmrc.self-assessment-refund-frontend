@@ -1,1 +1,41 @@
 @import "lib/govuk-frontend/dist/govuk/base";
+
+body:not(.js-enabled) .js-visible {
+    display: none;
+}
+
+.govuk-summary-list__key {
+    @include govuk-media-query($from: tablet) {
+        width: 35%;
+    }
+}
+
+.govuk-panel--confirmation {
+    clear:both
+}
+
+.hmrc-language-select__list {float: none}
+
+.grouped-row {
+    &:not(.last-grouped-row) {
+        @include govuk-media-query($from: tablet) {
+            border-bottom-style: none;
+        }
+        > dd, > dt {
+            padding-bottom: 0;
+        }
+    }
+    .grouped-change {
+        display: inline-block;
+        @include govuk-media-query($from: tablet) {
+            display: none;
+        }
+    }
+}
+
+.scrollable
+{
+    overflow-x: auto;
+    width: 100%;
+}
+

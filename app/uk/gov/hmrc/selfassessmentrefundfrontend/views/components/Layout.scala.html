@@ -1,0 +1,95 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.mvc.RequestHeader
+@import uk.gov.hmrc.govukfrontend.views.Aliases.BackLink
+@import uk.gov.hmrc.govukfrontend.views.html.components.TwoThirdsMainContent
+@import uk.gov.hmrc.hmrcfrontend.views.html.helpers._
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.{HmrcStandardPageParams, ServiceURLs, TemplateOverrides}
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.language.{Cy, En}
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.reporttechnicalissue.ReportTechnicalIssue
+@import uk.gov.hmrc.selfassessmentrefundfrontend.config.AppConfig
+@import views.html.helper.CSPNonce
+
+@this(
+        appConfig: AppConfig,
+        hmrcStandardPage: HmrcStandardPage,
+        reportTechnicalIssues: uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcReportTechnicalIssue,
+        hmrcTimeoutDialogHelper: HmrcTimeoutDialogHelper,
+        defaultMainContent: TwoThirdsMainContent
+)
+
+@(
+        pageTitle: Option[String] = None,
+        headScripts: Option[Html] = None,
+        serviceName: Option[String] = None,
+        scripts: Option[Html] = None,
+        canSignOut: Boolean = true,
+        hasBackLink: Boolean = true,
+        isAgent: Boolean = false,
+        mainContentLayout: Option[Html => Html] = Some(defaultMainContent(_))
+)(contentHtml: Html)(implicit request: RequestHeader, messages: Messages)
+
+@head = {
+    <link href='@routes.Assets.versioned("stylesheets/application.css")' media="screen" rel="stylesheet" type="text/css" />
+    <link href='@routes.Assets.versioned("stylesheets/print.css")' media="print" rel="stylesheet" type="text/css" />
+    <link href='@routes.Assets.versioned("stylesheets/accessibility_stylesheet.css")' media="all" rel="stylesheet" type="text/css" />
+    @if(canSignOut) {
+        @hmrcTimeoutDialogHelper(
+            title = Some(messages("hmrcTimeoutDialog.title")),
+            signOutUrl = appConfig.logoutUrl,
+            timeoutUrl = Some(appConfig.logoutUrl),
+            countdown = Some(appConfig.authTimeoutCountdownSeconds),
+            timeout = Some(appConfig.authTimeoutSeconds)
+        )
+    }
+    @headScripts
+}
+
+@scriptsBlock = {
+    @scripts
+}
+
+@contentBlock = {
+    @contentHtml
+
+    <div class="govuk-!-display-none-print">
+        @reportTechnicalIssues(ReportTechnicalIssue(serviceCode = "self-assessment-repayment", language = if (messages.lang.code == "cy") Cy else En))
+    </div>
+}
+
+@hmrcStandardPage(
+    HmrcStandardPageParams(
+        serviceURLs = ServiceURLs(
+            serviceUrl = if (serviceName.contains(messages("service.name.track"))) Some(appConfig.refundTrackerUrl)
+                         else if (serviceName.contains(messages("service.name.refund")) && isAgent) Some(appConfig.creditAndRefundsAgentsUrl)
+                         else if (serviceName.contains(messages("service.name.refund")) && !isAgent) Some(appConfig.creditAndRefundsUrl)
+                         else None,
+            signOutUrl = Some(appConfig.logoutUrl)
+        ),
+        templateOverrides = TemplateOverrides(
+            additionalHeadBlock = Some(head),
+            mainContentLayout = mainContentLayout,
+            additionalScriptsBlock = Some(scriptsBlock)
+        ),
+        serviceName = serviceName,
+        pageTitle = pageTitle,
+        isWelshTranslationAvailable = appConfig.welshLanguageSupportEnabled,
+        backLink = if (hasBackLink) Some(BackLink.mimicsBrowserBackButtonViaJavaScript) else None
+    )
+)(contentBlock)
+
+

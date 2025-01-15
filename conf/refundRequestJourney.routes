@@ -1,0 +1,40 @@
+# this file contains routes specific to SA Refund Request journey
+
+GET         /refund-amount                           uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.SelectRepaymentAmountController.selectAmount
+POST        /refund-amount                           uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.SelectRepaymentAmountController.submitAmount
+
+GET         /how-you-will-get-the-refund             uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.HowYouWillGetYourRefundController.onPageLoad
+GET         /how-your-client-will-get-the-refund     uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.HowYouWillGetYourRefundController.onPageLoadAgent
+POST        /how-you-will-get-the-refund             uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.HowYouWillGetYourRefundController.onSubmit
+
+GET         /we-need-your-bank-details               uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.WeNeedBankDetailsController.onPageLoad
+GET         /we-need-your-clients-bank-details       uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.WeNeedBankDetailsController.onPageLoadAgent
+POST        /we-need-your-bank-details               uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.WeNeedBankDetailsController.onSubmit
+
+GET         /type-of-bank-account                    uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.AccountTypeController.getAccountType
+POST        /type-of-bank-account                    uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.AccountTypeController.postAccountType
+
+GET         /check-your-answers                      uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.CheckYourAnswersPageController.start
+POST        /check-your-answers-confirm              uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.CheckYourAnswersPageController.confirm
+GET         /check-your-answers-change-amount        uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.CheckYourAnswersPageController.changeAmount
+GET         /check-your-answers-change-account       uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.CheckYourAnswersPageController.changeAccount
+
+GET         /bank-building-society-details           uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.BankAccountDetailsController.getAccountDetails
+POST        /bank-building-society-details           uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.BankAccountDetailsController.postAccountDetails
+
+GET         /sign-in-again                           uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.YouNeedToSignInAgainController.onPageLoad
+POST        /sign-in-again                           uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.YouNeedToSignInAgainController.onSubmit
+
+GET         /reauthentication                        uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.ReauthController.reauthentication
+
+GET         /reauthenticated-submit                  uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.YouNeedToSignInAgainController.reauthSuccessful
+
+GET         /refund-request-received/:number         uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.RepaymentConfirmationController.confirmation(number: RequestNumber)
+
+GET         /refund-request-not-submitted            uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.YourRefundRequestNotSubmittedController.show
+
+GET         /cannot-confirm-identity                 uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.WeCannotConfirmYourIdentityController.failedUplift(userType: String)
+
+GET         /feedback                                uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.FeedbackController.feedbackShow
+
+GET         /bank-details-tried-too-many-times       uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.BarsLockoutController.barsLockout

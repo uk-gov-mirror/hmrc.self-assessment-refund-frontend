@@ -1,0 +1,141 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.govukfrontend.views.Aliases.{Button, Input, Label, Select, SelectItem, Text}
+@import uk.gov.hmrc.govukfrontend.views.html.components.implicits._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.input.PrefixOrSuffix
+@import uk.gov.hmrc.selfassessmentrefundfrontend.model.start.StartRequest._
+@import uk.gov.hmrc.selfassessmentrefundfrontend.testonly.model.{StartJourneyPageModel, StartJourneyType}
+@import uk.gov.hmrc.selfassessmentrefundfrontend.testonly.views.html.layouts.TestonlyLayout
+@import uk.gov.hmrc.selfassessmentrefundfrontend.views.components.{FormComponents, PageTitle}
+
+
+@this(
+        layout: TestonlyLayout,
+        forms: FormComponents,
+        govukTable: uk.gov.hmrc.govukfrontend.views.html.components.GovukTable,
+        govukSelect: uk.gov.hmrc.govukfrontend.views.html.components.GovukSelect,
+        govukRadios: uk.gov.hmrc.govukfrontend.views.html.components.GovukRadios,
+        govukErrorSummary: uk.gov.hmrc.govukfrontend.views.html.components.GovukErrorSummary
+)
+
+@(
+        model: StartJourneyPageModel
+)(implicit request: Request[_], messages: Messages)
+
+@layout(
+    pageTitle = Some(PageTitle("Ssarj: Start Self Assessment Refund Journey"))
+) {
+    <h1 class="govuk-heading-l">Ssarj: Start Self Assessment Refund Journey</h1>
+    <p class="govuk-body">
+        <i>
+            This is a `test-only` endpoint for testing purposes.
+            It will do a log in and set up some responses in self-assessment-refund-stubs.
+            <a href="https://github.com/hmrc/self-assessment-refund-stubs" target="_blank">
+                https://github.com/hmrc/self-assessment-refund-stubs</a>.
+            Use presets to prepopulate forms with data.
+        </i>
+    </p>
+
+    <h2 class="govuk-heading-m" id="start-journey">
+        Start Journey
+    </h2>
+
+    @if(model.form.errors.nonEmpty) {
+        @govukErrorSummary(model.errorSummary)
+    }
+
+    <form method="POST" action="@model.submitStartJourney.url">
+        @govukSelect(Select(
+            label = Label(content = Text("Journey type")),
+            items = StartJourneyType.values.map(journeyType =>
+                SelectItem(
+                    value = Some(journeyType.entryName), text = journeyType.label,
+                    selected = model.journeyType == journeyType
+                )
+            ),
+            classes = "govuk-!-width-one-quarter",
+            attributes = Map(
+                "onchange" -> "this.form.method = 'GET'; this.form.submit()"
+            )
+        ).withFormField(model.form("type")))
+
+        @forms.input(Input(
+            id = "nino", name = "nino",
+            label = Label(content = Text("NINO")),
+            classes = "govuk-!-width-one-quarter",
+        ).withFormField(model.form("nino")))
+
+        @forms.input(Input(
+            id = "fullAmount", name = "fullAmount",
+            inputType = if(model.journeyType == StartJourneyType.StartRefund) "input" else "hidden",
+//            value = model.options.fullAmount.map(_.toString),
+            label = Label(content = Text("Full amount"), classes=model.hideInputsClass),
+            prefix = Some(PrefixOrSuffix(content = Text("£"), classes=model.hideInputsClass)),
+            classes = "govuk-!-width-one-quarter" + model.hideInputsClass
+        ).withFormField(model.form("fullAmount")))
+
+        @govukSelect(Select(
+            label = Label(content = Text("Last payment type (ignored if NINO starts 'AB') "), classes = model.hideInputsClass),
+            items = Seq(
+                SelectItem(value = Some("BACS"), text = "BACS"),
+                SelectItem(value = Some("CARD"), text = "CARD")
+            ),
+            classes = "govuk-!-width-one-quarter " + model.hideInputsClass
+        ).withFormField(model.form("lastPaymentMethod")))
+
+        @forms.input(Input(
+            id = "returnUrl", name = "returnUrl",
+            inputType = if(model.journeyType == StartJourneyType.StartRefund) "input" else "hidden",
+            label = Label(content = Text("Return URL"), classes=model.hideInputsClass),
+            classes = "govuk-!-width-one-quarter" + model.hideInputsClass
+        ).withFormField(model.form("returnUrl")))
+
+        @govukRadios(model.makeStubPrimerRadios)
+
+        @forms.continue(model.journeyType.label)
+    </form>
+
+    <form method="POST" action="@model.selectPreset.url">
+        <h2 class="govuk-heading-m" id="presets">
+            Presets
+        </h2>
+
+        <div class="govuk-radios govuk-radios--small">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+                <h3 class="govuk-fieldset__heading">
+                    Start Refund
+                </h3>
+            </legend>
+            @govukTable(model.makePresetTable[StartRefund])
+        </div>
+
+        <div class="govuk-radios govuk-radios--small">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+                <h3 class="govuk-fieldset__heading">
+                    View History
+                </h3>
+            </legend>
+            @govukTable(model.makePresetTable[ViewHistory])
+        </div>
+
+        @forms.button(Button(
+          id = Some("selectJourneyPresetSubmit"),
+          inputType = Some("submit"),
+          content = Text("Select journey preset")
+        ))
+    </form>
+}

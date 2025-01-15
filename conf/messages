@@ -1,2 +1,192 @@
-service.name = self-assessment-refund-frontend
-service.text = This is your new service
+service.name.refund = Request a Self Assessment refund
+service.name.track = Track a Self Assessment refund
+service.continue = Continue
+service.go-to-tax-account = Go to tax account
+
+service.visuallyHiddenText = Error
+
+service.title.error-prefix = Error:
+service.title.suffix = GOV.UK
+
+govukErrorMessage.visuallyHiddenText = Error
+
+hmrcTimeoutDialog.title = You’re about to be signed out
+
+selectamount.title = How much do you want to be refunded?
+
+selectamount.error-summary.title = There is a problem
+
+selectamount.choice.suggested.hint = This will leave enough in your tax account to cover your next bill
+selectamount.choice.different = A different amount
+selectamount.choice.error.required = Select how much you want to be refunded
+
+selectamount.amount.label = Enter an amount
+selectamount.amount.hint = Enter an amount up to {0}
+selectamount.amount.error.empty = Enter a refund amount
+selectamount.amount.error.outsideRange = Refund amount must be between one penny and {0}
+
+how-you-will-get-your-refund.individual.title = How you will get the refund
+how-you-will-get-your-refund.individual.message.1 = We will send the refund to the card used to pay your last Self Assessment tax bill.
+how-you-will-get-your-refund.individual.message.2 = If we cannot do this, we need your bank details as a backup.
+how-you-will-get-your-refund.individual.message.3 = You can enter your own or your agent’s bank details.
+
+how-you-will-get-your-refund.agent.title = How your client will get the refund
+how-you-will-get-your-refund.agent.message.1 = We will send the refund to the card used to pay your client’s last Self Assessment tax bill.
+how-you-will-get-your-refund.agent.message.2 = If we cannot do this, we need your client’s bank details as a backup.
+
+weNeedBankDetails.individual.title = We need your bank details
+weNeedBankDetails.individual.message = To get a refund, you need to enter your own or your agent’s bank details.
+
+weNeedBankDetails.agent.title = We need your client’s bank details
+weNeedBankDetails.agent.message = To get a refund, you need to enter your client’s bank details.
+
+accountType.error.title = Error: What type of bank account are you providing?
+accountType.title = What type of bank account are you providing?
+accountType.heading = What type of bank account are you providing?
+accountType.text = The bank details you provide must be for a UK bank account
+accountType.personal = Personal bank account
+accountType.business = Business bank account
+accountType.summaryText = There is a problem
+accountType.submit = Continue
+accountType.error.required = Select a type of account
+
+enter-bank-details.title = Bank or building society account details
+enter-bank-details.error.title = Error: Bank or building society account details
+enter-bank-details.accountName.label = Name on the account
+enter-bank-details.sortCode.label = Sort code
+enter-bank-details.sortCode.hint = Must be 6 digits long
+enter-bank-details.accountNumber.label = Account number
+enter-bank-details.accountNumber.hint = Must be between 6 and 8 digits long
+enter-bank-details.rollNumber.label = Building society roll number (if you have one)
+enter-bank-details.rollNumber.hint = You can find it on your card, statement or passbook
+enter-bank-details.submitButton.label = Continue
+enter-bank-details.view-bank-details-hidden = Bank details
+
+enter-bank-details.error.summaryText = There is a problem
+enter-bank-details.error.accountName.required = Enter the name on the account
+enter-bank-details.error.accountName.maxLength = Name on the account must be 60 characters or less
+enter-bank-details.error.accountName.format = Name on the account must only include letters, hyphens, spaces and apostrophes
+enter-bank-details.error.accountNumber.required = Enter an account number
+enter-bank-details.error.accountNumber.length = Account number must be between 6 and 8 digits
+enter-bank-details.error.sortCode.required = Enter a sort code
+enter-bank-details.error.sortCode.invalid = Sort code must be 6 digits
+enter-bank-details.error.rollNumber.format = Building society roll number must only include letters a to z, numbers, hyphens, spaces, forward slashes and full stops
+enter-bank-details.error.rollNumber.length = Building society roll number must be between 1 and 18 characters
+
+# BARS
+enter-bank-details.bars.account.number.not.well.formatted = Enter a valid combination of sort code and account number
+enter-bank-details.bars.sortcode.not.present.on.eiscd = Enter a valid combination of sort code and account number
+enter-bank-details.bars.account.does.not.exist = Enter a valid combination of sort code and account number
+enter-bank-details.bars.sortcode.on.deny.list = Enter a valid combination of sort code and account number
+enter-bank-details.bars.other.error = Enter a valid combination of sort code and account number
+enter-bank-details.bars.sortcode.does.not.support.direct.credit = You have entered a sort code which does not accept refunds. Check you have entered a valid sort code or enter details for a different account
+enter-bank-details.bars.account.name.no.match = Enter the name on the account as it appears on bank statements
+enter-bank-details.bars.account.roll.number.required = Building society roll number must be entered if you have one. It may also be called a reference code
+
+check-your-answers.title = Check your answers
+check-your-answers.amount = Refund amount
+check-your-answers.bank-account-type = Bank account type
+check-your-answers.personal = Personal
+check-your-answers.business = Business
+check-your-answers.bank-account-details = Bank account details
+check-your-answers.confirm-continue = Confirm and continue
+check-your-answers.change = Change
+
+you-need-to-sign-in-again.title = For your security, you need to sign in again
+you-need-to-sign-in-again.message.1 = You need to sign in again with the same details you used before.
+you-need-to-sign-in-again.message.2 = This is for security reasons and to protect you against fraud.
+
+repaymentConfirmation.title = Refund request received
+
+repaymentConfirmation.box.title = Refund request received
+
+help-us-improve-our-services.para1 = What did you think of this service?
+help-us-improve-our-services.para2 = (takes 30 seconds)
+
+refundApproved.title = Your refund of {0} has been approved
+refundApproved.heading = Your refund of {0} has been approved
+refundApproved.reference = Refund reference: {0}
+refundApproved.p1 = We have approved your refund of {0} and sent it for payment.
+refundApproved.p2 = You should receive your refund by {0}.
+refundApproved.moreDetails = More details about this refund
+
+refund-tracker.title = Refund request tracker
+refund-tracker.heading = Refund request tracker
+refund-tracker.head.request-date = Request date
+refund-tracker.head.actions = Action
+refund-tracker.head.amount = Amount
+refund-tracker.head.status = Status
+refund-tracker.view-details = View details
+refund-tracker.view-details.visually-hidden = for the refund requested on {0}
+refund-tracker.status.processing = Processing
+refund-tracker.status.approved = Approved
+refund-tracker.status.rejected = Rejected
+
+refund-processing.title = Your refund of {0} is being processed
+refund-processing.heading = Your refund of {0} is being processed
+refund-processing.reference = Refund reference: {0}
+refund-processing.message1 = We received your refund request on {0}.
+refund-processing.message2 = You should get your refund by {0}. However, there are security measures in place which may cause a delay.
+refund-processing.message3a = If you have not received your refund by {0}, you can
+refund-processing.message3b = contact us
+refund-processing.message3b.link = https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment
+refund-processing.message3c = Do not contact us before this date as we will not have an update for you.
+
+refund-rejected.title = Your refund of {0} has been rejected
+refund-rejected.heading = Your refund of {0} has been rejected
+refund-rejected.reference = Refund reference: {0}
+refund-rejected.message1 = We rejected your request for a refund of {0}.
+refund-rejected.message2a = If you have credit in your online account, you can
+refund-rejected.message2b = try again to request a refund
+
+confirmation.reference =  Your refund reference
+repaymentConfirmation.tax = Tax
+repaymentConfirmation.selfAssessment = Self Assessment
+repaymentConfirmation.date = Date requested
+repaymentConfirmation.amountRepaid = Refund amount
+repaymentConfirmation.recipient = Recipient
+repaymentConfirmation.print = Print this page
+repaymentConfirmation.whatNext = What happens next
+repaymentConfirmation.message1a = We will send the refund to the bank account ending in {0}.
+repaymentConfirmation.message1b.individual = We will send the refund to the card used to pay your last Self Assessment tax bill. If we cannot do this, we will send the refund to the bank account ending in {0}.
+repaymentConfirmation.message1b.agent = We will send the refund to the card used to pay your client’s last Self Assessment tax bill. If we cannot do this, we will send the refund to the bank account ending in {0}.
+repaymentConfirmation.message2.individual = You or your agent should get the refund by {0}. To protect you against fraud, HMRC has security measures in place which may cause a delay.
+repaymentConfirmation.message2.agent = Your client should get their refund by {0}. To protect you against fraud, HMRC has security measures in place which may cause a delay.
+repaymentConfirmation.message3a = You can
+repaymentConfirmation.message3b = check the status of your refund
+repaymentConfirmation.message3c = in your HMRC online account.
+repaymentConfirmation.message4a = If you have not received your refund by {0}, you can
+repaymentConfirmation.message4b = contact us
+repaymentConfirmation.message4b.link.individual = https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment
+repaymentConfirmation.message4b.link.agent = https://www.gov.uk/government/organisations/hm-revenue-customs/contact/agent-dedicated-line-self-assessment-or-paye-for-individuals
+repaymentConfirmation.message4c = Do not contact us before this date as we will not have an update for you.
+repaymentConfirmation.button = Return to tax account
+repaymentConfirmation.button.link = https://www.tax.service.gov.uk/agent-services-account/home
+
+bars.lockout.title = You’ve tried to confirm your bank details too many times
+bars.lockout.p1 = Your refund request has not been submitted.
+bars.lockout.p2 = You can try again after {0} to confirm your bank details.
+
+JANUARY = January
+FEBRUARY = February
+MARCH = March
+APRIL = April
+MAY = May
+JUNE = June
+JULY = July
+AUGUST = August
+SEPTEMBER = September
+OCTOBER = October
+NOVEMBER = November
+DECEMBER = December
+
+refundRequestNotSubmitted.title = Your refund request has not been submitted
+refundRequestNotSubmitted.heading = Your refund request has not been submitted
+refundRequestNotSubmitted.para1 = There was a problem processing your refund request.
+refundRequestNotSubmitted.para2 = You will need to start again.
+refundRequestNotSubmitted.submit.text = Start again
+
+weCannotConfirmYourIdentity.title = We cannot confirm your identity
+weCannotConfirmYourIdentity.heading = We cannot confirm your identity
+weCannotConfirmYourIdentity.para1 = You have entered information that does not match our records too many times. For security reasons, you must wait <strong>24 hours</strong> and then try again.
+weCannotConfirmYourIdentity.submit.text = Go to tax account

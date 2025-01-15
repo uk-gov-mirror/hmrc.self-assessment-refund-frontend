@@ -1,23 +1,41 @@
-import uk.gov.hmrc.DefaultBuildSettings
+val strictBuilding: SettingKey[Boolean] = StrictBuilding.strictBuilding //defining here so it can be set before running sbt like `sbt 'set Global / strictBuilding := true' ...`
+StrictBuilding.strictBuildingSetting
 
-ThisBuild / majorVersion := 0
-ThisBuild / scalaVersion := "2.13.12"
+import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings}
 
-lazy val microservice = Project("self-assessment-refund-frontend", file("."))
+val appName = "self-assessment-refund-frontend"
+
+scalaVersion  := "2.13.12"
+
+lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
+  .disablePlugins(JUnitXmlReportPlugin)
   .settings(
-    libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
-    // https://www.scala-lang.org/2021/01/12/configuring-and-suppressing-warnings.html
-    // suppress warnings in generated routes files
-    scalacOptions += "-Wconf:src=routes/.*:s",
-    scalacOptions += "-Wconf:cat=unused-imports&src=html/.*:s",
-    pipelineStages := Seq(gzip),
+    majorVersion              := 0,
+    libraryDependencies       ++= AppDependencies.compile ++ AppDependencies.test,
+    PlayKeys.playDefaultPort  := 9171,
+    (Assets / pipelineStages) := Seq(gzip),
+    (Compile / doc / sources) := Seq.empty,
+    scalacOptions ++= ScalaCompilerFlags.scalaCompilerOptions,
+    scalacOptions ++= {
+      if (StrictBuilding.strictBuilding.value) ScalaCompilerFlags.strictScalaCompilerOptions else Nil
+    },
   )
+  .settings(scalaSettings *)
+  .settings(defaultSettings() *)
+  .settings(
+    routesImport ++= Seq(
+      "uk.gov.hmrc.selfassessmentrefundfrontend.model.journey.JourneyId",
+      "uk.gov.hmrc.selfassessmentrefundfrontend.model.repayment.RequestNumber",
+      "uk.gov.hmrc.selfassessmentrefundfrontend.testonly.model.StartJourneyOptions"
+    )
+  )
+  .settings(commands ++= SbtCommands.commands)
+  .settings((Test / fork) := false)
   .settings(resolvers += Resolver.jcenterRepo)
-  .settings(CodeCoverageSettings.settings: _*)
+  .settings(ScoverageSettings.settings *)
+  .settings(SbtUpdatesSettings.sbtUpdatesSettings *)
+  .settings(ScalariformSettings.scalariformSettings *)
+  .settings(WartRemoverSettings.wartRemoverSettings *)
 
-lazy val it = project
-  .enablePlugins(PlayScala)
-  .dependsOn(microservice % "test->test")
-  .settings(DefaultBuildSettings.itSettings())
-  .settings(libraryDependencies ++= AppDependencies.it)
+  addCompilerPlugin("org.typelevel" % "kind-projector" % "0.13.3" cross CrossVersion.full)
