@@ -201,8 +201,8 @@ class BankAccountDetailsControllerSpec extends ItSpec with BankAccountDetailsPag
           ("sort code is invalid", validAccountName, "123abc", validAccountNumber, "", "Sort code must be 6 digits", "sortCode"),
 
           // Roll number is optional
-          ("rollNumber is too long", validAccountName, validSortCode, validAccountNumber, "A" * 19, "Building society roll number must be between 1 and 18 characters", "rollNumber"),
-          ("rollNumber is invalid", validAccountName, validSortCode, validAccountNumber, "a!bad%format", "Building society roll number must only include letters a to z, numbers, hyphens, spaces, forward slashes and full stops", "rollNumber")
+          ("rollNumber is too long", validAccountName, validSortCode, validAccountNumber, "A" * 11, "Building society roll number must be between 1 and 10 characters", "rollNumber"),
+          ("rollNumber is invalid", validAccountName, validSortCode, validAccountNumber, "a!bad%form", "Building society roll number must only include letters a to z, numbers and spaces", "rollNumber")
         )
 
         listOfValidationErrors.foreach {

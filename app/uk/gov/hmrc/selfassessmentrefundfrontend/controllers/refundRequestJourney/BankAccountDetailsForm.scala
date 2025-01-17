@@ -26,7 +26,7 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney
 object BankAccountDetailsForm {
   val validAccountNameRegex = """^[a-zA-Z0-9!@#$%&() \-`\.\'+,\/\"]{1,60}$"""
   val validSortCodeRegex = """^[0-9- ]+$"""
-  val validRollNumberRegex = """^[a-zA-Z0-9]{1,10}$"""
+  val validRollNumberRegex = """^[a-zA-Z0-9 ]{1,10}$"""
 
   val textTrimmed: Mapping[String] = text.transform[String](_.trim, identity)
 
@@ -44,7 +44,9 @@ object BankAccountDetailsForm {
     accountNumber => zeroPadAccountNumber(textCleanedOfSpaces(accountNumber)), identity
   ).verifying(accountNumberConstraint)
 
-  val validRollNumber: Mapping[String] = textTrimmed.verifying(rollNumberConstraint)
+  val validRollNumber: Mapping[String] = textTrimmed
+    .transform[String](textCleanedOfSpaces(_), identity)
+    .verifying(rollNumberConstraint)
 
   private def zeroPadAccountNumber(accountNumber: String): String = {
     if (accountNumber.length >= 6)
@@ -86,7 +88,7 @@ object BankAccountDetailsForm {
   }
 
   def rollNumberConstraint: Constraint[String] = Constraint[String]("constraint.rollNumber") { rollNum =>
-    if (rollNum.length > 18) Invalid(ValidationError("enter-bank-details.error.rollNumber.length"))
+    if (rollNum.length > 10) Invalid(ValidationError("enter-bank-details.error.rollNumber.length"))
     else if (!rollNum.matches(validRollNumberRegex)) Invalid(ValidationError("enter-bank-details.error.rollNumber.format"))
     else Valid
   }

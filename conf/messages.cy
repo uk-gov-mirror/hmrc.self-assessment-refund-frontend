@@ -71,8 +71,8 @@ enter-bank-details.error.accountNumber.required = Nodwch rif cyfrif
 enter-bank-details.error.accountNumber.length = Mae’n rhaid i rif y cyfrif fod rhwng 6 ac 8 digid
 enter-bank-details.error.sortCode.required = Nodwch god didoli
 enter-bank-details.error.sortCode.invalid = Mae’n rhaid i’r cod didoli fod yn 6 digid
-enter-bank-details.error.rollNumber.format = Mae’n rhaid i rif rôl y gymdeithas adeiladu gynnwys y llythrennau a i z, rhifau, cysylltnodau, bylchau, blaenslaesau ac atalnodau llawn yn unig
-enter-bank-details.error.rollNumber.length = Mae’n rhaid i rif rôl y gymdeithas adeiladu fod rhwng 1 ac 18 o gymeriadau
+enter-bank-details.error.rollNumber.format = Gall rhif rôl y gymdeithas gynnwys dim ond llythrennau a i z, rhifau a bylchau
+enter-bank-details.error.rollNumber.length = Mae’n rhaid i rif rôl y gymdeithas adeiladu fod rhwng 1 ac 10 o gymeriadau
 
 # BARS
 enter-bank-details.bars.account.number.not.well.formatted = Nodwch gyfuniad dilys ar gyfer y cod didoli a rhif y cyfrif

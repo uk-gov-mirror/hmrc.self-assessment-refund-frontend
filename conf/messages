@@ -71,8 +71,8 @@ enter-bank-details.error.accountNumber.required = Enter an account number
 enter-bank-details.error.accountNumber.length = Account number must be between 6 and 8 digits
 enter-bank-details.error.sortCode.required = Enter a sort code
 enter-bank-details.error.sortCode.invalid = Sort code must be 6 digits
-enter-bank-details.error.rollNumber.format = Building society roll number must only include letters a to z, numbers, hyphens, spaces, forward slashes and full stops
-enter-bank-details.error.rollNumber.length = Building society roll number must be between 1 and 18 characters
+enter-bank-details.error.rollNumber.format = Building society roll number must only include letters a to z, numbers and spaces
+enter-bank-details.error.rollNumber.length = Building society roll number must be between 1 and 10 characters
 
 # BARS
 enter-bank-details.bars.account.number.not.well.formatted = Enter a valid combination of sort code and account number
