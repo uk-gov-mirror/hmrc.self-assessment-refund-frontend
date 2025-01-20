@@ -133,7 +133,7 @@ trait RepaymentConfirmationPageTesting extends PageContentTesting {
       if (isCardOnFile && isAgent) s"Byddwn yn anfon yr ad-daliad i’r cerdyn a ddefnyddiwyd i dalu bil treth Hunanasesiad diwethaf eich cleient. Os na allwn wneud hyn, byddwn yn anfon yr ad-daliad i’r cyfrif banc sy’n gorffen gyda ${bankAccountNumber.takeRight(3)}." else if (isCardOnFile && !isAgent) s"Byddwn yn anfon yr ad-daliad i’r cerdyn a ddefnyddiwyd i dalu’ch bil treth Hunanasesiad diwethaf. Os na allwn wneud hyn, byddwn yn anfon yr ad-daliad i’r cyfrif banc sy’n gorffen gyda ${bankAccountNumber.takeRight(3)}." else s"Byddwn yn anfon yr ad-daliad i’r cyfrif banc sy’n gorffen gyda ${bankAccountNumber.takeRight(3)}.",
       if (isAgent) s"Dylai’r ad-daliad ddod i law eich cleient erbyn $refundByDate. Er mwyn eich diogelu rhag twyll, mae gan CThEF fesurau diogelwch ar waith a allai achosi oedi." else s"Dylai’r ad-daliad ddod i’ch llaw, neu i law eich asiant, erbyn $refundByDate. Er mwyn eich diogelu rhag twyll, mae gan CThEF fesurau diogelwch ar waith a allai achosi oedi.",
       "Gallwch wirio statws eich ad-daliad yn eich cyfrif ar-lein CThEF.",
-      s"Os nad ydych wedi cael eich ad-daliad erbyn 5 Hydref 2024, gallwch gysylltu â ni. Peidiwch â chysylltu â ni cyn y dyddiad hwn, gan na fydd gennym ddiweddariad i’w roi i chi."
+      s"Os nad ydych wedi cael eich ad-daliad erbyn $refundByDate, gallwch gysylltu â ni. Peidiwch â chysylltu â ni cyn y dyddiad hwn, gan na fydd gennym ddiweddariad i’w roi i chi."
     ))
 
     doc.checkHasHyperlink("Argraffu’r dudalen hon", "#")
