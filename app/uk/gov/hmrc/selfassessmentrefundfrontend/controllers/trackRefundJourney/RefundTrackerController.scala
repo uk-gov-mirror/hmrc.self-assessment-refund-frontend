@@ -20,7 +20,7 @@ import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import uk.gov.hmrc.selfassessmentrefundfrontend.config.ErrorHandler
+import uk.gov.hmrc.selfassessmentrefundfrontend.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.action.Actions
 import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney
 import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.RefundTrackerController.viewModel
@@ -37,6 +37,7 @@ import scala.concurrent.ExecutionContext
 class RefundTrackerController @Inject() (
     actions:           Actions,
     mcc:               MessagesControllerComponents,
+    appConfig:         AppConfig,
     refundTrackerPage: RefundTrackerPage,
     repaymentService:  RepaymentsService,
     errorHandler:      ErrorHandler
@@ -48,15 +49,15 @@ class RefundTrackerController @Inject() (
   }
 
   val refundTracker: Action[AnyContent] = actions.authenticatedTrackJourneyAction.async { implicit request =>
+    val creditAndRefundsUrl = if (request.isAgent) appConfig.creditAndRefundsAgentsUrl else appConfig.creditAndRefundsUrl
     repaymentService.repayments(request.journey.nino.getOrElse(sys.error("nino not found"))).map(taxRepayments => {
-      Ok(refundTrackerPage(viewModel(taxRepayments)))
+      Ok(refundTrackerPage(viewModel(taxRepayments), creditAndRefundsUrl))
     }).recoverWith {
       case e: Exception =>
         logger.warn(s"[RefundTrackerController][refundTracker] - Unsuccessful retrieval from the repayments service", e)
         errorHandler.internalServerErrorTemplate.map(InternalServerError(_))
     }
   }
-
 }
 
 object RefundTrackerController {

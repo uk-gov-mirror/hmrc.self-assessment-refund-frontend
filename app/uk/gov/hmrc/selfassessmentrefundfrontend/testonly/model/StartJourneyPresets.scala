@@ -41,6 +41,7 @@ object StartJourneyPresets {
 
     // Successful ViewHistory presets
     ViewHistory("AB111111C"),
-    ViewHistory("AB111111D")
+    ViewHistory("AB111111D"),
+    ViewHistory("AB111111A")
   )
 }

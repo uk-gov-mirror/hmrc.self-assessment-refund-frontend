@@ -18,7 +18,7 @@ package support.stubbing
 
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post, stubFor, urlPathEqualTo}
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import play.api.libs.json.{Json, JsValue}
+import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel}
 
 object AuthStub {
@@ -56,4 +56,8 @@ object AuthStub {
         ))
       case _ => Json.arr()
     }
+
+  def authoriseAgentL50(): StubMapping = authorise(AffinityGroup.Agent, ConfidenceLevel.L50)
+  def authoriseOrganisationL250(): StubMapping = authorise(AffinityGroup.Organisation, ConfidenceLevel.L250)
+  def authoriseIndividualL250(): StubMapping = authorise(AffinityGroup.Individual, ConfidenceLevel.L250)
 }

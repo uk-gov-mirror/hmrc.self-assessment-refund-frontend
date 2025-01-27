@@ -57,7 +57,7 @@ class RepaymentsConnector @Inject() (client: HttpClientV2, config: AppConfig)(im
       .execute[List[Response]]
       .map(_.mapTo[List[TaxRepayment]])
 
-    repaymentsListFuture.map(list => if (list.isEmpty) throw new Exception("unexpected empty list of tax repayments") else list)
+    repaymentsListFuture
   }
 
   def taxPayerRepayment(nino: Nino, number: RequestNumber)(implicit hc: HeaderCarrier): Future[TaxRepayment] = {

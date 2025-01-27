@@ -141,6 +141,10 @@ refund-rejected.message1 = Gwnaethom wrthod eich cais am ad-daliad o {0}.
 refund-rejected.message2a = Os oes gennych gredyd yn eich cyfrif ar-lein, gallwch
 refund-rejected.message2b = roi cynnig arall ar wneud cais am ad-daliad
 
+refund.no-history.message1 = Nid ydych wedi gwneud cais am ad-daliad Hunanasesiad eto.
+refund.no-history.message2a = Os oes gennych gredyd yn eich cyfrif ar-lein, gallwch
+refund.no-history.message2b = wneud cais am ad-daliad
+
 confirmation.reference = Cyfeirnod eich ad-daliad yw
 repaymentConfirmation.tax = Treth
 repaymentConfirmation.selfAssessment = Hunanasesiad

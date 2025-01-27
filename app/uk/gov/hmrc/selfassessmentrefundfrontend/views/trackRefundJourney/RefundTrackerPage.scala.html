@@ -28,7 +28,7 @@ layout: Layout,
 languageUtils:LanguageUtils
 )
 
-@(model: RefundTrackerPageModel)(implicit request: Request[_], messages: Messages)
+@(model: RefundTrackerPageModel, creditAndRefundsUrl: String)(implicit request: Request[_], messages: Messages)
 
 @layout(
     pageTitle = Some(PageTitle(messages("refund-tracker.title"), messages("service.name.track"))),
@@ -36,10 +36,15 @@ languageUtils:LanguageUtils
 ) {
     <h1 class="govuk-heading-l">@messages("refund-tracker.heading")</h1>
 
-    @govukTable(Table(
-        head = Some(RefundTrackerModel.header),
-        rows = model.refundTracker.map(_.asRow(languageUtils)),
-        firstCellIsHeader = true
-    ))
+    @if(model.refundTracker.nonEmpty) {
+        @govukTable(Table(
+            head = Some(RefundTrackerModel.header),
+            rows = model.refundTracker.map(_.asRow(languageUtils)),
+            firstCellIsHeader = true
+        ))
+    } else {
+        <p class="govuk-body">@messages("refund.no-history.message1")</p>
+        <p class="govuk-body">@messages("refund.no-history.message2a") <a class="govuk-link" href=@creditAndRefundsUrl>@messages("refund.no-history.message2b")</a>.</p>
+    }
 
 }

@@ -140,6 +140,10 @@ refund-rejected.message1 = We rejected your request for a refund of {0}.
 refund-rejected.message2a = If you have credit in your online account, you can
 refund-rejected.message2b = try again to request a refund
 
+refund.no-history.message1 = You have not yet requested a Self Assessment refund.
+refund.no-history.message2a = If you have credit in your online account, you can
+refund.no-history.message2b = request a refund
+
 confirmation.reference =  Your refund reference
 repaymentConfirmation.tax = Tax
 repaymentConfirmation.selfAssessment = Self Assessment

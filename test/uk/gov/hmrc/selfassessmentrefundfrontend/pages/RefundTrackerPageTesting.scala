@@ -42,6 +42,27 @@ trait RefundTrackerPageTesting extends PageContentTesting {
       uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.routes.RepaymentStatusController.statusOf(RequestNumber("2")).url
     )
   }
+
+  def checkNoHistoryPageContent(isAgent: Boolean, welsh: Boolean)(doc: Document): Unit = {
+    doc.checkHasBackLinkWithUrl("#")
+
+    if (welsh) {
+      doc.checkHasParagraphs(List("Nid ydych wedi gwneud cais am ad-daliad Hunanasesiad eto.", "Os oes gennych gredyd yn eich cyfrif ar-lein, gallwch wneud cais am ad-daliad."))
+
+      doc.checkHasHyperlink(
+        "wneud cais am ad-daliad",
+        if (isAgent) "http://localhost:9081/report-quarterly/income-and-expenses/view/agents/claim-refund" else "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund"
+      )
+    } else {
+      doc.checkHasParagraphs(List("You have not yet requested a Self Assessment refund.", "If you have credit in your online account, you can request a refund."))
+
+      doc.checkHasHyperlink(
+        "request a refund",
+        if (isAgent) "http://localhost:9081/report-quarterly/income-and-expenses/view/agents/claim-refund" else "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund"
+      )
+    }
+  }
+
   def checkPageContentWelsh(doc: Document): Unit = {
 
     doc.checkHasBackLinkWithUrl("#")

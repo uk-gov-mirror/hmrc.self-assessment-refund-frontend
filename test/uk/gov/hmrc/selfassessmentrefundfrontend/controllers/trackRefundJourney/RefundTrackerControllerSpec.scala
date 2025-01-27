@@ -18,13 +18,15 @@ package uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney
 
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, stubFor, urlEqualTo}
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import org.jsoup.Jsoup
 import play.api.http.Status
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, Cookie, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import support.ItSpec
+import support.stubbing.AuthStub
+import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
+import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector}
 import uk.gov.hmrc.selfassessmentrefundfrontend.TdRepayments
 import uk.gov.hmrc.selfassessmentrefundfrontend.connectors.RepaymentsConnector.Response
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.customer.Nino
@@ -34,6 +36,7 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.testdata.TdSupport.FakeRequestOp
 import scala.concurrent.Future
 
 class RefundTrackerControllerSpec extends ItSpec with TdRepayments with RefundTrackerPageTesting {
+  override def fakeAuthConnector: Option[AuthConnector] = None
 
   private val refundTrackerController = app.injector.instanceOf[RefundTrackerController]
 
@@ -47,7 +50,7 @@ class RefundTrackerControllerSpec extends ItSpec with TdRepayments with RefundTr
       .withSessionId()
       .withCookies(Cookie("PLAY_LANG", "cy"))
 
-    givenTheUserIsAuthorised()
+    AuthStub.authoriseIndividualL250()
     givenRepaymentsExistForNino(nino)
     stubBackendPersonalJourney(Some(nino))
     stubBarsVerifyStatus()
@@ -62,34 +65,67 @@ class RefundTrackerControllerSpec extends ItSpec with TdRepayments with RefundTr
         redirectLocation(result) shouldBe Some("/track-a-self-assessment-refund/refund-request-tracker")
       }
     }
+
     "called on 'refundTracker'" when {
-
+      val authoriseFunctions: Seq[(AffinityGroup, () => StubMapping)] = Seq[(AffinityGroup, () => StubMapping)]((Agent, () => AuthStub.authoriseAgentL50()), (Individual, () => AuthStub.authoriseIndividualL250()), (Organisation, () => AuthStub.authoriseOrganisationL250()))
       "the user does not have a refund history" should {
-        "display an error page page" in {
-          val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/track-a-self-assessment-refund/refund-request-tracker")
-            .withAuthToken()
-            .withSessionId()
+        for ((affinity, authoriseAffinity) <- authoriseFunctions)
+          s"display 'no refund history' content on the page for [${affinity.toString}]" in {
+            authoriseAffinity()
 
-          givenTheUserIsAuthorised()
+            val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/track-a-self-assessment-refund/refund-request-tracker")
+              .withAuthToken()
+              .withSessionId()
 
-          val repaymentsTwo: List[Response] = List()
-          stubFor(get(urlEqualTo(s"/self-assessment-refund-backend/repayments/${nino.value}"))
-            .willReturn(aResponse()
-              .withStatus(200)
-              .withBody(Json.prettyPrint(Json.toJson(repaymentsTwo)))))
-          stubBackendPersonalJourney(Some(nino))
-          stubBarsVerifyStatus()
-          stubBackendBusinessJourney(Some(Nino("AA111111A")))
+            val repaymentsTwo: List[Response] = List()
+            stubFor(get(urlEqualTo(s"/self-assessment-refund-backend/repayments/${nino.value}"))
+              .willReturn(aResponse()
+                .withStatus(200)
+                .withBody(Json.prettyPrint(Json.toJson(repaymentsTwo)))))
+            stubBackendPersonalJourney(Some(nino))
+            stubBarsVerifyStatus()
+            stubBackendBusinessJourney(Some(Nino("AA111111A")))
 
-          val result: Future[Result] = refundTrackerController.refundTracker()(fakeRequest)
+            val result: Future[Result] = refundTrackerController.refundTracker()(fakeRequest)
 
-          val doc = Jsoup.parse(contentAsString(result))
+            result.checkPageIsDisplayed(
+              expectedHeading     = "Refund request tracker",
+              expectedServiceLink = "http://localhost:9171/track-a-self-assessment-refund/refund-request-tracker",
+              contentChecks       = checkNoHistoryPageContent(isAgent = Option(affinity).contains(Agent), welsh = false),
+              expectedStatus      = Status.OK,
+              journey             = "track"
+            )
+          }
 
-          doc.title() shouldBe "Sorry, there is a problem with the service - 500 - GOV.UK"
-          doc.select("h1").text() shouldBe "Sorry, there is a problem with the service"
-          doc.select("body").text should include("Sorry, there is a problem with the service Try again later.")
-        }
+        for ((affinity, authoriseAffinity) <- authoriseFunctions)
+          s"display welsh 'no refund history' content on the page for [${affinity.toString}]" in {
+            authoriseAffinity()
 
+            val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/track-a-self-assessment-refund/refund-request-tracker")
+              .withAuthToken()
+              .withSessionId()
+              .withCookies(Cookie("PLAY_LANG", "cy"))
+
+            val repaymentsTwo: List[Response] = List()
+            stubFor(get(urlEqualTo(s"/self-assessment-refund-backend/repayments/${nino.value}"))
+              .willReturn(aResponse()
+                .withStatus(200)
+                .withBody(Json.prettyPrint(Json.toJson(repaymentsTwo)))))
+            stubBackendPersonalJourney(Some(nino))
+            stubBarsVerifyStatus()
+            stubBackendBusinessJourney(Some(Nino("AA111111A")))
+
+            val result: Future[Result] = refundTrackerController.refundTracker()(fakeRequest)
+
+            result.checkPageIsDisplayed(
+              expectedHeading     = "System olrhain ceisiadau am ad-daliad",
+              expectedServiceLink = "http://localhost:9171/track-a-self-assessment-refund/refund-request-tracker",
+              contentChecks       = checkNoHistoryPageContent(isAgent = Option(affinity).contains(Agent), welsh = true),
+              expectedStatus      = Status.OK,
+              journey             = "track",
+              welsh               = true
+            )
+          }
       }
 
       "the user has a session and a refund history" should {
@@ -120,7 +156,6 @@ class RefundTrackerControllerSpec extends ItSpec with TdRepayments with RefundTr
             welsh               = true
           )
         }
-
       }
 
       "the user does not have a current session" should {
