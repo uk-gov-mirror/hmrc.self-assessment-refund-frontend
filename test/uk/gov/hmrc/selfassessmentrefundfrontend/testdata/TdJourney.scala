@@ -17,9 +17,16 @@
 package uk.gov.hmrc.selfassessmentrefundfrontend.testdata
 
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.journey.JourneyId
+import uk.gov.hmrc.selfassessmentrefundfrontend.model.{BankAccountInfo, SortCode, AccountNumber}
 
 trait TdJourney {
 
   val journeyId: JourneyId = JourneyId("journey-1234")
+
+  val bankAccountInfo: BankAccountInfo = BankAccountInfo(
+    "Jon Smith",
+    SortCode("111111"),
+    AccountNumber("12345678")
+  )
 
 }

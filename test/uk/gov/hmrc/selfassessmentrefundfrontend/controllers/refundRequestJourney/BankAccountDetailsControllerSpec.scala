@@ -19,7 +19,6 @@ package uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourne
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import play.api.http.Status
-import play.api.libs.json.Json
 import play.api.mvc._
 import play.api.test.Helpers.{await, call, defaultAwaitTimeout, redirectLocation, status, writeableOf_AnyContentAsFormUrlEncoded}
 import play.api.test.{FakeRequest, Helpers}
@@ -28,7 +27,6 @@ import support.stubbing.BarsJsonResponses.{ValidateJson, VerifyJson}
 import support.stubbing.BarsStub
 import uk.gov.hmrc.http.{SessionId, SessionKeys, UpstreamErrorResponse}
 import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney
-import uk.gov.hmrc.selfassessmentrefundfrontend.model._
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.customer.Nino
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.journey.JourneyId
 import uk.gov.hmrc.selfassessmentrefundfrontend.pages.BankAccountDetailsPageTesting
@@ -85,7 +83,6 @@ class BankAccountDetailsControllerSpec extends ItSpec with BankAccountDetailsPag
       "a journey id is found" when {
         "the current journey has no cached data" should {
           "return the bank info page" in new RequestWithSessionFixture {
-            givenTheBankAccountIsNotInTheCache(journeyId)
             stubBackendJourneyId()
             stubBackendBusinessJourney()
 
@@ -101,7 +98,6 @@ class BankAccountDetailsControllerSpec extends ItSpec with BankAccountDetailsPag
           }
 
           "return the bank info page in welsh" in new RequestWithSessionFixtureWelsh {
-            givenTheBankAccountIsNotInTheCache(journeyId)
             stubBackendJourneyId()
             stubBackendBusinessJourney()
 
@@ -120,7 +116,6 @@ class BankAccountDetailsControllerSpec extends ItSpec with BankAccountDetailsPag
 
         "the current journey has cached data" should {
           "return the bank info page" in new RequestWithSessionFixture {
-            givenTheBankAccountIsInTheCache(journeyId)
             stubBackendJourneyId()
             stubBackendBusinessJourney()
 
@@ -160,7 +155,6 @@ class BankAccountDetailsControllerSpec extends ItSpec with BankAccountDetailsPag
 
           givenTheBusinessAccountIsValid
           stubPOSTJourney()
-          givenTheCacheUpdateSucceeds(journeyId)
           val action: Action[AnyContent] = controller.postAccountDetails()
           val response: Future[Result] = call(action, request, request.body)
 
@@ -172,7 +166,6 @@ class BankAccountDetailsControllerSpec extends ItSpec with BankAccountDetailsPag
 
           givenThePersonalAccountIsValid
           stubPOSTJourney()
-          givenTheCacheUpdateSucceeds(journeyId)
           val action: Action[AnyContent] = controller.postAccountDetails()
           val response: Future[Result] = call(action, request, request.body)
 
@@ -356,8 +349,6 @@ class BankAccountDetailsControllerSpec extends ItSpec with BankAccountDetailsPag
 
       "redirect to 'bars lockout' page if BARS verify fails a third time and locks out" in new JourneyFixture {
         stubBackendBusinessJourney(Some(nino))
-        stubBackendAccountType()
-        stubBackendAccountTypeWithNino()
 
         BarsStub.ValidateStub.success()
         BarsStub.VerifyBusinessStub.stubForPostWith(VerifyJson.accountDoesNotExist)
@@ -421,17 +412,6 @@ class BankAccountDetailsControllerSpec extends ItSpec with BankAccountDetailsPag
 
   }
 
-  def givenTheBankAccountIsNotInTheCache(journeyId: JourneyId): StubMapping = stubFor(get(urlEqualTo(s"/self-assessment-refund-backend/bank-account/account-info/${journeyId.value}"))
-    .willReturn(aResponse()
-      .withStatus(404)))
-
-  def givenTheBankAccountIsInTheCache(journeyId: JourneyId): StubMapping = stubFor(get(urlEqualTo(s"/self-assessment-refund-backend/bank-account/account-info/${journeyId.value}"))
-    .willReturn(aResponse()
-      .withStatus(200).withBody(Json.prettyPrint(Json.toJson(BankAccountInfo("D Jones", SortCode("sort-code"), AccountNumber("account-number")))))))
-
-  def givenTheCacheUpdateSucceeds(journeyId: JourneyId): StubMapping = stubFor(put(urlEqualTo(s"/self-assessment-refund-backend/bank-account/account-info/${journeyId.value}"))
-    .willReturn(aResponse.withStatus(200)))
-
   def givenTheBusinessAccountIsValid: StubMapping = {
     BarsStub.ValidateStub.success()
     BarsStub.VerifyBusinessStub.success()
@@ -452,10 +432,5 @@ class BankAccountDetailsControllerSpec extends ItSpec with BankAccountDetailsPag
       .willReturn(aResponse()
         .withStatus(200)))
   }
-
-  def givenTheNinoIsInTheCache(journeyId: JourneyId, nino: Nino): StubMapping =
-    stubFor(get(urlEqualTo(s"/self-assessment-refund-backend/bank-account/account-info/${journeyId.value}/nino"))
-      .willReturn(aResponse()
-        .withStatus(200).withBody(Json.prettyPrint(Json.toJson(nino)))))
 
 }

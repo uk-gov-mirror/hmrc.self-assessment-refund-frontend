@@ -32,7 +32,7 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.audit.model.AuditFlags
 import uk.gov.hmrc.selfassessmentrefundfrontend.connectors.barsLockout.model.{BarsVerifyStatusResponse, NumberOfBarsVerifyAttempts}
 import uk.gov.hmrc.selfassessmentrefundfrontend.model._
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.customer.Nino
-import uk.gov.hmrc.selfassessmentrefundfrontend.model.journey.{Journey, JourneyId, JourneyType, JourneyTypes}
+import uk.gov.hmrc.selfassessmentrefundfrontend.model.journey.{Journey, JourneyType, JourneyTypes}
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.repayment.{RepaymentCreatedResponse, RequestNumber}
 import uk.gov.hmrc.selfassessmentrefundfrontend.testdata.TdAll._
 import uk.gov.hmrc.selfassessmentrefundfrontend.testdata.TdBars
@@ -107,11 +107,7 @@ trait WireMockSupport extends BeforeAndAfterAll with BeforeAndAfterEach {
           None,
           method,
           Some(AccountType("Business")),
-          Some(BankAccountInfo(
-            "Jon Smith",
-            SortCode("111111"),
-            AccountNumber("12345678")
-          )),
+          Some(bankAccountInfo),
           None,
           hasStartedReauth,
           repaymentResponse,
@@ -142,18 +138,6 @@ trait WireMockSupport extends BeforeAndAfterAll with BeforeAndAfterEach {
           Some(RepaymentResponse(OffsetDateTime.parse("2023-12-01T17:35:30+01:00"), RequestNumber("1234567890"))),
           None
         )).toString)))
-
-  def stubBackendAccountType(journeyId: JourneyId = journeyId): StubMapping =
-    stubFor(get(urlEqualTo(s"/self-assessment-refund-backend/bank-account/account-type/${journeyId.value}"))
-      .willReturn(aResponse()
-        .withStatus(OK)
-        .withBody(Json.toJson(AccountType("Business")).toString)))
-
-  def stubBackendAccountTypeWithNino(journeyId: JourneyId = journeyId, nino: Nino = Nino("nino")): StubMapping =
-    stubFor(get(urlEqualTo(s"/self-assessment-refund-backend/bank-account/account-type/${journeyId.value}/${nino.value}"))
-      .willReturn(aResponse()
-        .withStatus(OK)
-        .withBody(Json.toJson(AccountType("Business")).toString)))
 
   def stubBarsVerifyStatus(lockedOut: Boolean = false): StubMapping = {
     val barsVerifyStatusResponse = {

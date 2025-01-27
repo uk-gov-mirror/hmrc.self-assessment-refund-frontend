@@ -52,14 +52,16 @@ class AccountTypeController @Inject() (
       val isResponseTheSame: Boolean = request.journey.accountType.contains(formAccountType)
       val isFromCyaPage = request.session.get("self-assessment-refund.changing-account-from-cya-page").contains("redirectToCYA")
 
-      val call = if (isResponseTheSame && isFromCyaPage) {
-        refundRequestJourney.routes.CheckYourAnswersPageController.start
+      val (call: Call, bankAccountInfo: Option[BankAccountInfo]) = if (isResponseTheSame && isFromCyaPage) {
+        (refundRequestJourney.routes.CheckYourAnswersPageController.start, request.journey.bankAccountInfo)
       } else {
-        refundRequestJourney.routes.BankAccountDetailsController.getAccountDetails
+        (refundRequestJourney.routes.BankAccountDetailsController.getAccountDetails, None)
       }
 
-      journeyConnector.setJourney(request.journey.id, request.journey.copy(accountType = Some(formAccountType)))
-        .map { _ =>
+      journeyConnector.setJourney(
+        request.journey.id,
+        request.journey.copy(accountType     = Some(formAccountType), bankAccountInfo = bankAccountInfo)
+      ).map { _ =>
           Redirect(call).removingFromSession("self-assessment-refund.changing-account-from-cya-page")
         }
 
