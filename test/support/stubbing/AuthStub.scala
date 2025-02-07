@@ -45,7 +45,8 @@ object AuthStub {
   def allEnrolments(affinityGroup: AffinityGroup, confidenceLevel: ConfidenceLevel): JsValue =
     affinityGroup match {
       case AffinityGroup.Agent =>
-        Json.arr(Json.obj(
+        Json.arr(
+          Json.obj(
           "key" -> "HMRC-MTD-IT",
           "identifiers" -> Json.arr(Json.obj(
             "key" -> "MTDITID",
@@ -53,7 +54,17 @@ object AuthStub {
           )),
           "state" -> "Activated",
           "confidenceLevel" -> confidenceLevel.level
-        ))
+        ),
+          Json.obj(
+            "key" -> "HMRC-AS-AGENT",
+            "identifiers" -> Json.arr(Json.obj(
+              "key" -> "AgentReferenceNumber",
+              "value" -> "AARN1234567"
+            )),
+            "state" -> "Activated",
+            "confidenceLevel" -> confidenceLevel.level
+          )
+        )
       case _ => Json.arr()
     }
 

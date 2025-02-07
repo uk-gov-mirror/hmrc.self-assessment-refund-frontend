@@ -52,6 +52,7 @@ class RepaymentsService @Inject() (
               Some(taxRepayments),
               Some(request.affinityGroup),
               request.journey.nino,
+              request.agentReferenceNumber,
               request.journey.journeyType
             )
 

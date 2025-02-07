@@ -19,7 +19,7 @@ package uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourne
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.libs.json.{JsObject, JsString}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -30,8 +30,8 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.journey.Journey
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.repayment.{RepaymentCreatedResponse, RequestNumber}
 import uk.gov.hmrc.selfassessmentrefundfrontend.views.html.refundrequestjourney.YouNeedToSignInAgainPage
-import javax.inject.{Inject, Singleton}
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -73,19 +73,19 @@ class YouNeedToSignInAgainController @Inject() (
           updatedJourney <- journeyConnector.findLatestBySessionId()
         } yield (createRepaymentResponse, updatedJourney)).map {
           case (Right(RepaymentCreatedResponse(number, maybeNrsSubmissionId)), journey) =>
-            auditAndRedirect(Some(number), journey, maybeNrsSubmissionId, Some(request.affinityGroup.toString))
+            auditAndRedirect(Some(number), journey, maybeNrsSubmissionId, Some(request.affinityGroup.toString), request.agentReferenceNumber)
           case (Left(upstreamError), journey) =>
             logger.warn(s"Failed to create repayment. Error: ${upstreamError.getMessage}")
-            auditAndRedirect(None, journey, None, Some(request.affinityGroup.toString))
+            auditAndRedirect(None, journey, None, Some(request.affinityGroup.toString), request.agentReferenceNumber)
         } recover {
           case e =>
             //create repayment already handles its upstream errors and so this recover should only trigger for the journey connector
             logger.warn(s"[YouNeedToSignInAgainController][reauthSuccessful] Failed to retrieve journey. Error: ${e.getMessage}")
-            auditAndRedirect(None, journey, None, Some(request.affinityGroup.toString))
+            auditAndRedirect(None, journey, None, Some(request.affinityGroup.toString), request.agentReferenceNumber)
         }
       case _ =>
         logger.warn(s"[YouNeedToSignInAgainController][reauthSuccessful] Reauth callback endpoint called when hasStartedReauth=${hasStartedReauth.toString}")
-        Future.successful(auditAndRedirect(None, journey, None, Some(request.affinityGroup.toString)))
+        Future.successful(auditAndRedirect(None, journey, None, Some(request.affinityGroup.toString), request.agentReferenceNumber))
     }
   }
 
@@ -93,14 +93,15 @@ class YouNeedToSignInAgainController @Inject() (
       requestNumber:    Option[RequestNumber],
       journey:          Journey,
       optSubmissionId:  Option[String],
-      optAffinityGroup: Option[String]
-  )(implicit hc: HeaderCarrier) = {
+      optAffinityGroup: Option[String],
+      optArn:           Option[String]
+  )(implicit hc: HeaderCarrier): Result = {
     requestNumber match {
       case Some(number) =>
-        auditService.auditRefundRequestEvent(journey, optSubmissionId, optAffinityGroup)
+        auditService.auditRefundRequestEvent(journey, optSubmissionId, optAffinityGroup, optArn)
         Redirect(refundRequestJourney.routes.RepaymentConfirmationController.confirmation(number))
       case None =>
-        auditService.auditRefundRequestEvent(journey, None, optAffinityGroup)
+        auditService.auditRefundRequestEvent(journey, None, optAffinityGroup, optArn)
         Redirect(refundRequestJourney.routes.YourRefundRequestNotSubmittedController.show)
     }
   }

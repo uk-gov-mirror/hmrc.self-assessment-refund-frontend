@@ -46,9 +46,10 @@ class AuditService @Inject() (auditConnector: AuditConnector)(implicit ec: Execu
       verifyStatusResponse: BarsVerifyStatusResponse,
       maybeAccountType:     Option[AccountType],
       affinityGroup:        Option[AffinityGroup],
-      maybeNino:            Option[Nino]
+      maybeNino:            Option[Nino],
+      maybeArn:             Option[String]
   )(implicit request: Request[_]): Unit = {
-    val event = DataEventFactory.barsCheckEvent(bankDetails, result, verifyStatusResponse, maybeAccountType, affinityGroup, maybeNino)
+    val event = DataEventFactory.barsCheckEvent(bankDetails, result, verifyStatusResponse, maybeAccountType, affinityGroup, maybeNino, maybeArn)
 
     sendExtendedEvent(event)
   }
@@ -56,7 +57,8 @@ class AuditService @Inject() (auditConnector: AuditConnector)(implicit ec: Execu
   def auditRefundRequestEvent(
       journey:         Journey,
       nrsSubmissionId: Option[String],
-      affinityGroup:   Option[String]
+      affinityGroup:   Option[String],
+      maybeArn:        Option[String]
   )(implicit hc: HeaderCarrier): Unit = {
     try {
       val amountAvailableBD = journey.amount.map(_.availableCredit.getOrElse(BigDecimal("0"))).getOrElse(BigDecimal("0")).setScale(2)
@@ -66,6 +68,7 @@ class AuditService @Inject() (auditConnector: AuditConnector)(implicit ec: Execu
       val repaymentRequestAuditItem = RepaymentRequestAuditItem(
         etmpResult             = journey.repaymentConfirmation.fold("Fail")(_ => "Success"),
         userType               = affinityGroup.getOrElse("MissingAffinityGroup"),
+        agentReferenceNumber   = maybeArn,
         amountAvailable        = amountAvailableBD.toString(),
         balanceDueWithin30Days = balanceDueBD.toString(),
         amountChosen           = amountChosenBD.toString(),
@@ -93,10 +96,11 @@ class AuditService @Inject() (auditConnector: AuditConnector)(implicit ec: Execu
       taxRepayments: Option[List[TaxRepayment]],
       affinityGroup: Option[AffinityGroup],
       maybeNino:     Option[Nino],
+      maybeArn:      Option[String],
       journeyType:   JourneyType,
       failureReason: Option[String]             = None
   )(implicit request: Request[_]): Unit = {
-    val event = DataEventFactory.viewRefundStatusEvent(taxRepayments, affinityGroup, maybeNino, journeyType, failureReason)
+    val event = DataEventFactory.viewRefundStatusEvent(taxRepayments, affinityGroup, maybeNino, maybeArn, journeyType, failureReason)
 
     sendExtendedEvent(event)
   }
@@ -107,9 +111,10 @@ class AuditService @Inject() (auditConnector: AuditConnector)(implicit ec: Execu
       amountChosen:           Option[BigDecimal],
       affinityGroup:          Option[AffinityGroup],
       maybeNino:              Option[Nino],
+      maybeArn:               Option[String],
       failureReason:          Option[String]        = None
   )(implicit request: Request[_]): Unit = {
-    val event = DataEventFactory.startClaimJourneyEvent(balanceDueWithin30Days, amountAvailable, amountChosen, affinityGroup, maybeNino, failureReason)
+    val event = DataEventFactory.startClaimJourneyEvent(balanceDueWithin30Days, amountAvailable, amountChosen, affinityGroup, maybeNino, maybeArn, failureReason)
 
     sendExtendedEvent(event)
   }

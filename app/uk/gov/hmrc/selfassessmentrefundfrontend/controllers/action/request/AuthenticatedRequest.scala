@@ -23,10 +23,11 @@ import uk.gov.hmrc.http.SessionId
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.journey.Journey
 
 class AuthenticatedRequest[A](
-    override val request:   PreAuthRequest[A],
-    override val journey:   Journey,
-    override val sessionId: SessionId,
-    val affinityGroup:      AffinityGroup
+    override val request:     PreAuthRequest[A],
+    override val journey:     Journey,
+    override val sessionId:   SessionId,
+    val affinityGroup:        AffinityGroup,
+    val agentReferenceNumber: Option[String]
 ) extends PreAuthRequest[A](request, journey, sessionId) {
   val isAgent: Boolean = affinityGroup match {
     case Agent                     => true

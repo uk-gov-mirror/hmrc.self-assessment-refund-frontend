@@ -25,5 +25,5 @@ class BarsVerifiedRequest[A](
     override val journey:           Journey,
     override val sessionId:         SessionId,
     val numberOfBarsVerifyAttempts: NumberOfBarsVerifyAttempts = NumberOfBarsVerifyAttempts.zero
-) extends AuthenticatedRequest[A](request, journey, sessionId, request.affinityGroup)
+) extends AuthenticatedRequest[A](request, journey, sessionId, request.affinityGroup, request.agentReferenceNumber)
 

@@ -40,14 +40,16 @@ object DataEventFactory {
       verifyStatusResponse: BarsVerifyStatusResponse,
       maybeAccountType:     Option[AccountType],
       affinityGroup:        Option[AffinityGroup],
-      maybeNino:            Option[Nino]
+      maybeNino:            Option[Nino],
+      maybeArn:             Option[String]
   )(implicit request: Request[_]): ExtendedDataEvent = {
 
     val detail = BarsCheckAuditDetail(
       maybeNino.fold("")(_.value),
       auditUserEnteredDetails(bankDetails, maybeAccountType),
       auditBarsOutcome(barsResponse, verifyStatusResponse),
-      affinityGroup
+      affinityGroup,
+      maybeArn
     )
 
     makeExtendedDataEvent(
@@ -61,21 +63,23 @@ object DataEventFactory {
       maybeTaxRepayments: Option[List[TaxRepayment]],
       affinityGroup:      Option[AffinityGroup],
       maybeNino:          Option[Nino],
+      maybeArn:           Option[String],
       journeyType:        JourneyType,
       failureReason:      Option[String]
   )(implicit request: Request[_]): ExtendedDataEvent = {
 
     val detail = ViewRefundStatusAuditDetail(
-      outcome  = AuditOutcome.fromFailureReason(failureReason),
-      origin   = journeyType match {
+      outcome              = AuditOutcome.fromFailureReason(failureReason),
+      origin               = journeyType match {
         case JourneyTypes.TrackJourney =>
           "view and change"
         case JourneyTypes.RefundJourney =>
           "claim journey"
       },
-      nino     = maybeNino,
-      userType = affinityGroup,
-      refunds  = maybeTaxRepayments.fold[List[RefundAuditDetail]](List.empty) { taxRepayments =>
+      nino                 = maybeNino,
+      userType             = affinityGroup,
+      agentReferenceNumber = maybeArn,
+      refunds              = maybeTaxRepayments.fold[List[RefundAuditDetail]](List.empty) { taxRepayments =>
         RefundAuditDetail.fromTaxRepayment(taxRepayments)
       }
     )
@@ -93,6 +97,7 @@ object DataEventFactory {
       amountChosen:           Option[BigDecimal],
       affinityGroup:          Option[AffinityGroup],
       maybeNino:              Option[Nino],
+      maybeArn:               Option[String],
       failureReason:          Option[String]
   )(implicit request: Request[_]): ExtendedDataEvent = {
     val detail = RefundAmountAuditDetail(
@@ -101,6 +106,7 @@ object DataEventFactory {
       amountAvailable        = amountAvailable,
       amountChosen           = amountChosen,
       nino                   = maybeNino,
+      agentReferenceNumber   = maybeArn,
       userType               = affinityGroup
     )
 

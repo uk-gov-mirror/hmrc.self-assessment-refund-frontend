@@ -76,6 +76,7 @@ class SelectRepaymentAmountController @Inject() (
                 amountChosen           = None,
                 affinityGroup          = Some(request.affinityGroup),
                 maybeNino              = journey.nino,
+                maybeArn               = request.agentReferenceNumber,
                 failureReason          = Some("availableCredit does not match the value sent from view and change")
               )
               logAndReturnErrorPage(method = "selectAmount", s"[SelectRepaymentAmountController][selectAmount] Amounts from V&C and API#1553 are not the same, '${fullFromVC.map(_.toString()).getOrElse("missing")}' does not match '${availableCredit.toString}'")
@@ -87,6 +88,7 @@ class SelectRepaymentAmountController @Inject() (
               amountChosen           = None,
               affinityGroup          = Some(request.affinityGroup),
               maybeNino              = journey.nino,
+              maybeArn               = request.agentReferenceNumber,
               failureReason          = Some("Amount object in journey missing required attributes")
             )
             logAndReturnErrorPage(method = "selectAmount")
@@ -98,6 +100,7 @@ class SelectRepaymentAmountController @Inject() (
           amountChosen           = None,
           affinityGroup          = Some(request.affinityGroup),
           maybeNino              = journey.nino,
+          maybeArn               = request.agentReferenceNumber,
           failureReason          = Some("Amount object in journey is None")
         )
         logAndReturnErrorPage(method = "selectAmount")
@@ -120,7 +123,8 @@ class SelectRepaymentAmountController @Inject() (
                   amountAvailable        = Some(availableCredit),
                   amountChosen           = amountChosen,
                   affinityGroup          = Some(request.affinityGroup),
-                  maybeNino              = journey.nino
+                  maybeNino              = journey.nino,
+                  maybeArn               = request.agentReferenceNumber
                 )
               }
 

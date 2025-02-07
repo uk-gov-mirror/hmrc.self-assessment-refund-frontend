@@ -51,10 +51,15 @@ class ItsaBarsService @Inject() (
         typeOfBankAccount = toBarsTypeOfBankAccount(typeOfAccount)
       ).flatMap { result =>
             def auditBars(barsVerifyStatusResponse: BarsVerifyStatusResponse): Unit = {
-              val journey = request.journey
-              val maybeAccountType = journey.accountType
-              val maybeNino = journey.nino
-              auditService.auditBarsCheck(bankAccountDetails, result, barsVerifyStatusResponse, maybeAccountType, Some(request.affinityGroup), maybeNino)
+              auditService.auditBarsCheck(
+                bankAccountDetails,
+                result,
+                barsVerifyStatusResponse,
+                request.journey.accountType,
+                Some(request.affinityGroup),
+                request.journey.nino,
+                request.agentReferenceNumber
+              )
             }
 
           result match {
@@ -70,7 +75,6 @@ class ItsaBarsService @Inject() (
             case result @ Left(bve: BarsVerifyError) =>
               updateVerifyStatus(result, bve.barsResponse, auditBars)
           }
-
         }
 
     resp

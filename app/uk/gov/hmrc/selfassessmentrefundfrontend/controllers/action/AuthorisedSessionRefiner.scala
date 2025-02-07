@@ -46,20 +46,21 @@ class AuthorisedSessionRefiner @Inject() (
     implicit val r: Request[A] = request.request
 
     authorised(AuthorisedSessionRefiner.defaultAuthPredicate(request.journey.nino, request.journey.mtdItId))
-      .retrieve(Retrievals.affinityGroup and Retrievals.confidenceLevel) {
-        case affinityGroup ~ confidenceLevel =>
+      .retrieve(Retrievals.affinityGroup and Retrievals.confidenceLevel and Retrievals.allEnrolments) {
+        case affinityGroup ~ confidenceLevel ~ enrolments =>
           affinityGroup match {
             case Some(AffinityGroup.Agent) =>
-              authenticate(request, affinityGroup)
+              val maybeArn = enrolments.getEnrolment("HMRC-AS-AGENT").flatMap(_.getIdentifier("AgentReferenceNumber").map(_.value))
+              authenticate(request, affinityGroup, maybeArn)
             case Some(AffinityGroup.Individual) if confidenceLevel.level < 250 =>
-              sendFailureAuditEvent(request.journey.journeyType, request.journey.nino, Some(AffinityGroup.Individual), "low confidence level")
+              sendFailureAuditEvent(request.journey.journeyType, request.journey.nino, Some(AffinityGroup.Individual), None, "low confidence level")
               ivUpliftConnector.performUplift(request, "Individual").map(Left(_))
             case Some(AffinityGroup.Organisation) if confidenceLevel.level < 250 =>
-              sendFailureAuditEvent(request.journey.journeyType, request.journey.nino, Some(AffinityGroup.Organisation), "low confidence level")
+              sendFailureAuditEvent(request.journey.journeyType, request.journey.nino, Some(AffinityGroup.Organisation), None, "low confidence level")
               ivUpliftConnector.performUplift(request, "Organisation").map(Left(_))
             case Some(AffinityGroup.Individual) | Some(AffinityGroup.Organisation) =>
               sendIVOutcomeEvent(request.journey.nino, affinityGroup) //this will be triggered if IV journeyId is present in URL
-              authenticate(request, affinityGroup)
+              authenticate(request, affinityGroup, None)
             case None => sys.error("No Affinity group found")
             case _    => throw UnsupportedAffinityGroup("Affinity group not expected")
           }
@@ -70,23 +71,24 @@ class AuthorisedSessionRefiner @Inject() (
       }
   }
 
-  private def authenticate[A](request: PreAuthRequest[A], affinityGroup: Option[AffinityGroup]) = {
+  private def authenticate[A](request: PreAuthRequest[A], affinityGroup: Option[AffinityGroup], arn: Option[String]) = {
     Future.successful(Right(new AuthenticatedRequest(
-      request       = request,
-      journey       = request.journey,
-      sessionId     = request.sessionId,
-      affinityGroup = affinityGroup.getOrElse(sys.error("AffinityGroup should never be None for this case"))
+      request              = request,
+      journey              = request.journey,
+      sessionId            = request.sessionId,
+      affinityGroup        = affinityGroup.getOrElse(sys.error("AffinityGroup should never be None for this case")),
+      agentReferenceNumber = arn
     )))
   }
 
   override protected def executionContext: ExecutionContext = ec
 
-  private def sendFailureAuditEvent(journeyType: JourneyType, maybeNino: Option[customer.Nino], affinityGroup: Option[AffinityGroup] = None, errorMessage: String)(implicit request: Request[_]): Unit = {
+  private def sendFailureAuditEvent(journeyType: JourneyType, maybeNino: Option[customer.Nino], affinityGroup: Option[AffinityGroup] = None, maybeArn: Option[String] = None, errorMessage: String)(implicit request: Request[_]): Unit = {
     journeyType match {
       case JourneyTypes.RefundJourney =>
-        auditService.auditRefundAmount(None, None, None, affinityGroup, maybeNino, Some(errorMessage))
+        auditService.auditRefundAmount(None, None, None, affinityGroup, maybeNino, maybeArn, Some(errorMessage))
       case JourneyTypes.TrackJourney =>
-        auditService.auditViewRefundStatus(None, affinityGroup, maybeNino, TrackJourney, failureReason = Some(errorMessage))
+        auditService.auditViewRefundStatus(None, affinityGroup, maybeNino, maybeArn, TrackJourney, failureReason = Some(errorMessage))
     }
   }
 

@@ -2,7 +2,7 @@ import sbt.*
 
 object AppDependencies {
 
-  val bootstrapVersion = "9.7.0"
+  val bootstrapVersion = "9.8.0"
 
   val compile: Seq[ModuleID] = Seq(
     // format: OFF
@@ -19,7 +19,7 @@ object AppDependencies {
     // format: OFF
     "uk.gov.hmrc"                  %% "bootstrap-test-play-30" % bootstrapVersion,
     "org.scalatestplus"            %% "mockito-3-2"            % "3.1.2.0",
-    "org.wiremock"                  % "wiremock-standalone"    % "3.10.0",
+    "org.wiremock"                  % "wiremock-standalone"    % "3.11.0",
     "org.jsoup"                     % "jsoup"                  % "1.18.3",
     "org.scalatestplus.play"       %% "scalatestplus-play"     % "7.0.1",
     "com.fasterxml.jackson.module" %% "jackson-module-scala"   % "2.13.5"

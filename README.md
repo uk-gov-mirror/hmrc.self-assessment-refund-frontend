@@ -73,11 +73,13 @@ After selecting a value from the "Ssarj: Start Self Assessment Refund Journey" p
 
 Use the following table to assign the required values:
 
-| Affinity Group | Confidence Level | National Insurance Number (NINO)                                          | Enrolments                                                                                                                          |
-|----------------|------------------|---------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| Individual     | 250 (minimum)    | For Refund journey: AB200111C - Required, must match value on Ssarj page  | -                                                                                                                                   |
-| Individual     | 250 (minimum)    | For Tracker journey: AB111111C - Required, must match value on Ssarj page | -                                                                                                                                   |
-| Agent          | 50 (minimum)     | -                                                                         | `HMRC-MTD-IT` delegated enrolment with a key of `MTDITID`, a value of `FJWF01635669298`, and a delegated auth rule of `mtd-it-auth` |
+| Affinity Group | Confidence Level | National Insurance Number (NINO)                                          | Enrolments                                                                                                                                                                                    |
+|----------------|------------------|---------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Individual     | 250 (minimum)    | For Refund journey: AB200111C - Required, must match value on Ssarj page  | -                                                                                                                                                                                             |
+| Individual     | 250 (minimum)    | For Tracker journey: AB111111C - Required, must match value on Ssarj page | -                                                                                                                                                                                             |
+| Agent          | 50 (minimum)     | -                                                                         | `HMRC-MTD-IT` delegated enrolment with a key of `MTDITID`, a value of `FJWF01635669298`, and a delegated auth rule of `mtd-it-auth`                                                           |
+
+Fo Agent additionally to above, the `HMRC-AS-AGENT` normal enrolment with a key of `AgentReferenceNumber`, any value i.e. `AARN1234567` can be given. Not all agents have this, so it is optional and used only in audits.
 
 More details of test data are available in the [self-assessment-refund-stubs README](https://github.com/hmrc/self-assessment-refund-stubs/blob/main/README.md).
 

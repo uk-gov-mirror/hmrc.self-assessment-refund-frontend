@@ -48,6 +48,7 @@ class BarsLockoutActionRefiner @Inject() (
                 amountChosen           = amount.flatMap(_.repayment),
                 affinityGroup          = Some(request.affinityGroup),
                 maybeNino              = request.journey.nino,
+                maybeArn               = request.agentReferenceNumber,
                 failureReason          = Some("bars lockout")
               )
 

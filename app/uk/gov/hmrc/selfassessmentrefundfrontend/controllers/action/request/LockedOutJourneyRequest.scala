@@ -30,4 +30,4 @@ class LockedOutJourneyRequest[A](
     val barsLockoutExpiryTime:      Instant,
     val numberOfBarsVerifyAttempts: NumberOfBarsVerifyAttempts,
     val returnUrl:                  Option[ReturnUrl]
-) extends AuthenticatedRequest[A](request, journey, sessionId, request.affinityGroup)
+) extends AuthenticatedRequest[A](request, journey, sessionId, request.affinityGroup, request.agentReferenceNumber)

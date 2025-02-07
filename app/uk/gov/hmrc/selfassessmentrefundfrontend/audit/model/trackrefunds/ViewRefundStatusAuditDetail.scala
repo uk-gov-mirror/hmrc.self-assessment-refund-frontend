@@ -22,11 +22,12 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.audit.model.AuditOutcome
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.customer.Nino
 
 final case class ViewRefundStatusAuditDetail(
-    outcome:  AuditOutcome,
-    origin:   String,
-    nino:     Option[Nino],
-    userType: Option[AffinityGroup],
-    refunds:  List[RefundAuditDetail]
+    outcome:              AuditOutcome,
+    origin:               String,
+    nino:                 Option[Nino],
+    userType:             Option[AffinityGroup],
+    agentReferenceNumber: Option[String],
+    refunds:              List[RefundAuditDetail]
 )
 
 object ViewRefundStatusAuditDetail {

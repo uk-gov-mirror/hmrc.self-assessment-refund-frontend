@@ -111,7 +111,8 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
         ),
         Some(AccountType("personal")),
         Some(AffinityGroup.Individual),
-        Some(Nino("AA111111A"))
+        Some(Nino("AA111111A")),
+        None
       )(request)
     }
     "result is a verify response with 3 unsuccessfulAttempts" in {
@@ -141,7 +142,8 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
            |      "iban": "GB59 HBUK 1234 5678"
            |    }
            |  },
-           |  "userType": "Agent"
+           |  "userType": "Agent",
+           |  "agentReferenceNumber":"AARN1234567"
            |}""".stripMargin
       ).as[JsValue]
 
@@ -156,7 +158,8 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
         ),
         Some(AccountType("personal")),
         Some(AffinityGroup.Agent),
-        Some(Nino("AA111111A"))
+        Some(Nino("AA111111A")),
+        Some("AARN1234567")
       )(request)
     }
     "result is a bars error" when {
@@ -196,7 +199,8 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
           ),
           Some(AccountType("personal")),
           Some(AffinityGroup.Individual),
-          Some(Nino("AA111111A"))
+          Some(Nino("AA111111A")),
+          None
         )(request)
 
       }
@@ -239,7 +243,8 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
           ),
           Some(AccountType("personal")),
           Some(AffinityGroup.Individual),
-          Some(Nino("AA111111A"))
+          Some(Nino("AA111111A")),
+          None
         )(request)
 
       }
@@ -277,7 +282,8 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
           ),
           Some(AccountType("personal")),
           Some(AffinityGroup.Individual),
-          Some(Nino("AA111111A"))
+          Some(Nino("AA111111A")),
+          None
         )(request)
       }
     }
@@ -308,12 +314,11 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
     val longTimeout: Timeout = Timeout(scaled(Span(10, Seconds)))
     val hc: HeaderCarrier = HeaderCarrier()
 
-    for (affinityGroup <- Seq[AffinityGroup](Individual, Agent, Organisation))
+    for ((affinityGroup, optArn) <- Seq[(AffinityGroup, Option[String])]((Individual, None), (Agent, Some("AARN1234567")), (Organisation, None)))
       s"called with an existing journeyId as ${affinityGroup.toString}" should {
         "create an audit event (generate and send audit item)" when {
           "when the ETMP call has failed" should {
             "mark etmpResult as 'Fail'" in new Setup(affinityGroup) {
-
               val journey: Journey = Journey(
                 Some("sessionId"),
                 JourneyId("1234"),
@@ -330,7 +335,7 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
                 None,
                 testReturnUrl
               )
-              auditService.auditRefundRequestEvent(journey, None, Some(affinityGroup.toString))(hc)
+              auditService.auditRefundRequestEvent(journey, None, Some(affinityGroup.toString), optArn)(hc)
 
               eventually(longTimeout) {
                 AuditStub.verifyEventAudited(
@@ -378,7 +383,7 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
                 testReturnUrl
               )
 
-              auditService.auditRefundRequestEvent(journey, Some(nrsSubmissionId), Some(affinityGroup.toString))(hc)
+              auditService.auditRefundRequestEvent(journey, Some(nrsSubmissionId), Some(affinityGroup.toString), optArn)(hc)
 
               eventually(longTimeout) {
                 AuditStub.verifyEventAudited(
@@ -501,7 +506,8 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
           )),
           affinityGroup = Some(AffinityGroup.Individual),
           maybeNino     = Some(Nino("AA111111A")),
-          journeyType   = JourneyTypes.TrackJourney
+          journeyType   = JourneyTypes.TrackJourney,
+          maybeArn      = None
         )(request)
       }
 
@@ -513,6 +519,7 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
              |  },
              |  "origin": "claim journey",
              |  "nino": "AA111111A",
+             |  "agentReferenceNumber":"AARN1234567",
              |  "userType": "Agent",
              |  "refunds": [
              |    {
@@ -544,7 +551,8 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
           )),
           affinityGroup = Some(AffinityGroup.Agent),
           maybeNino     = Some(Nino("AA111111A")),
-          journeyType   = JourneyTypes.RefundJourney
+          journeyType   = JourneyTypes.RefundJourney,
+          maybeArn      = Some("AARN1234567")
         )(request)
       }
     }
@@ -569,6 +577,7 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
         taxRepayments = None,
         affinityGroup = Some(AffinityGroup.Individual),
         maybeNino     = Some(Nino("AA111111A")),
+        maybeArn      = None,
         journeyType   = JourneyTypes.TrackJourney,
         failureReason = Some("low confidence level")
       )(request)
@@ -599,6 +608,7 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
         amountChosen           = Some(641.98),
         affinityGroup          = Some(AffinityGroup.Individual),
         maybeNino              = Some(Nino("AA111111A")),
+        maybeArn               = None,
         failureReason          = None
       )(request)
     }
@@ -611,6 +621,7 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
            |    "failureReason": "it failed"
            |  },
            |  "nino": "AA111111A",
+           |  "agentReferenceNumber":"AARN1234567",
            |  "userType": "Agent"
            |}""".stripMargin
       ).as[JsValue]
@@ -623,6 +634,7 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
         amountChosen           = None,
         affinityGroup          = Some(AffinityGroup.Agent),
         maybeNino              = Some(Nino("AA111111A")),
+        maybeArn               = Some("AARN1234567"),
         failureReason          = Some("it failed")
       )(request)
     }

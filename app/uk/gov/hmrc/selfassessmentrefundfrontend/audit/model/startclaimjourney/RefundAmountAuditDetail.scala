@@ -27,6 +27,7 @@ final case class RefundAmountAuditDetail(
     amountAvailable:        Option[BigDecimal],
     amountChosen:           Option[BigDecimal],
     nino:                   Option[Nino],
+    agentReferenceNumber:   Option[String],
     userType:               Option[AffinityGroup]
 )
 

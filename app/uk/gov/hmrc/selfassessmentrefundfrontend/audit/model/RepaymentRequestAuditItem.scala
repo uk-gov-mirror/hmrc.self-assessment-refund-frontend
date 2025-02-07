@@ -21,6 +21,7 @@ import play.api.libs.json.{JsValue, Json, OFormat, OWrites, Reads}
 final case class RepaymentRequestAuditItem(
     etmpResult:             String,
     userType:               String,
+    agentReferenceNumber:   Option[String],
     amountAvailable:        String,
     balanceDueWithin30Days: String,
     amountChosen:           String,
