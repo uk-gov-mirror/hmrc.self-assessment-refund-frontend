@@ -61,9 +61,9 @@ sm2 --start SELF_ASSESSMENT_REFUND
 
 http://localhost:9171/self-assessment-refund/test-only/start-journey
 ```
-and in development
+and in staging
 ```
-https://www.development.tax.service.gov.uk/self-assessment-refund/test-only/start-journey
+https://www.staging.tax.service.gov.uk/self-assessment-refund/test-only/start-journey
 ```
 
 ### Authority Wizard
