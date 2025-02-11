@@ -79,11 +79,11 @@ object BarsJsonResponses {
         |    "iban": "GB21BARC20710244311655"
         |}""".stripMargin
 
-    val thirdPartyError: String =
-      """{
+    def thirdPartyError(accountExists: String, nameMatches: String): String =
+      s"""{
         |    "accountNumberIsWellFormatted": "yes",
-        |    "accountExists": "error",
-        |    "nameMatches": "yes",
+        |    "accountExists": "$accountExists",
+        |    "nameMatches": "$nameMatches",
         |    "nonStandardAccountDetailsRequiredForBacs": "no",
         |    "sortCodeIsPresentOnEISCD": "yes",
         |    "sortCodeBankName": "BARCLAYS BANK UK PLC",

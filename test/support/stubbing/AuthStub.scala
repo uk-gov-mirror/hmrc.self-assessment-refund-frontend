@@ -47,14 +47,14 @@ object AuthStub {
       case AffinityGroup.Agent =>
         Json.arr(
           Json.obj(
-          "key" -> "HMRC-MTD-IT",
-          "identifiers" -> Json.arr(Json.obj(
-            "key" -> "MTDITID",
-            "value" -> "123"
-          )),
-          "state" -> "Activated",
-          "confidenceLevel" -> confidenceLevel.level
-        ),
+            "key" -> "HMRC-MTD-IT",
+            "identifiers" -> Json.arr(Json.obj(
+              "key" -> "MTDITID",
+              "value" -> "123"
+            )),
+            "state" -> "Activated",
+            "confidenceLevel" -> confidenceLevel.level
+          ),
           Json.obj(
             "key" -> "HMRC-AS-AGENT",
             "identifiers" -> Json.arr(Json.obj(

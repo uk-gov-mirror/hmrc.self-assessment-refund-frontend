@@ -334,17 +334,32 @@ class BankAccountDetailsControllerSpec extends ItSpec with BankAccountDetailsPag
         }
       }
 
-      "throw exception when BARS Verify check fails with 'Third party error'" in new AccountFormFixture {
-        stubsForBarsError()
-        BarsStub.ValidateStub.success()
-        BarsStub.VerifyBusinessStub.stubForPostWith(VerifyJson.thirdPartyError)
+      val errorResponses: Seq[(ErrorField, ErrorField)] = Seq(
+        ("error", "yes"),
+        ("yes", "error"),
+        ("error", "error")
+      )
 
-        val action: Action[AnyContent] = controller.postAccountDetails()
-        val response: Future[Result] = call(action, request, request.body)
+      errorResponses.foreach {
+        case (accountExists, nameMatches) =>
+          s"throw exception when BARS Verify check fails with 'Third party error' when accountExists: $accountExists, nameMatches: $nameMatches" in new AccountFormFixture {
 
-        intercept[RuntimeException] {
-          status(response)
-        }.getMessage should include ("BARS verify third-party error. BARS response:")
+            stubBackendBusinessJourney(Some(nino))
+            BarsStub.ValidateStub.success()
+            BarsStub.VerifyBusinessStub.stubForPostWith(VerifyJson.thirdPartyError(accountExists, nameMatches))
+
+            val controllerWithAuditing: BankAccountDetailsController = fakeApplicationWithAuditing().injector.instanceOf[BankAccountDetailsController]
+
+            val action: Action[AnyContent] = controllerWithAuditing.postAccountDetails()
+            val response: Future[Result] = call(action, request, request.body)
+
+            intercept[RuntimeException] {
+              status(response)
+            }.getMessage should include ("BARS verify third-party error. BARS response:")
+
+            import com.github.tomakehurst.wiremock.client.WireMock.{exactly => exactlyWiremock}
+            verify(exactlyWiremock(0), postRequestedFor(urlEqualTo(s"/self-assessment-refund-backend/bars/verify/update")))
+          }
       }
 
       "redirect to 'bars lockout' page if BARS verify fails a third time and locks out" in new JourneyFixture {

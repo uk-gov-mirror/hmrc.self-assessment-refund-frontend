@@ -68,7 +68,7 @@ class ItsaBarsService @Inject() (
               auditBars(BarsVerifyStatusResponse(request.numberOfBarsVerifyAttempts, None))
               Future.successful(Left(NonStandardDetailsRequired(result.value)))
             // a verify success or validate error
-            case result @ (Right(_) | Left(_: BarsValidateError)) =>
+            case result @ (Right(_) | Left(_: BarsValidateError) | Left(_: ThirdPartyError)) =>
               // don't update the verify count in this case
               auditBars(BarsVerifyStatusResponse(request.numberOfBarsVerifyAttempts, None))
               Future.successful(result)

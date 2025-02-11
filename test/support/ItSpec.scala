@@ -58,10 +58,22 @@ abstract class ItSpec extends AnyWordSpec with WireMockSupport with OptionValues
     "microservice.services.bank-account-reputation.port" -> wireMockServer.port()
   ) ++ configOverrides
 
+  protected lazy val configMapWithAuditing: Map[String, Any] = Map[String, Any](
+    "auditing.enabled" -> true,
+    "auditing.consumer.baseUri.port" -> wireMockServer.port
+  ) ++ configMap
+
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
       .overrides(fakeAuthConnector.toList.map(connector => bind[AuthConnector].toInstance(connector)))
       .configure(configMap)
+      .overrides(bind[MessagesApi].toProvider[TestMessagesApiProvider])
+      .build()
+
+  def fakeApplicationWithAuditing(): Application =
+    new GuiceApplicationBuilder()
+      .overrides(fakeAuthConnector.toList.map(connector => bind[AuthConnector].toInstance(connector)))
+      .configure(configMapWithAuditing)
       .overrides(bind[MessagesApi].toProvider[TestMessagesApiProvider])
       .build()
 
