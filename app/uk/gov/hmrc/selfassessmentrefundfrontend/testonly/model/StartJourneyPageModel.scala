@@ -26,14 +26,15 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset.Fieldset
 import uk.gov.hmrc.govukfrontend.views.viewmodels.table.TableRow
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.start.StartRequest
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.start.StartRequest.{StartRefund, ViewHistory}
-import uk.gov.hmrc.selfassessmentrefundfrontend.testonly.model.StartJourneyPresets.requests
+import uk.gov.hmrc.selfassessmentrefundfrontend.testonly.model.Preset
+import uk.gov.hmrc.selfassessmentrefundfrontend.testonly.model.StartJourneyPresets
 import uk.gov.hmrc.selfassessmentrefundfrontend.util.AmountFormatter
 
 import scala.reflect.ClassTag
 
 final case class StartJourneyPageModel(
     form:    Form[StartJourneyOptions],
-    presets: List[StartRequest]
+    presets: List[Preset]
 ) {
 
   lazy val journeyType: StartJourneyType = form.value.map(_.`type`).getOrElse(StartJourneyType.StartRefund)
@@ -60,23 +61,30 @@ final case class StartJourneyPageModel(
       HeadCell(content = Text("NINO"))
     )
 
-    val typedPresets = presets.zipWithIndex.collect { case (v: T, idx) => v -> idx }
-    val header = typedPresets.headOption match {
-      case Some((_: StartRefund, _)) => baseHeader ++ Seq(
-        HeadCell(content = Text("Full amount")),
-        HeadCell(content = Text("Last payment type")),
-        HeadCell(content = Text("Return URL"))
-      )
-      case Some((_: ViewHistory, _)) =>
-        baseHeader
+    val typedPresets: List[(Preset, Int)] =
+      presets
+        .zipWithIndex
+        .collect { case (Preset(v: T, desc), idx) => Preset(v, desc) -> idx }
 
-      case None =>
-        throw new IndexOutOfBoundsException()
-    }
+    val header =
+      typedPresets.headOption.map(t => t._1.startRequest -> t._2) match {
+        case Some((_: StartRefund, _)) => baseHeader ++ Seq(
+          HeadCell(content = Text("Full amount")),
+          HeadCell(content = Text("Last payment type")),
+          HeadCell(content = Text("Description"))
+        )
+        case Some((_: ViewHistory, _)) =>
+          baseHeader ++ Seq(
+            HeadCell(content = Text("Description"))
+          )
 
-    val rows = typedPresets.collect { case (v: T, idx) => v -> idx }.map {
-      case (req: StartRefund, idx) => makeStartRefundRow(req, idx)
-      case (req: ViewHistory, idx) => makeViewHistoryRow(req, idx)
+        case None =>
+          throw new IndexOutOfBoundsException()
+      }
+
+    val rows: List[Seq[TableRow]] = typedPresets.map {
+      case (Preset(req: StartRefund, description: String), idx) => makeStartRefundRow(req, description, idx)
+      case (Preset(req: ViewHistory, description: String), idx) => makeViewHistoryRow(req, description, idx)
     }
 
     Table(
@@ -85,7 +93,7 @@ final case class StartJourneyPageModel(
     )
   }
 
-  def makeStartRefundRow(req: StartRefund, n: Int): Seq[TableRow] = {
+  def makeStartRefundRow(req: StartRefund, description: String, n: Int): Seq[TableRow] = {
     val option = makeRadioOption(n.toString, "Start refund")
     val paymentType = if (req.getLastPaymentViaCard) {
       "CARD"
@@ -98,17 +106,18 @@ final case class StartJourneyPageModel(
       TableRow(content = Text(req.nino)),
       TableRow(content = Text(AmountFormatter.formatAmount(req.fullAmount))),
       TableRow(content = Text(paymentType)),
-      TableRow(content = Text(req.returnUrl.map(_.value).getOrElse("/returnUrl")))
+      TableRow(content = Text(description))
     )
 
   }
 
-  def makeViewHistoryRow(req: ViewHistory, n: Int): Seq[TableRow] = {
+  def makeViewHistoryRow(req: ViewHistory, description: String, n: Int): Seq[TableRow] = {
     val option = makeRadioOption(n.toString, "View history")
 
     Seq(
       TableRow(content = HtmlContent(option)),
-      TableRow(content = Text(req.nino))
+      TableRow(content = Text(req.nino)),
+      TableRow(content = Text(description))
     )
 
   }
@@ -149,9 +158,7 @@ final case class StartJourneyPageModel(
 object StartJourneyPageModel {
 
   def apply(form: Form[StartJourneyOptions]): StartJourneyPageModel = {
-    StartJourneyPageModel(form, presets = requests)
+    StartJourneyPageModel(form, presets = StartJourneyPresets.presets)
   }
-
-  def presetByIndex(idx: Int): StartRequest = requests.lift(idx).getOrElse(throw new IndexOutOfBoundsException())
 
 }

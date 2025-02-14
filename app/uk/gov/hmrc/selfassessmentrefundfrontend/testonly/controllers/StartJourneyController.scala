@@ -50,7 +50,7 @@ class StartJourneyController @Inject() (
 
     val pageModel = StartJourneyPageModel(
       form,
-      StartJourneyPresets.requests
+      StartJourneyPresets.presets
     )
 
     Future.successful(Ok(page(pageModel)))
