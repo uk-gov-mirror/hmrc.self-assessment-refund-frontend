@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.selfassessmentrefundfrontend.model.page
 
+import uk.gov.hmrc.selfassessmentrefundfrontend.model.SaUtr
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.repayment.RequestNumber
 
 final case class RefundConfirmationPageModel(
@@ -26,5 +27,6 @@ final case class RefundConfirmationPageModel(
     bankAccountEndingDigits: String        = "",
     bankAccountName:         String        = "",
     isLastPaymentByCard:     Boolean       = false,
-    isAgent:                 Boolean       = false
+    isAgent:                 Boolean       = false,
+    clientSaUtr:             SaUtr         = SaUtr(None)
 )

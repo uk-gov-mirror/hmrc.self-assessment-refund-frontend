@@ -25,12 +25,13 @@ import java.time.format.DateTimeFormatter
 
 trait RepaymentConfirmationPageTesting extends PageContentTesting {
   def checkPageContent(
-      amountToBeRepaid:  BigDecimal,
-      dateTimeOverride:  OffsetDateTime,
-      reference:         String,
-      bankAccountNumber: String,
-      isCardOnFile:      Boolean,
-      isAgent:           Boolean
+      amountToBeRepaid:   BigDecimal,
+      dateTimeOverride:   OffsetDateTime,
+      reference:          String,
+      bankAccountNumber:  String,
+      isCardOnFile:       Boolean,
+      isAgent:            Boolean,
+      isClientUtrPresent: Boolean        = false
   )(doc: Document): Unit = {
 
     val refundByDate = dateTimeOverride.plusDays(38).format(DateTimeFormatter.ofPattern("d MMMM yyyy"))
@@ -42,17 +43,25 @@ trait RepaymentConfirmationPageTesting extends PageContentTesting {
     doc.checkHasNoBackLink()
 
     doc.checkHasSummaryList(
-      keyValuePairs = if (isAgent) List(
-        ("Recipient", "Jon Smith"),
-        ("Refund amount", AmountFormatter.formatAmount(amountToBeRepaid)),
-        ("Date requested", dateTimeOverride.format(DateTimeFormatter.ofPattern("d MMMM yyyy"))),
-        ("Tax", "Self Assessment")
-      )
-      else List(
-        ("Refund amount", AmountFormatter.formatAmount(amountToBeRepaid)),
-        ("Date requested", dateTimeOverride.format(DateTimeFormatter.ofPattern("d MMMM yyyy"))),
-        ("Tax", "Self Assessment")
-      )
+      keyValuePairs =
+        if (isAgent && isClientUtrPresent) List(
+          ("Recipient", "Jon Smith"),
+          ("Unique Taxpayer Reference", "0987654321"),
+          ("Refund amount", AmountFormatter.formatAmount(amountToBeRepaid)),
+          ("Date requested", dateTimeOverride.format(DateTimeFormatter.ofPattern("d MMMM yyyy"))),
+          ("Tax", "Self Assessment")
+        )
+        else if (isAgent) List(
+          ("Recipient", "Jon Smith"),
+          ("Refund amount", AmountFormatter.formatAmount(amountToBeRepaid)),
+          ("Date requested", dateTimeOverride.format(DateTimeFormatter.ofPattern("d MMMM yyyy"))),
+          ("Tax", "Self Assessment")
+        )
+        else List(
+          ("Refund amount", AmountFormatter.formatAmount(amountToBeRepaid)),
+          ("Date requested", dateTimeOverride.format(DateTimeFormatter.ofPattern("d MMMM yyyy"))),
+          ("Tax", "Self Assessment")
+        )
     )
 
     doc.checkHasH2("What happens next")

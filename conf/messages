@@ -167,6 +167,8 @@ repaymentConfirmation.message4b.link.agent = https://www.gov.uk/government/organ
 repaymentConfirmation.message4c = Do not contact us before this date as we will not have an update for you.
 repaymentConfirmation.button = Return to tax account
 repaymentConfirmation.button.link = https://www.tax.service.gov.uk/agent-services-account/home
+repaymentConfirmation.UTR = Unique Taxpayer Reference
+
 
 bars.lockout.title = You’ve tried to confirm your bank details too many times
 bars.lockout.p1 = Your refund request has not been submitted.

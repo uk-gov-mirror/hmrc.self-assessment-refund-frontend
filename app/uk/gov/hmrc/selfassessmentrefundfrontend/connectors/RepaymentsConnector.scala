@@ -17,6 +17,7 @@
 package uk.gov.hmrc.selfassessmentrefundfrontend.connectors
 
 import com.google.inject.{Inject, Singleton}
+import play.api.Logging
 import play.api.libs.json.{JsObject, Json, OFormat}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.UpstreamErrorResponse
@@ -24,8 +25,7 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 import uk.gov.hmrc.selfassessmentrefundfrontend.config.AppConfig
 import uk.gov.hmrc.selfassessmentrefundfrontend.connectors.RepaymentsConnector.Response
-import uk.gov.hmrc.selfassessmentrefundfrontend.model.CreateRepaymentRequest
-import uk.gov.hmrc.selfassessmentrefundfrontend.model.PaymentMethod
+import uk.gov.hmrc.selfassessmentrefundfrontend.model.{CreateRepaymentRequest, PaymentMethod, SaUtr}
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.customer.Nino
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.journey.JourneyId
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.repayment.{RepaymentCreatedResponse, RequestNumber, parseLocalDate}
@@ -36,7 +36,7 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.util.Mapping._
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class RepaymentsConnector @Inject() (client: HttpClientV2, config: AppConfig)(implicit ec: ExecutionContext) {
+class RepaymentsConnector @Inject() (client: HttpClientV2, config: AppConfig)(implicit ec: ExecutionContext) extends Logging {
 
   val baseUrl: String = s"${config.selfAssessmentRepaymentBackendUrl}/self-assessment-refund-backend"
 
@@ -66,6 +66,18 @@ class RepaymentsConnector @Inject() (client: HttpClientV2, config: AppConfig)(im
     client.get(url"$url")
       .execute[Response]
       .map(_.mapTo[TaxRepayment])
+  }
+
+  def getSaUtr(nino: Nino)(implicit hc: HeaderCarrier): Future[SaUtr] = {
+    val url = s"$baseUrl/retrieve-utr/${nino.value}"
+
+    client.get(url"$url")
+      .execute[SaUtr]
+      .recover {
+        case e: Throwable =>
+          logger.warn(s"[RepaymentsConnector][getSaUtr] Failed to retrieve SA UTR for nino: ${nino.value}", e)
+          SaUtr(None)
+      }
   }
 
 }

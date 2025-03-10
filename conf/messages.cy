@@ -168,6 +168,7 @@ repaymentConfirmation.message4b.link.agent = https://www.gov.uk/government/organ
 repaymentConfirmation.message4c = Peidiwch â chysylltu â ni cyn y dyddiad hwn, gan na fydd gennym ddiweddariad i’w roi i chi.
 repaymentConfirmation.button = Yn ôl i’r cyfrif treth
 repaymentConfirmation.button.link = https://www.tax.service.gov.uk/agent-services-account/home
+repaymentConfirmation.UTR = Cyfeirnod Unigryw y Trethdalwr
 
 bars.lockout.title = Rydych wedi ceisio cadarnhau’ch manylion banc ormod o weithiau
 bars.lockout.p1 = Nid yw’ch cais am ad-daliad wedi’i gyflwyno.

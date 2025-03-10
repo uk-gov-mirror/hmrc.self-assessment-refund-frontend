@@ -21,11 +21,12 @@ import play.api.http.Status
 import play.api.mvc.Cookie
 import play.api.test.FakeRequest
 import support.ItSpec
-import support.stubbing.AuthStub
+import support.stubbing.{AuthStub, CitizenDetailsStub}
 import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, ConfidenceLevel}
 import uk.gov.hmrc.selfassessmentrefundfrontend.TdRepayments
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.Amount
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.PaymentMethod.Card
+import uk.gov.hmrc.selfassessmentrefundfrontend.model.customer.Nino
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.repayment.RequestNumber
 import uk.gov.hmrc.selfassessmentrefundfrontend.pages.RepaymentConfirmationPageTesting
 import uk.gov.hmrc.selfassessmentrefundfrontend.testdata.TdSupport._
@@ -131,10 +132,12 @@ class RepaymentConfirmationControllerSpec extends ItSpec with TdRepayments with 
           .withRequestId()
           .withSessionId()
 
+        stubBarsVerifyStatus()
         AuthStub.authorise(AffinityGroup.Agent, ConfidenceLevel.L50)
-        stubBackendBusinessJourney(method = Some(Card))
+        stubBackendBusinessJourney(method = Some(Card), nino = Some(Nino("AB123456C")))
         stubBackendJourney()
         stubPOSTBackendAudit()
+        CitizenDetailsStub.getCitizenDetails200("AB123456C", "0987654321")
 
         val call = controller.confirmation(RequestNumber("1234567890"))
         val result = call()(fakeRequest)
@@ -142,7 +145,7 @@ class RepaymentConfirmationControllerSpec extends ItSpec with TdRepayments with 
         result.checkPageIsDisplayed(
           expectedHeading     = "Refund request received",
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/agents/claim-refund",
-          contentChecks       = checkPageContent(amount.availableCredit.getOrElse(BigDecimal(0.0)), timeOfConfirmation, "1234567890", "12345678", isCardOnFile = true, isAgent = true),
+          contentChecks       = checkPageContent(amount.availableCredit.getOrElse(BigDecimal(0.0)), timeOfConfirmation, "1234567890", "12345678", isCardOnFile = true, isAgent = true, isClientUtrPresent = true),
           expectedStatus      = Status.OK,
           withBackButton      = false,
           journey             = "request"
@@ -158,10 +161,12 @@ class RepaymentConfirmationControllerSpec extends ItSpec with TdRepayments with 
           .withRequestId()
           .withSessionId()
 
+        stubBarsVerifyStatus()
         AuthStub.authorise(AffinityGroup.Agent, ConfidenceLevel.L50)
-        stubBackendBusinessJourney()
+        stubBackendBusinessJourney(nino = Some(Nino("AB123456C")))
         stubBackendJourney()
         stubPOSTBackendAudit()
+        CitizenDetailsStub.getCitizenDetailsUpstreamError("AB123456C", 404)
 
         val call = controller.confirmation(RequestNumber("1234567890"))
         val result = call()(fakeRequest)

@@ -20,6 +20,7 @@
 @import uk.gov.hmrc.selfassessmentrefundfrontend.views.html.components.Layout
 @import uk.gov.hmrc.selfassessmentrefundfrontend.views.html.components.{confirmation_box, help_us_improve_our_services}
 @import views.html.helper.CSPNonce
+@import play.twirl.api.HtmlFormat
 
 @this(layout: Layout)
 
@@ -41,6 +42,7 @@
 
     @confirmation_box(messages("repaymentConfirmation.box.title"),  model.reference.value)
 
+
     <dl class="govuk-summary-list">
         @if(model.isAgent){<div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">
@@ -49,7 +51,18 @@
             <dd class="govuk-summary-list__value">
                 @model.bankAccountName
             </dd>
-        </div>}
+        </div>
+            @model.clientSaUtr.sautr.fold(HtmlFormat.empty) { saUtr =>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        @messages("repaymentConfirmation.UTR")
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                    @saUtr
+                    </dd>
+                </div>
+            }
+        }
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">
             @messages("repaymentConfirmation.amountRepaid")
