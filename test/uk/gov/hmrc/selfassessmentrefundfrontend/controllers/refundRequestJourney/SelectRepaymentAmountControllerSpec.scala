@@ -60,7 +60,7 @@ class SelectRepaymentAmountControllerSpec
   private val selectAmountPageHeadingWelsh = "Faint o ad-daliad yr hoffech ei gael?"
 
   "GET /refund-amount" when {
-    val fakeRequest = FakeRequest("GET", "/self-assessment-refund-frontend/refund-amount")
+    val fakeRequest = FakeRequest("GET", "/request-a-self-assessment-refund/refund-amount")
       .withSessionId().withAuthToken()
 
     "a journey is found" when {
@@ -130,7 +130,7 @@ class SelectRepaymentAmountControllerSpec
           )
         }
 
-        "display 'there is a problem' generic page if amount from V&C is not matching the amount from API#1553" in {
+        "display 'there is a problem' page if amount from V&C is not matching the amount from API#1553" in {
           val amount = Amount(Some(BigDecimal(123)), None, None, availableCredit = Some(BigDecimal(122)), balanceDueWithin30Days = Some(BigDecimal(45)))
 
           stubBackendJourneyId()
@@ -139,56 +139,56 @@ class SelectRepaymentAmountControllerSpec
           val result: Future[Result] = amountController.selectAmount(fakeRequest)
 
           result.checkPageIsDisplayed(
-            expectedHeading          = "Sorry, there is a problem with the service",
-            expectedServiceLink      = "",
-            expectedStatus           = Status.INTERNAL_SERVER_ERROR,
-            withBackButton           = false,
-            expectedTitleIfDifferent = Some("Sorry, there is a problem with the service - 500")
+            expectedHeading     = "Sorry, there is a problem with the service",
+            expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
+            journey             = "request",
+            expectedStatus      = Status.INTERNAL_SERVER_ERROR,
+            withBackButton      = false
           )
         }
 
-        "display 'there is a problem' generic page if amount is missing" in {
+        "display 'there is a problem' page if amount is missing" in {
           stubBackendJourneyId()
           stubBackendBusinessJourney(backReturnUrl = true, amount = None)
 
           val result: Future[Result] = amountController.selectAmount(fakeRequest)
 
           result.checkPageIsDisplayed(
-            expectedHeading          = "Sorry, there is a problem with the service",
-            expectedServiceLink      = "",
-            expectedStatus           = Status.INTERNAL_SERVER_ERROR,
-            withBackButton           = false,
-            expectedTitleIfDifferent = Some("Sorry, there is a problem with the service - 500")
+            expectedHeading     = "Sorry, there is a problem with the service",
+            expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
+            journey             = "request",
+            expectedStatus      = Status.INTERNAL_SERVER_ERROR,
+            withBackButton      = false
           )
         }
 
-        "display 'there is a problem' generic page if availableCredit in amount is missing" in {
+        "display 'there is a problem' page if availableCredit in amount is missing" in {
           stubBackendJourneyId()
           stubBackendBusinessJourney(backReturnUrl = true, amount = Some(testAmount.copy(availableCredit = None)))
 
           val result: Future[Result] = amountController.selectAmount(fakeRequest)
 
           result.checkPageIsDisplayed(
-            expectedHeading          = "Sorry, there is a problem with the service",
-            expectedServiceLink      = "",
-            expectedStatus           = Status.INTERNAL_SERVER_ERROR,
-            withBackButton           = false,
-            expectedTitleIfDifferent = Some("Sorry, there is a problem with the service - 500")
+            expectedHeading     = "Sorry, there is a problem with the service",
+            expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
+            journey             = "request",
+            expectedStatus      = Status.INTERNAL_SERVER_ERROR,
+            withBackButton      = false
           )
         }
 
-        "display 'there is a problem' generic page if balanceDueWithin30Days in amount is missing" in {
+        "display 'there is a problem' page if balanceDueWithin30Days in amount is missing" in {
           stubBackendJourneyId()
           stubBackendBusinessJourney(backReturnUrl = true, amount = Some(testAmount.copy(balanceDueWithin30Days = None)))
 
           val result: Future[Result] = amountController.selectAmount(fakeRequest)
 
           result.checkPageIsDisplayed(
-            expectedHeading          = "Sorry, there is a problem with the service",
-            expectedServiceLink      = "",
-            expectedStatus           = Status.INTERNAL_SERVER_ERROR,
-            withBackButton           = false,
-            expectedTitleIfDifferent = Some("Sorry, there is a problem with the service - 500")
+            expectedHeading     = "Sorry, there is a problem with the service",
+            expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
+            journey             = "request",
+            expectedStatus      = Status.INTERNAL_SERVER_ERROR,
+            withBackButton      = false
           )
         }
       }
@@ -196,7 +196,7 @@ class SelectRepaymentAmountControllerSpec
   }
 
   "POST /refund-amount" when {
-    val fakeRequestBase = FakeRequest("POST", "/self-assessment-refund-frontend/refund-amount")
+    val fakeRequestBase = FakeRequest("POST", "/request-a-self-assessment-refund/refund-amount")
       .withSessionId().withAuthToken()
 
     "form has errors (no amount selected)" should {
@@ -540,7 +540,7 @@ class SelectRepaymentAmountControllerSpec
       }
     }
 
-    "display 'there is a problem' generic page if amount is missing" in {
+    "display 'there is a problem' page if amount is missing" in {
       val fakeRequestWithValidFormFullAmount = fakeRequestBase
         .withFormUrlEncodedBody("nino" -> "AA999999A", "fullAmount" -> "123", "choice" -> "full")
 
@@ -549,10 +549,17 @@ class SelectRepaymentAmountControllerSpec
       stubBackendBusinessJourney(amount = None)
 
       val result = amountController.submitAmount(fakeRequestWithValidFormFullAmount)
-      status(result) shouldBe Status.INTERNAL_SERVER_ERROR
+
+      result.checkPageIsDisplayed(
+        expectedHeading     = "Sorry, there is a problem with the service",
+        expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
+        journey             = "request",
+        expectedStatus      = Status.INTERNAL_SERVER_ERROR,
+        withBackButton      = false
+      )
     }
 
-    "display 'there is a problem' generic page if availableCredit in amount is missing" in {
+    "display 'there is a problem' page if availableCredit in amount is missing" in {
       val fakeRequestWithValidFormFullAmount = fakeRequestBase
         .withFormUrlEncodedBody("nino" -> "AA999999A", "fullAmount" -> "123", "choice" -> "full")
 
@@ -561,10 +568,17 @@ class SelectRepaymentAmountControllerSpec
       stubBackendBusinessJourney(amount = Some(testAmount.copy(availableCredit = None)))
 
       val result = amountController.submitAmount(fakeRequestWithValidFormFullAmount)
-      status(result) shouldBe Status.INTERNAL_SERVER_ERROR
+
+      result.checkPageIsDisplayed(
+        expectedHeading     = "Sorry, there is a problem with the service",
+        expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
+        journey             = "request",
+        expectedStatus      = Status.INTERNAL_SERVER_ERROR,
+        withBackButton      = false
+      )
     }
 
-    "display 'there is a problem' generic page if balanceDueWithin30Days in amount is missing" in {
+    "display 'there is a problem' page if balanceDueWithin30Days in amount is missing" in {
       val fakeRequestWithValidFormFullAmount = fakeRequestBase
         .withFormUrlEncodedBody("nino" -> "AA999999A", "fullAmount" -> "123", "choice" -> "full")
 
@@ -573,7 +587,14 @@ class SelectRepaymentAmountControllerSpec
       stubBackendBusinessJourney(amount = Some(testAmount.copy(balanceDueWithin30Days = None)))
 
       val result = amountController.submitAmount(fakeRequestWithValidFormFullAmount)
-      status(result) shouldBe Status.INTERNAL_SERVER_ERROR
+
+      result.checkPageIsDisplayed(
+        expectedHeading     = "Sorry, there is a problem with the service",
+        expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
+        journey             = "request",
+        expectedStatus      = Status.INTERNAL_SERVER_ERROR,
+        withBackButton      = false
+      )
     }
   }
 }

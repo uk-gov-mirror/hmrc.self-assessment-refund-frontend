@@ -33,6 +33,7 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.pages.RepaymentStatusPageTesting
 import uk.gov.hmrc.selfassessmentrefundfrontend.testdata.TdAll._
 
 import scala.concurrent.Future
+import uk.gov.hmrc.selfassessmentrefundfrontend.testdata.TdSupport._
 
 class RepaymentStatusControllerSpec extends ItSpec with RepaymentStatusPageTesting {
 
@@ -94,15 +95,21 @@ class RepaymentStatusControllerSpec extends ItSpec with RepaymentStatusPageTesti
       }
       "the backend is unavailable" should {
         "return an internal server error" in new AuthorisedUserFixture {
+          val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/track-a-self-assessment-refund/refund-status")
+            .withAuthToken()
+            .withRequestId()
+            .withSessionId()
+
           stubRepaymentWithNumber()
 
-          val pageUnavailableResponse: Future[Result] = controller.statusOf(no2)(request)
+          val pageUnavailableResponse: Future[Result] = controller.statusOf(no2)(fakeRequest)
           val doc: Document = Jsoup.parse(contentAsString(pageUnavailableResponse))
 
           status(pageUnavailableResponse) shouldBe 500
-          doc.title() shouldBe "Sorry, there is a problem with the service - 500 - GOV.UK"
+          doc.title() shouldBe "Sorry, there is a problem with the service - Track a Self Assessment refund - GOV.UK"
           doc.select("h1").text() shouldBe "Sorry, there is a problem with the service"
-          doc.select("body").text should include("Sorry, there is a problem with the service Try again later.")
+          doc.select("body").text should include("Sorry, there is a problem with the service Try again later. Contact HMRC if you need to speak to someone about your Self Assessment refund.")
+          doc.checkHasHyperlink("Contact HMRC", "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment")
         }
       }
     }

@@ -197,3 +197,10 @@ weCannotConfirmYourIdentity.title = We cannot confirm your identity
 weCannotConfirmYourIdentity.heading = We cannot confirm your identity
 weCannotConfirmYourIdentity.para1 = You have entered information that does not match our records too many times. For security reasons, you must wait <strong>24 hours</strong> and then try again.
 weCannotConfirmYourIdentity.submit.text = Go to tax account
+
+errorTemplate.title = Sorry, there is a problem with the service
+errorTemplate.heading = Sorry, there is a problem with the service
+errorTemplate.para1 = Try again later.
+errorTemplate.para2a = Contact HMRC
+errorTemplate.para2a.link = https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment
+errorTemplate.para2b = if you need to speak to someone about your Self Assessment refund.

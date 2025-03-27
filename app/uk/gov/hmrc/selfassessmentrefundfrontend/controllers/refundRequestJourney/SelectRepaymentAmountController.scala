@@ -18,7 +18,7 @@ package uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourne
 
 import cats.syntax.eq._
 import play.api.Logging
-import play.api.i18n.{I18nSupport, Messages}
+import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -203,11 +203,6 @@ class SelectRepaymentAmountController @Inject() (
 
   private def logAndReturnErrorPage(method: String, message: String = "Not enough data in mongo to proceed.")(implicit request: BarsVerifiedRequest[_]): Future[Result] = {
     logger.error(s"[SelectRepaymentAmountController][$method] $message ${request.journey.toLogMessage}")
-    errorHandler.standardErrorTemplate(
-      Messages("global.error.InternalServerError500.title"),
-      Messages("global.error.InternalServerError500.heading"),
-      Messages("global.error.InternalServerError500.message")
-    )
-      .map(InternalServerError(_))
+    errorHandler.internalServerErrorTemplate.map(InternalServerError(_))
   }
 }

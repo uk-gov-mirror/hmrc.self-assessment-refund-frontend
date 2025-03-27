@@ -197,3 +197,10 @@ weCannotConfirmYourIdentity.title = Ni allwn gadarnhau pwy ydych
 weCannotConfirmYourIdentity.heading = Ni allwn gadarnhau pwy ydych
 weCannotConfirmYourIdentity.para1 = Rydych wedi nodi gwybodaeth nad yw’n cyd-fynd â’n cofnodion ormod o weithiau. Am resymau diogelwch, mae’n rhaid i chi aros am <strong>24 awr</strong> ac yna rhoi cynnig arall arni.
 weCannotConfirmYourIdentity.submit.text = Ewch i’r cyfrif treth
+
+errorTemplate.title = Mae’n ddrwg gennym, mae problem gyda’r gwasanaeth
+errorTemplate.heading = Mae’n ddrwg gennym, mae problem gyda’r gwasanaeth
+errorTemplate.para1 = Rhowch gynnig arall arni yn nes ymlaen.
+errorTemplate.para2a = Cysylltwch â CThEF
+errorTemplate.para2a.link = https://www.gov.uk/government/organisations/hm-revenue-customs/contact/welsh-language-helplines
+errorTemplate.para2b = os oes angen i chi siarad â rhywun am eich ad-daliad Hunanasesiad.

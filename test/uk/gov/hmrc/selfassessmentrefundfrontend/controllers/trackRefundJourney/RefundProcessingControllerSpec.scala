@@ -20,7 +20,8 @@ import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, stubFor,
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import org.jsoup.nodes.Document
 import play.api.libs.json.Json
-import play.api.mvc.Result
+import play.api.mvc.{AnyContentAsEmpty, Result}
+import play.api.test.FakeRequest
 import play.mvc.Http.Status
 import support.{ItSpec, PageContentTesting}
 import uk.gov.hmrc.selfassessmentrefundfrontend.connectors.RepaymentsConnector.Response
@@ -29,6 +30,7 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.model.repayment.RequestNumber
 import uk.gov.hmrc.selfassessmentrefundfrontend.testdata.TdAll.{nino, no1, request, welshRequest}
 
 import scala.concurrent.Future
+import uk.gov.hmrc.selfassessmentrefundfrontend.testdata.TdSupport._
 
 class RefundProcessingControllerSpec extends ItSpec with PageContentTesting {
 
@@ -72,16 +74,21 @@ class RefundProcessingControllerSpec extends ItSpec with PageContentTesting {
     }
 
     "redirect to error page if GET repayments returned error" in new AuthorisedUserFixture {
+      val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/track-a-self-assessment-refund/refund-being-processed")
+        .withAuthToken()
+        .withRequestId()
+        .withSessionId()
+
       stubGetRepaymentError()
 
-      val result: Future[Result] = controller.onPageLoad(no1)(request)
+      val result: Future[Result] = controller.onPageLoad(no1)(fakeRequest)
 
       result.checkPageIsDisplayed(
-        expectedHeading          = "Sorry, there is a problem with the service",
-        expectedServiceLink      = "",
-        expectedStatus           = Status.INTERNAL_SERVER_ERROR,
-        expectedTitleIfDifferent = Some("Sorry, there is a problem with the service - 500"),
-        withBackButton           = false
+        expectedHeading     = "Sorry, there is a problem with the service",
+        expectedServiceLink = "http://localhost:9171/track-a-self-assessment-refund/refund-request-tracker",
+        journey             = "track",
+        expectedStatus      = Status.INTERNAL_SERVER_ERROR,
+        withBackButton      = false
       )
     }
   }

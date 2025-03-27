@@ -20,14 +20,26 @@ import play.api.i18n.MessagesApi
 import play.api.mvc.RequestHeader
 import play.twirl.api.Html
 import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
-import uk.gov.hmrc.selfassessmentrefundfrontend.views.html.components.ErrorTemplate
+import uk.gov.hmrc.selfassessmentrefundfrontend.views.html.components.{ErrorTemplate, InternalServerErrorTemplate}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ErrorHandler @Inject() (errorTemplate: ErrorTemplate, val messagesApi: MessagesApi, implicit val ec: ExecutionContext) extends FrontendErrorHandler {
+class ErrorHandler @Inject() (errorTemplate: ErrorTemplate, internalServerErrorTemplate: InternalServerErrorTemplate, val messagesApi: MessagesApi, implicit val ec: ExecutionContext) extends FrontendErrorHandler {
 
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: RequestHeader): Future[Html] =
     Future.successful(errorTemplate(pageTitle, heading, message))
+
+  override def internalServerErrorTemplate(implicit request: RequestHeader): Future[Html] =
+    Future.successful(internalServerErrorTemplate(getServiceName))
+
+  override def fallbackClientErrorTemplate(implicit request: RequestHeader): Future[Html] =
+    Future.successful(internalServerErrorTemplate(getServiceName))
+
+  private def getServiceName(implicit request: RequestHeader): String = {
+    val pathParts: Array[String] = request.path.split("/")
+
+    if (pathParts.contains("track-a-self-assessment-refund") || request.headers.get("Referer").exists(_.contains("ViewHistory"))) "track" else "refund"
+  }
 }
