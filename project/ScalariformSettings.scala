@@ -3,7 +3,6 @@ import sbt.Def
 import scalariform.formatter.preferences.*
 
 object ScalariformSettings {
-
   lazy val scalariformSettings: Seq[Def.SettingsDefinition] = {
     Seq(
       ScalariformKeys.autoformat := true,

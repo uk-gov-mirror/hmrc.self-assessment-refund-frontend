@@ -1,8 +1,8 @@
+import sbt.Def
 import scoverage.ScoverageKeys
 
 object ScoverageSettings {
-
-  lazy val settings =
+  lazy val settings: Seq[Def.Setting[?]] =
     Seq(
       ScoverageKeys.coverageExcludedPackages := "<empty>;.*BuildInfo.*;Reverse.*;app.Routes.*;prod.*;testOnlyDoNotUseInProd.*;manualdihealth.*;forms.*;.*views.html.*;.*testonly.*;config.*;",
       ScoverageKeys.coverageMinimumStmtTotal := 80.00,
