@@ -190,7 +190,7 @@ class RefundTrackerControllerSpec extends ItSpec with TdRepayments with RefundTr
         nino            = nino,
         payment         = 76000,
         status          = "Approved",
-        created         = "2021-08-16",
+        created         = "2023-08-16",
         completed       = Some("2021-08-17"),
         rejection       = None,
         repaymentMethod = Some("BACS")

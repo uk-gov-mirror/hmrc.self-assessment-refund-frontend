@@ -24,11 +24,13 @@ trait RefundTrackerPageTesting extends PageContentTesting {
   def checkPageContent(doc: Document): Unit = {
 
     doc.checkHasBackLinkWithUrl("#")
+    doc.checkHasTabs(List("2021", "2023"))
     doc.checkHasTable(
       columnHeaders = List("Request date", "Amount", "Status", "Action"),
-      rowHeaders    = List("16 Aug 2021", "14 Aug 2021"),
+      rowHeaders    = List(),
       cells         = List(
-        "£76,000", "Approved", "View", "£12,000", "Processing", "View"
+        "14 Aug 2021", "£12,000", "Processing", "View",
+        "16 Aug 2023", "£76,000", "Approved", "View"
       )
     )
 
@@ -38,7 +40,7 @@ trait RefundTrackerPageTesting extends PageContentTesting {
     )
 
     doc.checkHasHyperlink(
-      "View details for the refund requested on 16 August 2021",
+      "View details for the refund requested on 16 August 2023",
       uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.routes.RepaymentStatusController.statusOf(RequestNumber("2")).url
     )
   }
@@ -66,11 +68,13 @@ trait RefundTrackerPageTesting extends PageContentTesting {
   def checkPageContentWelsh(doc: Document): Unit = {
 
     doc.checkHasBackLinkWithUrl("#")
+    doc.checkHasTabs(List("2021", "2023"))
     doc.checkHasTable(
       columnHeaders = List("Dyddiad y cais", "Swm", "Statws", "Camau"),
-      rowHeaders    = List("16 Awst 2021", "14 Awst 2021"),
+      rowHeaders    = List(),
       cells         = List(
-        "£76,000", "Wedi’i gymeradwyo", "golwg", "£12,000", "Wrthi’n prosesu", "golwg"
+        "14 Awst 2021", "£12,000", "Wrthi’n prosesu", "golwg",
+        "16 Awst 2023", "£76,000", "Wedi’i gymeradwyo", "golwg"
       )
     )
 
@@ -80,7 +84,7 @@ trait RefundTrackerPageTesting extends PageContentTesting {
     )
 
     doc.checkHasHyperlink(
-      "Bwrw golwg dros y manylion ar gyfer y cais am ad-daliad, dyddiedig 16 Awst 2021",
+      "Bwrw golwg dros y manylion ar gyfer y cais am ad-daliad, dyddiedig 16 Awst 2023",
       uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.routes.RepaymentStatusController.statusOf(RequestNumber("2")).url
     )
   }

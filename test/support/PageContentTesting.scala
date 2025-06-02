@@ -305,7 +305,8 @@ trait PageContentTesting {
         tableColHeaderContent(i).text() shouldBe columnHeaders(i)
       }
 
-      val tableRowHeaderContent = doc.select("""[scope="row"]""").select(".govuk-table__header").iterator().asScala.toList
+      val tableRowHeaderContent = doc.select("""[scope="row"]""").select(".govuk-table__cell").iterator().asScala.toList
+
       for (i <- rowHeaders.indices) {
         tableRowHeaderContent(i).text() shouldBe rowHeaders(i)
       }

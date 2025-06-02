@@ -23,11 +23,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.selfassessmentrefundfrontend.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.action.Actions
 import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney
-import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.RefundTrackerController.viewModel
-import uk.gov.hmrc.selfassessmentrefundfrontend.model.page.RefundTrackerPageModel
-import uk.gov.hmrc.selfassessmentrefundfrontend.services.RepaymentsService
-import uk.gov.hmrc.selfassessmentrefundfrontend.services.RepaymentsService.TaxRepayment
-import uk.gov.hmrc.selfassessmentrefundfrontend.util.Mapping.ConversionOps
+import uk.gov.hmrc.selfassessmentrefundfrontend.services.{RefundTrackerViewHelper, RepaymentsService}
 import uk.gov.hmrc.selfassessmentrefundfrontend.views.html.trackRefundJourney.RefundTrackerPage
 
 import javax.inject.{Inject, Singleton}
@@ -35,12 +31,13 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class RefundTrackerController @Inject() (
-    actions:           Actions,
-    mcc:               MessagesControllerComponents,
-    appConfig:         AppConfig,
-    refundTrackerPage: RefundTrackerPage,
-    repaymentService:  RepaymentsService,
-    errorHandler:      ErrorHandler
+    actions:                Actions,
+    mcc:                    MessagesControllerComponents,
+    appConfig:              AppConfig,
+    refundTrackerPage:      RefundTrackerPage,
+    repaymentService:       RepaymentsService,
+    errorHandler:           ErrorHandler,
+    refundTackerViewHelper: RefundTrackerViewHelper
 )(implicit ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport with Logging {
 
@@ -51,15 +48,12 @@ class RefundTrackerController @Inject() (
   val refundTracker: Action[AnyContent] = actions.authenticatedTrackJourneyAction.async { implicit request =>
     val creditAndRefundsUrl = if (request.isAgent) appConfig.creditAndRefundsAgentsUrl else appConfig.creditAndRefundsUrl
     repaymentService.repayments(request.journey.nino.getOrElse(sys.error("nino not found"))).map(taxRepayments => {
-      Ok(refundTrackerPage(viewModel(taxRepayments), creditAndRefundsUrl))
+      val yearlyRefundsModel = refundTackerViewHelper.refundTrackerYearModelMap(taxRepayments)
+      Ok(refundTrackerPage(yearlyRefundsModel, creditAndRefundsUrl))
     }).recoverWith {
       case e: Exception =>
         logger.warn(s"[RefundTrackerController][refundTracker] - Unsuccessful retrieval from the repayments service", e)
         errorHandler.internalServerErrorTemplate.map(InternalServerError(_))
     }
   }
-}
-
-object RefundTrackerController {
-  def viewModel(l: List[TaxRepayment]): RefundTrackerPageModel = l.mapTo[RefundTrackerPageModel]
 }

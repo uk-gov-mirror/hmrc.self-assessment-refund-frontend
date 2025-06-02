@@ -22,7 +22,7 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.audit.AuditService
 import uk.gov.hmrc.selfassessmentrefundfrontend.connectors.{JourneyConnector, RepaymentsConnector}
 import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.action.request.AuthenticatedRequest
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.customer.Nino
-import uk.gov.hmrc.selfassessmentrefundfrontend.model.repayment.RequestNumber
+import uk.gov.hmrc.selfassessmentrefundfrontend.model.repayment.{RepaymentStatus, RequestNumber}
 import uk.gov.hmrc.selfassessmentrefundfrontend.services.RepaymentsService.TaxRepayment
 import uk.gov.hmrc.selfassessmentrefundfrontend.util.RequestSupport
 
@@ -89,13 +89,22 @@ object RepaymentsService {
 
   sealed trait TaxRepayment {
     def claim: Claim
+    def status: RepaymentStatus
   }
 
-  final case class ProcessingRiskingTaxRepayment(claim: Claim) extends TaxRepayment
+  final case class ProcessingRiskingTaxRepayment(claim: Claim) extends TaxRepayment {
+    def status: RepaymentStatus = RepaymentStatus.ProcessingRisking
+  }
 
-  final case class ProcessingTaxRepayment(claim: Claim) extends TaxRepayment
+  final case class ProcessingTaxRepayment(claim: Claim) extends TaxRepayment {
+    def status: RepaymentStatus = RepaymentStatus.Processing
+  }
 
-  final case class ApprovedTaxRepayment(claim: Claim, completed: LocalDate) extends TaxRepayment
+  final case class ApprovedTaxRepayment(claim: Claim, completed: LocalDate) extends TaxRepayment {
+    def status: RepaymentStatus = RepaymentStatus.Approved
+  }
 
-  final case class RejectedTaxRepayment(claim: Claim, completed: LocalDate, message: Option[String] = None) extends TaxRepayment
+  final case class RejectedTaxRepayment(claim: Claim, completed: LocalDate, message: Option[String] = None) extends TaxRepayment {
+    def status: RepaymentStatus = RepaymentStatus.Rejected
+  }
 }

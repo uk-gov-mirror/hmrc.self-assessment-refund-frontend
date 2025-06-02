@@ -14,21 +14,34 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.govukfrontend.views.Aliases.Table
-@import uk.gov.hmrc.play.language.LanguageUtils
-@import uk.gov.hmrc.selfassessmentrefundfrontend.config.AppConfig
-@import uk.gov.hmrc.selfassessmentrefundfrontend.model.page.RefundTrackerPageModel
-@import uk.gov.hmrc.selfassessmentrefundfrontend.model.page.RefundTrackerPageModel._
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukTabs
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.tabs.{TabItem, TabPanel, Tabs}
+@import uk.gov.hmrc.selfassessmentrefundfrontend.model.page.RefundTrackerPageModel.RefundTrackerModel
 @import uk.gov.hmrc.selfassessmentrefundfrontend.views.components.PageTitle
-@import uk.gov.hmrc.selfassessmentrefundfrontend.views.html.components.Layout
+@import uk.gov.hmrc.selfassessmentrefundfrontend.views.html.components.{Layout, RefundTable}
+
 
 @this(
-govukTable: uk.gov.hmrc.govukfrontend.views.html.components.GovukTable,
 layout: Layout,
-languageUtils:LanguageUtils
+refundTable: RefundTable,
+govukTabs : GovukTabs
 )
 
-@(model: RefundTrackerPageModel, creditAndRefundsUrl: String)(implicit request: Request[_], messages: Messages)
+@(yearlyRefundsModel: Map[Int, Seq[RefundTrackerModel]], creditAndRefundsUrl: String)(implicit request: Request[_], messages: Messages)
+
+
+@tabItemsList = @{
+    yearlyRefundsModel.map { case (year, refundModel) =>
+        TabItem(
+            id = Some("id"+year.toString),
+            label = year.toString,
+            panel = TabPanel(
+                content = HtmlContent(refundTable(refundModel))
+            )
+        )
+    }.toSeq
+}
 
 @layout(
     pageTitle = Some(PageTitle(messages("refund-tracker.title"), messages("service.name.track"))),
@@ -36,15 +49,10 @@ languageUtils:LanguageUtils
 ) {
     <h1 class="govuk-heading-l">@messages("refund-tracker.heading")</h1>
 
-    @if(model.refundTracker.nonEmpty) {
-        @govukTable(Table(
-            head = Some(RefundTrackerModel.header),
-            rows = model.refundTracker.map(_.asRow(languageUtils)),
-            firstCellIsHeader = true
-        ))
+    @if(yearlyRefundsModel.nonEmpty) {
+        @govukTabs(Tabs(items = tabItemsList))
     } else {
         <p class="govuk-body">@messages("refund.no-history.message1")</p>
         <p class="govuk-body">@messages("refund.no-history.message2a") <a class="govuk-link" href=@creditAndRefundsUrl>@messages("refund.no-history.message2b")</a>.</p>
     }
-
 }
