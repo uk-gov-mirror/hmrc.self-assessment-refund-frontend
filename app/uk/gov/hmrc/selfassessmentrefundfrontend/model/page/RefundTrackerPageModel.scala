@@ -38,6 +38,7 @@ object RefundTrackerPageModel {
       TableRow(
         content    = Text(languageUtils.Dates.formatDateAbbrMonth(receivedOn)),
         attributes = Map("scope" -> "row"),
+        classes    = "govuk-!-font-weight-bold"
       ), TableRow(
         content = Text(amountClaimed),
         format  = Some("numeric")

@@ -24,13 +24,13 @@ trait RefundTrackerPageTesting extends PageContentTesting {
   def checkPageContent(doc: Document): Unit = {
 
     doc.checkHasBackLinkWithUrl("#")
-    doc.checkHasTabs(List("2021", "2023"))
+    doc.checkHasTabs(List("2023", "2021"))
     doc.checkHasTable(
       columnHeaders = List("Request date", "Amount", "Status", "Action"),
       rowHeaders    = List(),
       cells         = List(
-        "14 Aug 2021", "£12,000", "Processing", "View",
-        "16 Aug 2023", "£76,000", "Approved", "View"
+        "16 Aug 2023", "£76,000", "Approved", "View",
+        "14 Aug 2021", "£12,000", "Processing", "View"
       )
     )
 
@@ -68,13 +68,13 @@ trait RefundTrackerPageTesting extends PageContentTesting {
   def checkPageContentWelsh(doc: Document): Unit = {
 
     doc.checkHasBackLinkWithUrl("#")
-    doc.checkHasTabs(List("2021", "2023"))
+    doc.checkHasTabs(List("2023", "2021"))
     doc.checkHasTable(
       columnHeaders = List("Dyddiad y cais", "Swm", "Statws", "Camau"),
       rowHeaders    = List(),
       cells         = List(
-        "14 Awst 2021", "£12,000", "Wrthi’n prosesu", "golwg",
-        "16 Awst 2023", "£76,000", "Wedi’i gymeradwyo", "golwg"
+        "16 Awst 2023", "£76,000", "Wedi’i gymeradwyo", "golwg",
+        "14 Awst 2021", "£12,000", "Wrthi’n prosesu", "golwg"
       )
     )
 

@@ -37,7 +37,7 @@ govukTabs : GovukTabs
             id = Some("id"+year.toString),
             label = year.toString,
             panel = TabPanel(
-                content = HtmlContent(refundTable(refundModel))
+                content = HtmlContent(refundTable(refundModel, year.toString))
             )
         )
     }.toSeq

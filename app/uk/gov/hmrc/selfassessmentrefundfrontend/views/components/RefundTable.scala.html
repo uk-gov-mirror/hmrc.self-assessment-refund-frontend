@@ -27,7 +27,9 @@
         languageUtils:LanguageUtils
 )
 
-@(refundTracker: Seq[RefundTrackerModel])(implicit messages: Messages)
+@(refundTracker: Seq[RefundTrackerModel], year: String)(implicit messages: Messages)
+
+<h2 class="govuk-heading-l">@year</h2>
 
 @govukTable(Table(
   head = Some(List(

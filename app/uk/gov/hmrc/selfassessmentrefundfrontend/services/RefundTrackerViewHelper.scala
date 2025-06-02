@@ -32,7 +32,7 @@ class RefundTrackerViewHelper {
         key           = repayment.claim.key
       )
     }
-    val uniqueYears = repaymentsToRefundTrackerModel.collect(_.receivedOn.getYear).distinct
+    val uniqueYears = repaymentsToRefundTrackerModel.collect(_.receivedOn.getYear).distinct.sorted(Ordering.Int.reverse)
     uniqueYears.map (year => (
       year, repaymentsToRefundTrackerModel
       .filter(_.receivedOn.getYear == year)
