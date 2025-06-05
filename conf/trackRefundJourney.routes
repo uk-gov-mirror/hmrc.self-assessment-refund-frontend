@@ -11,4 +11,3 @@ GET         /refund-rejected/:number            uk.gov.hmrc.selfassessmentrefund
 
 GET         /cannot-confirm-identity            uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.WeCannotConfirmYourIdentityController.failedUplift(userType: String)
 
-GET         /refund-status/:number              uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.RepaymentStatusController.statusOf(number: RequestNumber)

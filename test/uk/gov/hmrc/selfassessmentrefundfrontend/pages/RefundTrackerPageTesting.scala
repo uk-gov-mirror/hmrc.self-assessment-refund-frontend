@@ -36,12 +36,12 @@ trait RefundTrackerPageTesting extends PageContentTesting {
 
     doc.checkHasHyperlink(
       "View details for the refund requested on 14 August 2021",
-      uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.routes.RepaymentStatusController.statusOf(RequestNumber("1")).url
+      uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.routes.RefundProcessingController.onPageLoad(RequestNumber("1")).url
     )
 
     doc.checkHasHyperlink(
       "View details for the refund requested on 16 August 2023",
-      uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.routes.RepaymentStatusController.statusOf(RequestNumber("2")).url
+      uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.routes.RefundApprovedController.showApprovedPage(RequestNumber("2")).url
     )
   }
 
@@ -80,12 +80,12 @@ trait RefundTrackerPageTesting extends PageContentTesting {
 
     doc.checkHasHyperlink(
       "Bwrw golwg dros y manylion ar gyfer y cais am ad-daliad, dyddiedig 14 Awst 2021",
-      uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.routes.RepaymentStatusController.statusOf(RequestNumber("1")).url
+      uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.routes.RefundProcessingController.onPageLoad(RequestNumber("1")).url
     )
 
     doc.checkHasHyperlink(
       "Bwrw golwg dros y manylion ar gyfer y cais am ad-daliad, dyddiedig 16 Awst 2023",
-      uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.routes.RepaymentStatusController.statusOf(RequestNumber("2")).url
+      uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.routes.RefundApprovedController.showApprovedPage(RequestNumber("2")).url
     )
   }
 }

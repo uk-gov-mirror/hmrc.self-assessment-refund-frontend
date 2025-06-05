@@ -23,6 +23,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.table.TableRow
 import uk.gov.hmrc.play.language.LanguageUtils
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.page.RefundTrackerPageModel.RefundTrackerModel
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.repayment.{RepaymentStatus, RequestNumber}
+import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney
 
 import java.time.LocalDate
 
@@ -47,12 +48,20 @@ object RefundTrackerPageModel {
       ),
       TableRow(
         content = HtmlContent(
-          s"""<a class="govuk-link" href="${uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.routes.RepaymentStatusController.statusOf(key).url}">
+          s"""<a class="govuk-link" href="${linkForTrackerPage(status, key)}">
              |${messages("refund-tracker.view-details")}
              |<span class="govuk-visually-hidden">  ${messages("refund-tracker.view-details.visually-hidden", languageUtils.Dates.formatDate(receivedOn))}</span>
              |</a>""".stripMargin
         )
       )
     )
+
+    private def linkForTrackerPage(status: RepaymentStatus, key: RequestNumber): String =
+      status match {
+        case RepaymentStatus.Approved          => trackRefundJourney.routes.RefundApprovedController.showApprovedPage(key).url
+        case RepaymentStatus.Processing        => trackRefundJourney.routes.RefundProcessingController.onPageLoad(key).url
+        case RepaymentStatus.ProcessingRisking => trackRefundJourney.routes.RefundProcessingController.onPageLoad(key).url
+        case RepaymentStatus.Rejected          => trackRefundJourney.routes.RefundRejectedController.onPageLoad(key).url
+      }
   }
 }
