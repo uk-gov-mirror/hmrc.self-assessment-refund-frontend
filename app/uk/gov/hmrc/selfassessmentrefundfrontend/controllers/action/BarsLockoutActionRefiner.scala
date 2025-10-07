@@ -43,13 +43,13 @@ class BarsLockoutActionRefiner @Inject() (
             case Some(_) =>
               val amount = request.journey.amount
               auditService.auditRefundAmount(
-                balanceDueWithin30Days = amount.flatMap(_.balanceDueWithin30Days),
-                amountAvailable        = amount.flatMap(_.availableCredit),
-                amountChosen           = amount.flatMap(_.repayment),
-                affinityGroup          = Some(request.affinityGroup),
-                maybeNino              = request.journey.nino,
-                maybeArn               = request.agentReferenceNumber,
-                failureReason          = Some("bars lockout")
+                totalCreditAvailableForRepayment = amount.flatMap(_.totalCreditAvailableForRepayment),
+                unallocatedCredit                = amount.flatMap(_.unallocatedCredit),
+                amountChosen                     = amount.flatMap(_.repayment),
+                affinityGroup                    = Some(request.affinityGroup),
+                maybeNino                        = request.journey.nino,
+                maybeArn                         = request.agentReferenceNumber,
+                failureReason                    = Some("bars lockout")
               )
 
               Left(Redirect(controllers.refundRequestJourney.routes.BarsLockoutController.barsLockout))

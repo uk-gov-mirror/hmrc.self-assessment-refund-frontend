@@ -58,7 +58,7 @@ class RepaymentConfirmationControllerSpec extends ItSpec with TdRepayments with 
         result.checkPageIsDisplayed(
           expectedHeading     = "Refund request received",
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-          contentChecks       = checkPageContent(amount.availableCredit.getOrElse(BigDecimal(0.0)), timeOfConfirmation, "1234567890", "12345678", isCardOnFile = true, isAgent = false),
+          contentChecks       = checkPageContent(amount.totalCreditAvailableForRepayment.getOrElse(BigDecimal(0.0)), timeOfConfirmation, "1234567890", "12345678", isCardOnFile = true, isAgent = false),
           expectedStatus      = Status.OK,
           withBackButton      = false,
           journey             = "request"
@@ -84,7 +84,7 @@ class RepaymentConfirmationControllerSpec extends ItSpec with TdRepayments with 
         result.checkPageIsDisplayed(
           expectedHeading     = "Cais am ad-daliad wedi dod i law",
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-          contentChecks       = checkPageContentWelsh(amount.availableCredit.getOrElse(BigDecimal(0.0)), timeOfConfirmation, "1234567890", "12345678", isCardOnFile = true, isAgent = false),
+          contentChecks       = checkPageContentWelsh(amount.totalCreditAvailableForRepayment.getOrElse(BigDecimal(0.0)), timeOfConfirmation, "1234567890", "12345678", isCardOnFile = true, isAgent = false),
           expectedStatus      = Status.OK,
           withBackButton      = false,
           journey             = "request",
@@ -113,7 +113,7 @@ class RepaymentConfirmationControllerSpec extends ItSpec with TdRepayments with 
         result.checkPageIsDisplayed(
           expectedHeading     = "Refund request received",
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-          contentChecks       = checkPageContent(amount.availableCredit.getOrElse(BigDecimal(0.0)), timeOfConfirmation, "1234567890", "12345678", isCardOnFile = false, isAgent = false),
+          contentChecks       = checkPageContent(amount.totalCreditAvailableForRepayment.getOrElse(BigDecimal(0.0)), timeOfConfirmation, "1234567890", "12345678", isCardOnFile = false, isAgent = false),
           expectedStatus      = Status.OK,
           withBackButton      = false,
           journey             = "request"
@@ -145,7 +145,7 @@ class RepaymentConfirmationControllerSpec extends ItSpec with TdRepayments with 
         result.checkPageIsDisplayed(
           expectedHeading     = "Refund request received",
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/agents/claim-refund",
-          contentChecks       = checkPageContent(amount.availableCredit.getOrElse(BigDecimal(0.0)), timeOfConfirmation, "1234567890", "12345678", isCardOnFile = true, isAgent = true, isClientUtrPresent = true),
+          contentChecks       = checkPageContent(amount.totalCreditAvailableForRepayment.getOrElse(BigDecimal(0.0)), timeOfConfirmation, "1234567890", "12345678", isCardOnFile = true, isAgent = true, isClientUtrPresent = true),
           expectedStatus      = Status.OK,
           withBackButton      = false,
           journey             = "request"
@@ -174,7 +174,7 @@ class RepaymentConfirmationControllerSpec extends ItSpec with TdRepayments with 
         result.checkPageIsDisplayed(
           expectedHeading     = "Refund request received",
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/agents/claim-refund",
-          contentChecks       = checkPageContent(amount.availableCredit.getOrElse(BigDecimal(0.0)), timeOfConfirmation, "1234567890", "12345678", isCardOnFile = false, isAgent = true),
+          contentChecks       = checkPageContent(amount.totalCreditAvailableForRepayment.getOrElse(BigDecimal(0.0)), timeOfConfirmation, "1234567890", "12345678", isCardOnFile = false, isAgent = true),
           expectedStatus      = Status.OK,
           withBackButton      = false,
           journey             = "request"

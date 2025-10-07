@@ -35,7 +35,7 @@ errorSummary: GovukErrorSummary
 @title = @{messages("selectamount.title")}
 
 @optionalRadioItem = @{
-    model.suggestedAmount.map { suggestedAmount =>
+    model.unallocatedCredit.map { suggestedAmount =>
         RadioItem(
             content = Text(suggestedAmount),
             hint = Some(Hint(content = HtmlContent(messages("selectamount.choice.suggested.hint")))),
@@ -53,7 +53,7 @@ errorSummary: GovukErrorSummary
         label = Label(content = Text(messages("selectamount.amount.label"))),
         prefix = Some(PrefixOrSuffix(content = Text("£"))),
         value = model.form("amount").value.orElse(if(model.partialRepaymentSelected.contains(true)) model.selectAmount else None),
-        hint = Some(Hint(content = Text(messages("selectamount.amount.hint", model.availableCredit)))),
+        hint = Some(Hint(content = Text(messages("selectamount.amount.hint", model.totalCreditAvailableForRepayment)))),
         classes = "govuk-!-width-one-quarter",
         errorMessage = model.form.error("amount").map(e =>
             ErrorMessage(
@@ -87,7 +87,7 @@ errorSummary: GovukErrorSummary
             items = List(
                 optionalRadioItem,
                 Some(RadioItem(
-                    content = Text(model.availableCredit),
+                    content = Text(model.totalCreditAvailableForRepayment),
                     id = Some("choice-full"),
                     value = Some("full"),
                     checked = model.form("choice").value.contains("full") || (model.partialRepaymentSelected.contains(false) && model.suggestedRepaymentSelected.contains(false))

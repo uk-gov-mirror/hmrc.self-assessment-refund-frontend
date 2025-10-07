@@ -37,4 +37,4 @@ lazy val microservice = Project(appName, file("."))
   .settings(ScalariformSettings.scalariformSettings *)
   .settings(WartRemoverSettings.wartRemoverSettings *)
 
-  addCompilerPlugin("org.typelevel" % "kind-projector" % "0.13.3" cross CrossVersion.full)
+  addCompilerPlugin("org.typelevel" % "kind-projector" % "0.13.4" cross CrossVersion.full)

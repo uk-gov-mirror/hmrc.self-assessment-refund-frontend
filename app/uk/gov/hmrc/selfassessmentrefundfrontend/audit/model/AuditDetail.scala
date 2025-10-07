@@ -17,7 +17,5 @@
 package uk.gov.hmrc.selfassessmentrefundfrontend.audit.model
 
 trait AuditDetail {
-
   val auditType: String
-
 }

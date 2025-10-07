@@ -22,13 +22,13 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.audit.model.AuditOutcome
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.customer.Nino
 
 final case class RefundAmountAuditDetail(
-    outcome:                AuditOutcome,
-    balanceDueWithin30Days: Option[BigDecimal],
-    amountAvailable:        Option[BigDecimal],
-    amountChosen:           Option[BigDecimal],
-    nino:                   Option[Nino],
-    agentReferenceNumber:   Option[String],
-    userType:               Option[AffinityGroup]
+    outcome:                          AuditOutcome,
+    totalCreditAvailableForRepayment: Option[BigDecimal],
+    unallocatedCredit:                Option[BigDecimal],
+    amountChosen:                     Option[BigDecimal],
+    nino:                             Option[Nino],
+    agentReferenceNumber:             Option[String],
+    userType:                         Option[AffinityGroup]
 )
 
 object RefundAmountAuditDetail {

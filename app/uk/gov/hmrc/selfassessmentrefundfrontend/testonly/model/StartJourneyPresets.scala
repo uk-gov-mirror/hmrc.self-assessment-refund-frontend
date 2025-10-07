@@ -47,9 +47,9 @@ object StartJourneyPresets {
   val presets: List[Preset] = List(
     Preset(StartRefund("AB200111C", 987.65, CARD, defaultReturnUrl), "Happy path, with last payment by CARD"),
     Preset(StartRefund("AB200111D", 123.45, BACS, defaultReturnUrl), "Happy path, with last payment by BACS"),
-    Preset(StartRefund("AB200131C", 345.67, CARD, defaultReturnUrl), "API 1553 - balanceDueWithin30Days > availableCredit"),
-    Preset(StartRefund("AB200141C", 345.67, CARD, defaultReturnUrl), "API 1553 - balanceDueWithin30Days = availableCredit"),
-    Preset(StartRefund("AB500111C", 987.65, CARD, defaultReturnUrl), "API 1553 - Get Financial Details returns error"),
+    Preset(StartRefund("AB200131C", 345.67, CARD, defaultReturnUrl), "HIP#5277 - unallocatedCredit > totalCreditAvailableForRepayment"),
+    Preset(StartRefund("AB200141C", 345.67, CARD, defaultReturnUrl), "HIP#5277 - unallocatedCredit = totalCreditAvailableForRepayment"),
+    Preset(StartRefund("AB500111C", 987.65, CARD, defaultReturnUrl), "HIP#5277 - Get Financial Details returns error"),
     Preset(StartRefund("AB200111B", 987.65, CARD, defaultReturnUrl), "API 1770 Send Repayment Request returns error"),
     Preset(StartRefund("AB200400D", 987.65, CARD, defaultReturnUrl), "NRS Submission returns 400"),
     Preset(StartRefund("AB200500D", 987.65, CARD, defaultReturnUrl), "NRS Submission returns 500"),

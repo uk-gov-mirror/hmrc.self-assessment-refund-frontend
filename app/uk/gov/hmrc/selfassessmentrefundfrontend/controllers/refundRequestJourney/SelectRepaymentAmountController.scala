@@ -37,7 +37,6 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.views.html.refundrequestjourney.
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
-import scala.math.BigDecimal.RoundingMode
 
 @Singleton
 class SelectRepaymentAmountController @Inject() (
@@ -58,10 +57,10 @@ class SelectRepaymentAmountController @Inject() (
     journey.amount match {
       case Some(amount) =>
         amount match {
-          case Amount(fullFromVC, repayment, partialRepaymentSelected, ac @ Some(availableCredit), Some(allocatedAmount), suggestedRepaymentSelected) =>
-            val model = SelectAmountPageModel(repayment, partialRepaymentSelected, availableCredit, suggestedAmount(allocatedAmount, availableCredit), suggestedRepaymentSelected, request.isAgent)
+          case Amount(fullFromVC, repayment, partialRepaymentSelected, tc @ Some(totalCreditAvailableForRepayment), Some(unallocatedCredit), suggestedRepaymentSelected) if totalCreditAvailableForRepayment > 0 =>
+            val model = SelectAmountPageModel(repayment, partialRepaymentSelected, totalCreditAvailableForRepayment, suggestedAmount = suggestedAmount(unallocatedCredit, totalCreditAvailableForRepayment), suggestedRepaymentSelected, request.isAgent)
 
-              def isAmountMatching: Boolean = (ac, fullFromVC) match {
+              def isAmountMatching: Boolean = (tc, fullFromVC) match {
                 case (Some(avAmount), Some(vcAmount)) if avAmount === vcAmount => true
                 case (Some(_), None) => true
                 case _ => false
@@ -71,37 +70,37 @@ class SelectRepaymentAmountController @Inject() (
               Future.successful(Ok(selectAmountPage(model)))
             } else {
               auditService.auditRefundAmount(
-                balanceDueWithin30Days = Some(allocatedAmount),
-                amountAvailable        = Some(availableCredit),
-                amountChosen           = None,
-                affinityGroup          = Some(request.affinityGroup),
-                maybeNino              = journey.nino,
-                maybeArn               = request.agentReferenceNumber,
-                failureReason          = Some("availableCredit does not match the value sent from view and change")
+                totalCreditAvailableForRepayment = Some(totalCreditAvailableForRepayment),
+                unallocatedCredit                = Some(unallocatedCredit),
+                amountChosen                     = None,
+                affinityGroup                    = Some(request.affinityGroup),
+                maybeNino                        = journey.nino,
+                maybeArn                         = request.agentReferenceNumber,
+                failureReason                    = Some("totalCreditAvailableForRepayment does not match the value sent from view and change")
               )
-              logAndReturnErrorPage(method = "selectAmount", s"[SelectRepaymentAmountController][selectAmount] Amounts from V&C and API#1553 are not the same, '${fullFromVC.map(_.toString()).getOrElse("missing")}' does not match '${availableCredit.toString}'")
+              logAndReturnErrorPage(method = "selectAmount", s"[SelectRepaymentAmountController][selectAmount] Amounts from V&C and HIP-API#5277 are not the same, '${fullFromVC.map(_.toString()).getOrElse("missing")}' does not match '${totalCreditAvailableForRepayment.toString}'")
             }
           case _ =>
             auditService.auditRefundAmount(
-              balanceDueWithin30Days = amount.balanceDueWithin30Days,
-              amountAvailable        = amount.availableCredit,
-              amountChosen           = None,
-              affinityGroup          = Some(request.affinityGroup),
-              maybeNino              = journey.nino,
-              maybeArn               = request.agentReferenceNumber,
-              failureReason          = Some("Amount object in journey missing required attributes")
+              totalCreditAvailableForRepayment = amount.totalCreditAvailableForRepayment,
+              unallocatedCredit                = amount.unallocatedCredit,
+              amountChosen                     = None,
+              affinityGroup                    = Some(request.affinityGroup),
+              maybeNino                        = journey.nino,
+              maybeArn                         = request.agentReferenceNumber,
+              failureReason                    = Some("Amount object in journey missing required attributes")
             )
             logAndReturnErrorPage(method = "selectAmount")
         }
       case _ =>
         auditService.auditRefundAmount(
-          balanceDueWithin30Days = None,
-          amountAvailable        = None,
-          amountChosen           = None,
-          affinityGroup          = Some(request.affinityGroup),
-          maybeNino              = journey.nino,
-          maybeArn               = request.agentReferenceNumber,
-          failureReason          = Some("Amount object in journey is None")
+          totalCreditAvailableForRepayment = None,
+          unallocatedCredit                = None,
+          amountChosen                     = None,
+          affinityGroup                    = Some(request.affinityGroup),
+          maybeNino                        = journey.nino,
+          maybeArn                         = request.agentReferenceNumber,
+          failureReason                    = Some("Amount object in journey is None")
         )
         logAndReturnErrorPage(method = "selectAmount")
     }
@@ -114,27 +113,27 @@ class SelectRepaymentAmountController @Inject() (
     journey.amount match {
       case Some(amount) =>
         amount match {
-          case Amount(_, _, _, Some(availableCredit), Some(balanceDueWithin30Days), _) =>
-            val model = SelectAmountPageModel(availableCredit = availableCredit, suggestedAmount = suggestedAmount(balanceDueWithin30Days, availableCredit), isAgent = request.isAgent).withFormBound()
+          case Amount(_, _, _, Some(totalCreditAvailableForRepayment), Some(unallocatedCredit), _) =>
+            val model = SelectAmountPageModel(totalCreditAvailableForRepayment = totalCreditAvailableForRepayment, suggestedAmount = suggestedAmount(unallocatedCredit, totalCreditAvailableForRepayment), isAgent = request.isAgent).withFormBound()
             val formData = model.form.data
               def auditRefundAmount(amountChosen: Option[BigDecimal]): Unit = {
                 auditService.auditRefundAmount(
-                  balanceDueWithin30Days = Some(balanceDueWithin30Days),
-                  amountAvailable        = Some(availableCredit),
-                  amountChosen           = amountChosen,
-                  affinityGroup          = Some(request.affinityGroup),
-                  maybeNino              = journey.nino,
-                  maybeArn               = request.agentReferenceNumber
+                  totalCreditAvailableForRepayment = Some(totalCreditAvailableForRepayment),
+                  unallocatedCredit                = Some(unallocatedCredit),
+                  amountChosen                     = amountChosen,
+                  affinityGroup                    = Some(request.affinityGroup),
+                  maybeNino                        = journey.nino,
+                  maybeArn                         = request.agentReferenceNumber
                 )
               }
 
               def storeChosenAmount(): Future[Unit] = formData.get("choice").map(SelectAmountChoice.withNameLowercaseOnly) match {
                 case Some(Suggested) =>
-                  auditRefundAmount(amount.suggestedAmount)
-                  journeyConnector.setJourney(journey.id, journey.copy(amount = Some(amount.setSuggestedRepayment(amount.suggestedAmount))))
+                  auditRefundAmount(amount.unallocatedCredit)
+                  journeyConnector.setJourney(journey.id, journey.copy(amount = Some(amount.setSuggestedRepayment(amount.unallocatedCredit))))
                 case Some(Full) =>
-                  auditRefundAmount(amount.availableCredit)
-                  journeyConnector.setJourney(journey.id, journey.copy(amount = Some(amount.setFullRepayment(amount.availableCredit))))
+                  auditRefundAmount(amount.totalCreditAvailableForRepayment)
+                  journeyConnector.setJourney(journey.id, journey.copy(amount = Some(amount.setFullRepayment(amount.totalCreditAvailableForRepayment))))
                 case Some(Partial) =>
                   val partialAmount = Some(BigDecimal(AmountFormatter.sanitize(formData.get("amount"))))
                   auditRefundAmount(partialAmount)
@@ -156,11 +155,11 @@ class SelectRepaymentAmountController @Inject() (
     }
   }
 
-  private def suggestedAmount(balanceDueWithin30Days: BigDecimal, availableCredit: BigDecimal): Option[BigDecimal] =
-    if (availableCredit <= balanceDueWithin30Days) {
+  private def suggestedAmount(unallocatedCredit: BigDecimal, totalCreditAvailableForRepayment: BigDecimal): Option[BigDecimal] =
+    if (unallocatedCredit <= 0 || unallocatedCredit >= totalCreditAvailableForRepayment) {
       None
     } else {
-      Some(availableCredit - balanceDueWithin30Days).map(_.setScale(2, RoundingMode.DOWN))
+      Some(unallocatedCredit)
     }
 
   private def handleRedirect(redirectToCYA: Option[String])(implicit request: BarsVerifiedRequest[_]): Future[Result] = {

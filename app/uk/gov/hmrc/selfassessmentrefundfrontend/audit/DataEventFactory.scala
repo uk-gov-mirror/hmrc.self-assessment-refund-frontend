@@ -92,22 +92,22 @@ object DataEventFactory {
   }
 
   def startClaimJourneyEvent(
-      balanceDueWithin30Days: Option[BigDecimal],
-      amountAvailable:        Option[BigDecimal],
-      amountChosen:           Option[BigDecimal],
-      affinityGroup:          Option[AffinityGroup],
-      maybeNino:              Option[Nino],
-      maybeArn:               Option[String],
-      failureReason:          Option[String]
+      totalCreditAvailableForRepayment: Option[BigDecimal],
+      unallocatedCredit:                Option[BigDecimal],
+      amountChosen:                     Option[BigDecimal],
+      affinityGroup:                    Option[AffinityGroup],
+      maybeNino:                        Option[Nino],
+      maybeArn:                         Option[String],
+      failureReason:                    Option[String]
   )(implicit request: Request[_]): ExtendedDataEvent = {
     val detail = RefundAmountAuditDetail(
-      outcome                = AuditOutcome.fromFailureReason(failureReason),
-      balanceDueWithin30Days = balanceDueWithin30Days,
-      amountAvailable        = amountAvailable,
-      amountChosen           = amountChosen,
-      nino                   = maybeNino,
-      agentReferenceNumber   = maybeArn,
-      userType               = affinityGroup
+      outcome                          = AuditOutcome.fromFailureReason(failureReason),
+      totalCreditAvailableForRepayment = totalCreditAvailableForRepayment,
+      unallocatedCredit                = unallocatedCredit,
+      amountChosen                     = amountChosen,
+      nino                             = maybeNino,
+      agentReferenceNumber             = maybeArn,
+      userType                         = affinityGroup
     )
 
     makeExtendedDataEvent(

@@ -61,22 +61,22 @@ class AuditService @Inject() (auditConnector: AuditConnector)(implicit ec: Execu
       maybeArn:        Option[String]
   )(implicit hc: HeaderCarrier): Unit = {
     try {
-      val amountAvailableBD = journey.amount.map(_.availableCredit.getOrElse(BigDecimal("0"))).getOrElse(BigDecimal("0")).setScale(2)
-      val balanceDueBD = journey.amount.map(_.balanceDueWithin30Days.getOrElse(BigDecimal("0"))).getOrElse(BigDecimal("0")).setScale(2)
-      val amountChosenBD = journey.amount.map(_.repay).getOrElse(BigDecimal("0")).setScale(2)
+      val totalCreditAvailableForRepayment = journey.amount.map(_.totalCreditAvailableForRepayment.getOrElse(BigDecimal("0"))).getOrElse(BigDecimal("0")).setScale(2)
+      val unallocatedCredit = journey.amount.map(_.unallocatedCredit.getOrElse(BigDecimal("0"))).getOrElse(BigDecimal("0")).setScale(2)
+      val amountChosen = journey.amount.map(_.repay).getOrElse(BigDecimal("0")).setScale(2)
 
       val repaymentRequestAuditItem = RepaymentRequestAuditItem(
-        etmpResult             = journey.repaymentConfirmation.fold("Fail")(_ => "Success"),
-        userType               = affinityGroup.getOrElse("MissingAffinityGroup"),
-        agentReferenceNumber   = maybeArn,
-        amountAvailable        = amountAvailableBD.toString(),
-        balanceDueWithin30Days = balanceDueBD.toString(),
-        amountChosen           = amountChosenBD.toString(),
-        barsResponse           = None,
-        reference              = journey.repaymentConfirmation.map(_.repaymentRequestNumber.value),
-        nino                   = journey.nino.map(_.value).getOrElse("MissingNino"),
-        nrsSubmissionId        = nrsSubmissionId.getOrElse("MissingNrsSubmissionId"),
-        bankAccount            = BankAccountDetailsAudit.fromOptionalBankAccountInfo(journey.accountType, journey.bankAccountInfo)
+        etmpResult                       = journey.repaymentConfirmation.fold("Fail")(_ => "Success"),
+        userType                         = affinityGroup.getOrElse("MissingAffinityGroup"),
+        agentReferenceNumber             = maybeArn,
+        totalCreditAvailableForRepayment = totalCreditAvailableForRepayment.toString(),
+        unallocatedCredit                = unallocatedCredit.toString(),
+        amountChosen                     = amountChosen.toString(),
+        barsResponse                     = None,
+        reference                        = journey.repaymentConfirmation.map(_.repaymentRequestNumber.value),
+        nino                             = journey.nino.map(_.value).getOrElse("MissingNino"),
+        nrsSubmissionId                  = nrsSubmissionId.getOrElse("MissingNrsSubmissionId"),
+        bankAccount                      = BankAccountDetailsAudit.fromOptionalBankAccountInfo(journey.accountType, journey.bankAccountInfo)
       )
       val event = ExtendedDataEvent(
         auditSource = "self-assessment-refund-frontend",
@@ -106,15 +106,15 @@ class AuditService @Inject() (auditConnector: AuditConnector)(implicit ec: Execu
   }
 
   def auditRefundAmount(
-      balanceDueWithin30Days: Option[BigDecimal],
-      amountAvailable:        Option[BigDecimal],
-      amountChosen:           Option[BigDecimal],
-      affinityGroup:          Option[AffinityGroup],
-      maybeNino:              Option[Nino],
-      maybeArn:               Option[String],
-      failureReason:          Option[String]        = None
+      totalCreditAvailableForRepayment: Option[BigDecimal],
+      unallocatedCredit:                Option[BigDecimal],
+      amountChosen:                     Option[BigDecimal],
+      affinityGroup:                    Option[AffinityGroup],
+      maybeNino:                        Option[Nino],
+      maybeArn:                         Option[String],
+      failureReason:                    Option[String]        = None
   )(implicit request: Request[_]): Unit = {
-    val event = DataEventFactory.startClaimJourneyEvent(balanceDueWithin30Days, amountAvailable, amountChosen, affinityGroup, maybeNino, maybeArn, failureReason)
+    val event = DataEventFactory.startClaimJourneyEvent(totalCreditAvailableForRepayment, unallocatedCredit, amountChosen, affinityGroup, maybeNino, maybeArn, failureReason)
 
     sendExtendedEvent(event)
   }

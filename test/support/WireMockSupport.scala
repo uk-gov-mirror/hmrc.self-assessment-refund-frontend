@@ -59,7 +59,7 @@ trait WireMockSupport extends BeforeAndAfterAll with BeforeAndAfterEach {
 
   override protected def afterAll(): Unit = wireMockServer.stop()
 
-  val testAmount: Amount = Amount(Some(BigDecimal(123)), None, None, availableCredit = Some(BigDecimal(123)), balanceDueWithin30Days = Some(BigDecimal(45)))
+  val testAmount: Amount = Amount(Some(BigDecimal(123)), None, None, totalCreditAvailableForRepayment = Some(BigDecimal(123)), unallocatedCredit = Some(BigDecimal(45)))
   val testRepaymentResponse: RepaymentResponse = RepaymentResponse(OffsetDateTime.parse("2023-12-01T17:35:30+01:00"), RequestNumber("1234567890"))
 
   def stubBackendJourneyId(): StubMapping =

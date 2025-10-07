@@ -29,8 +29,8 @@ trait SelectAmountPageTesting extends PageContentTesting {
 
     doc.checkHasBackLinkWithUrl("#")
 
-    val suggestedAmount = AmountFormatter.formatOptionalAmount(amount.suggestedAmount)
-    val fullAmount = AmountFormatter.formatOptionalAmount(amount.availableCredit)
+    val suggestedAmount = AmountFormatter.formatOptionalAmount(amount.unallocatedCredit)
+    val fullAmount = AmountFormatter.formatOptionalAmount(amount.totalCreditAvailableForRepayment)
 
     doc.checkHasRadioButtonOptionsWith(List(
       if (withoutSuggestedAmount) None else Some((s"$suggestedAmount", Some("This will leave enough in your tax account to cover your next bill"))),
@@ -51,8 +51,8 @@ trait SelectAmountPageTesting extends PageContentTesting {
 
     doc.checkHasBackLinkWithUrl("#")
 
-    val suggestedAmount = AmountFormatter.formatOptionalAmount(amount.suggestedAmount)
-    val fullAmount = AmountFormatter.formatOptionalAmount(amount.availableCredit)
+    val suggestedAmount = AmountFormatter.formatOptionalAmount(amount.unallocatedCredit)
+    val fullAmount = AmountFormatter.formatOptionalAmount(amount.totalCreditAvailableForRepayment)
 
     doc.checkHasRadioButtonOptionsWith(List(
       if (withoutSuggestedAmount) None else Some((s"$suggestedAmount", Some("Bydd hyn yn gadael digon yn eich cyfrif treth i dalu’ch bil nesaf"))),

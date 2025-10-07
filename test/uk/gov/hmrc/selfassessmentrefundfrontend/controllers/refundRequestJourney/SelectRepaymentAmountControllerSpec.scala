@@ -96,8 +96,8 @@ class SelectRepaymentAmountControllerSpec
           )
         }
 
-        "display 'select amount' page without suggested amount option if it is less than 0" in {
-          val amount = Amount(Some(BigDecimal(45.67)), None, None, availableCredit = Some(BigDecimal(45.67)), balanceDueWithin30Days = Some(BigDecimal(122.34)))
+        "display 'select amount' page without suggested amount option if unallocatedCredit is less than 0" in {
+          val amount = Amount(Some(BigDecimal(45.67)), None, None, totalCreditAvailableForRepayment = Some(BigDecimal(45.67)), unallocatedCredit = Some(BigDecimal(-122.34)))
 
           stubBackendJourneyId()
           stubBackendBusinessJourney(backReturnUrl = true, amount = Some(amount))
@@ -113,8 +113,8 @@ class SelectRepaymentAmountControllerSpec
           )
         }
 
-        "display 'select amount' page without suggested amount option if it is 0" in {
-          val amount = Amount(Some(BigDecimal(45.67)), None, None, availableCredit = Some(BigDecimal(45.67)), balanceDueWithin30Days = Some(BigDecimal(45.67)))
+        "display 'select amount' page without suggested amount option if unallocatedCredit is 0" in {
+          val amount = Amount(Some(BigDecimal(45.67)), None, None, totalCreditAvailableForRepayment = Some(BigDecimal(45.67)), unallocatedCredit = Some(BigDecimal(0.0)))
 
           stubBackendJourneyId()
           stubBackendBusinessJourney(backReturnUrl = true, amount = Some(amount))
@@ -130,8 +130,42 @@ class SelectRepaymentAmountControllerSpec
           )
         }
 
-        "display 'there is a problem' page if amount from V&C is not matching the amount from API#1553" in {
-          val amount = Amount(Some(BigDecimal(123)), None, None, availableCredit = Some(BigDecimal(122)), balanceDueWithin30Days = Some(BigDecimal(45)))
+        "display 'select amount' page without suggested amount option if unallocatedCredit is greater than total available for repayment" in {
+          val amount = Amount(Some(BigDecimal(45.67)), None, None, totalCreditAvailableForRepayment = Some(BigDecimal(45.67)), unallocatedCredit = Some(BigDecimal(123.45)))
+
+          stubBackendJourneyId()
+          stubBackendBusinessJourney(backReturnUrl = true, amount = Some(amount))
+
+          val result: Future[Result] = amountController.selectAmount(fakeRequest)
+
+          result.checkPageIsDisplayed(
+            expectedHeading     = selectAmountPageHeading,
+            expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
+            contentChecks       = checkPageContent(amount, withoutSuggestedAmount = true),
+            expectedStatus      = Status.OK,
+            journey             = "request"
+          )
+        }
+
+        "display 'select amount' page without suggested amount option if unallocatedCredit is equal total available for repayment" in {
+          val amount = Amount(Some(BigDecimal(45.67)), None, None, totalCreditAvailableForRepayment = Some(BigDecimal(45.67)), unallocatedCredit = Some(BigDecimal(45.67)))
+
+          stubBackendJourneyId()
+          stubBackendBusinessJourney(backReturnUrl = true, amount = Some(amount))
+
+          val result: Future[Result] = amountController.selectAmount(fakeRequest)
+
+          result.checkPageIsDisplayed(
+            expectedHeading     = selectAmountPageHeading,
+            expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
+            contentChecks       = checkPageContent(amount, withoutSuggestedAmount = true),
+            expectedStatus      = Status.OK,
+            journey             = "request"
+          )
+        }
+
+        "display 'there is a problem' page if amount from V&C is not matching the amount from HIP-API#5277" in {
+          val amount = Amount(Some(BigDecimal(123)), None, None, totalCreditAvailableForRepayment = Some(BigDecimal(122)), unallocatedCredit = Some(BigDecimal(45)))
 
           stubBackendJourneyId()
           stubBackendBusinessJourney(backReturnUrl = true, amount = Some(amount))
@@ -162,9 +196,9 @@ class SelectRepaymentAmountControllerSpec
           )
         }
 
-        "display 'there is a problem' page if availableCredit in amount is missing" in {
+        "display 'there is a problem' page if totalCreditAvailableForRepayment in amount is missing" in {
           stubBackendJourneyId()
-          stubBackendBusinessJourney(backReturnUrl = true, amount = Some(testAmount.copy(availableCredit = None)))
+          stubBackendBusinessJourney(backReturnUrl = true, amount = Some(testAmount.copy(totalCreditAvailableForRepayment = None)))
 
           val result: Future[Result] = amountController.selectAmount(fakeRequest)
 
@@ -177,9 +211,39 @@ class SelectRepaymentAmountControllerSpec
           )
         }
 
-        "display 'there is a problem' page if balanceDueWithin30Days in amount is missing" in {
+        "display 'there is a problem' page if unallocatedCredit in amount is missing" in {
           stubBackendJourneyId()
-          stubBackendBusinessJourney(backReturnUrl = true, amount = Some(testAmount.copy(balanceDueWithin30Days = None)))
+          stubBackendBusinessJourney(backReturnUrl = true, amount = Some(testAmount.copy(unallocatedCredit = None)))
+
+          val result: Future[Result] = amountController.selectAmount(fakeRequest)
+
+          result.checkPageIsDisplayed(
+            expectedHeading     = "Sorry, there is a problem with the service",
+            expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
+            journey             = "request",
+            expectedStatus      = Status.INTERNAL_SERVER_ERROR,
+            withBackButton      = false
+          )
+        }
+
+        "display 'there is a problem' page if totalCreditAvailableForRepayment in amount is 0" in {
+          stubBackendJourneyId()
+          stubBackendBusinessJourney(backReturnUrl = true, amount = Some(testAmount.copy(totalCreditAvailableForRepayment = Some(0.0))))
+
+          val result: Future[Result] = amountController.selectAmount(fakeRequest)
+
+          result.checkPageIsDisplayed(
+            expectedHeading     = "Sorry, there is a problem with the service",
+            expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
+            journey             = "request",
+            expectedStatus      = Status.INTERNAL_SERVER_ERROR,
+            withBackButton      = false
+          )
+        }
+
+        "display 'there is a problem' page if totalCreditAvailableForRepayment in amount is less than 0" in {
+          stubBackendJourneyId()
+          stubBackendBusinessJourney(backReturnUrl = true, amount = Some(testAmount.copy(totalCreditAvailableForRepayment = Some(-123.45))))
 
           val result: Future[Result] = amountController.selectAmount(fakeRequest)
 
@@ -244,7 +308,7 @@ class SelectRepaymentAmountControllerSpec
         .withFormUrlEncodedBody("nino" -> "AA999999A", "fullAmount" -> "123")
 
       "return 200, and html with the amount" in {
-        val amount = Amount(Some(BigDecimal(123)), None, None, availableCredit = Some(BigDecimal(123)), balanceDueWithin30Days = Some(BigDecimal(123)))
+        val amount = Amount(Some(BigDecimal(123)), None, None, totalCreditAvailableForRepayment = Some(BigDecimal(123)), unallocatedCredit = Some(BigDecimal(123)))
 
         stubGETJourneyWithBankDetails("", amount)
         stubBarsVerifyStatus()
@@ -262,7 +326,7 @@ class SelectRepaymentAmountControllerSpec
       }
 
       "return 200, and welsh html with the amount" in {
-        val amount = Amount(Some(BigDecimal(45.67)), None, None, availableCredit = Some(BigDecimal(45.67)), balanceDueWithin30Days = Some(BigDecimal(123)))
+        val amount = Amount(Some(BigDecimal(123)), None, None, totalCreditAvailableForRepayment = Some(BigDecimal(123)), unallocatedCredit = Some(BigDecimal(123)))
 
         stubGETJourneyWithBankDetails("", amount)
         stubBarsVerifyStatus()
@@ -387,7 +451,7 @@ class SelectRepaymentAmountControllerSpec
       s"a partial amount has been selected [$amountSamples]" when {
         val fakeRequestWithValidFormPartialAmount = fakeRequestBase
           .withFormUrlEncodedBody("nino" -> "AA999999A", "fullAmount" -> "123", "choice" -> "partial", "amount" -> amountSamples)
-        val testAmount: Amount = Amount(Some(BigDecimal(123)), Some(BigDecimal(80)), Some(true), availableCredit = Some(BigDecimal(123)), balanceDueWithin30Days = Some(BigDecimal(45)), Some(false))
+        val testAmount: Amount = Amount(Some(BigDecimal(123)), Some(BigDecimal(80)), Some(true), totalCreditAvailableForRepayment = Some(BigDecimal(123)), unallocatedCredit = Some(BigDecimal(45)), Some(false))
 
         val journey: Journey = Journey(
           Some(SessionId(TdAll.sessionId).value),
@@ -559,13 +623,13 @@ class SelectRepaymentAmountControllerSpec
       )
     }
 
-    "display 'there is a problem' page if availableCredit in amount is missing" in {
+    "display 'there is a problem' page if totalCreditAvailableForRepayment in amount is missing" in {
       val fakeRequestWithValidFormFullAmount = fakeRequestBase
         .withFormUrlEncodedBody("nino" -> "AA999999A", "fullAmount" -> "123", "choice" -> "full")
 
       stubBackendJourneyId()
       stubPOSTJourney()
-      stubBackendBusinessJourney(amount = Some(testAmount.copy(availableCredit = None)))
+      stubBackendBusinessJourney(amount = Some(testAmount.copy(totalCreditAvailableForRepayment = None)))
 
       val result = amountController.submitAmount(fakeRequestWithValidFormFullAmount)
 
@@ -578,13 +642,13 @@ class SelectRepaymentAmountControllerSpec
       )
     }
 
-    "display 'there is a problem' page if balanceDueWithin30Days in amount is missing" in {
+    "display 'there is a problem' page if unallocatedCredit in amount is missing" in {
       val fakeRequestWithValidFormFullAmount = fakeRequestBase
         .withFormUrlEncodedBody("nino" -> "AA999999A", "fullAmount" -> "123", "choice" -> "full")
 
       stubBackendJourneyId()
       stubPOSTJourney()
-      stubBackendBusinessJourney(amount = Some(testAmount.copy(balanceDueWithin30Days = None)))
+      stubBackendBusinessJourney(amount = Some(testAmount.copy(unallocatedCredit = None)))
 
       val result = amountController.submitAmount(fakeRequestWithValidFormFullAmount)
 

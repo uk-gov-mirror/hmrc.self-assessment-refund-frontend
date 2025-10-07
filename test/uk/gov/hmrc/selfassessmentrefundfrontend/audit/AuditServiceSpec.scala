@@ -324,7 +324,7 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
                 JourneyId("1234"),
                 AuditFlags(),
                 JourneyTypes.RefundJourney,
-                Some(Amount(Some(1234.12), None, None, availableCredit = Some(1234.12), balanceDueWithin30Days = Some(123.45))),
+                Some(Amount(Some(1234.12), None, None, totalCreditAvailableForRepayment = Some(1234.12), unallocatedCredit = Some(123.45))),
                 Some(Nino("Nino")),
                 None,
                 Some(PaymentMethod.Card),
@@ -345,8 +345,8 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
                        |{
                        |  "etmpResult": "Fail",
                        |  "userType": "${affinityGroup.toString}",
-                       |  "amountAvailable": "1234.12",
-                       |  "balanceDueWithin30Days" : "123.45",
+                       |  "totalCreditAvailableForRepayment": "1234.12",
+                       |  "unallocatedCredit" : "123.45",
                        |  "amountChosen": "1234.12",
                        |  "nino": "Nino",
                        |  "nrsSubmissionId" : "MissingNrsSubmissionId"
@@ -371,7 +371,7 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
                 JourneyId("1234"),
                 AuditFlags(),
                 JourneyTypes.RefundJourney,
-                Some(Amount(Some(1234.12), None, None, availableCredit = Some(1234.12), balanceDueWithin30Days = Some(123.45))),
+                Some(Amount(Some(1234.12), None, None, totalCreditAvailableForRepayment = Some(1234.12), unallocatedCredit = Some(123.45))),
                 None,
                 None,
                 Some(PaymentMethod.Card),
@@ -393,8 +393,8 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
                        |{
                        |  "etmpResult": "Success",
                        |  "userType": "${affinityGroup.toString}",
-                       |  "amountAvailable": "1234.12",
-                       |  "balanceDueWithin30Days" : "123.45",
+                       |  "totalCreditAvailableForRepayment": "1234.12",
+                       |  "unallocatedCredit" : "123.45",
                        |  "amountChosen": "1234.12",
                        |  "reference": "requestNumber",
                        |  "nino": "MissingNino",
@@ -592,8 +592,8 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
            |  "outcome": {
            |    "isSuccessful": true
            |  },
-           |  "balanceDueWithin30Days": 345.67,
-           |  "amountAvailable": 987.65,
+           |  "totalCreditAvailableForRepayment": 987.65,
+           |  "unallocatedCredit": 345.67,
            |  "amountChosen": 641.98,
            |  "nino": "AA111111A",
            |  "userType": "Individual"
@@ -603,13 +603,13 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
       val auditService = new AuditService(StubAuditConnector(expectedDetails)(testRefundAmount))
 
       auditService.auditRefundAmount(
-        balanceDueWithin30Days = Some(345.67),
-        amountAvailable        = Some(987.65),
-        amountChosen           = Some(641.98),
-        affinityGroup          = Some(AffinityGroup.Individual),
-        maybeNino              = Some(Nino("AA111111A")),
-        maybeArn               = None,
-        failureReason          = None
+        totalCreditAvailableForRepayment = Some(987.65),
+        unallocatedCredit                = Some(345.67),
+        amountChosen                     = Some(641.98),
+        affinityGroup                    = Some(AffinityGroup.Individual),
+        maybeNino                        = Some(Nino("AA111111A")),
+        maybeArn                         = None,
+        failureReason                    = None
       )(request)
     }
 
@@ -629,13 +629,13 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
       val auditService = new AuditService(StubAuditConnector(expectedDetails)(testRefundAmount))
 
       auditService.auditRefundAmount(
-        balanceDueWithin30Days = None,
-        amountAvailable        = None,
-        amountChosen           = None,
-        affinityGroup          = Some(AffinityGroup.Agent),
-        maybeNino              = Some(Nino("AA111111A")),
-        maybeArn               = Some("AARN1234567"),
-        failureReason          = Some("it failed")
+        totalCreditAvailableForRepayment = None,
+        unallocatedCredit                = None,
+        amountChosen                     = None,
+        affinityGroup                    = Some(AffinityGroup.Agent),
+        maybeNino                        = Some(Nino("AA111111A")),
+        maybeArn                         = Some("AARN1234567"),
+        failureReason                    = Some("it failed")
       )(request)
     }
   }
