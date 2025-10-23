@@ -20,7 +20,7 @@ import org.scalatest.concurrent.Eventually.eventually
 import org.scalatest.concurrent.Futures.scaled
 import org.scalatest.concurrent.PatienceConfiguration.Timeout
 import org.scalatest.time.{Seconds, Span}
-import play.api.libs.json.{Format, JsObject, JsValue, Json}
+import play.api.libs.json.{JsObject, JsValue, Json}
 import support.ItSpec
 import support.stubbing.{AuditStub, AuthStub}
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
@@ -48,6 +48,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
 class AuditServiceSpec extends ItSpec with ApplicationLogging {
+
+  given CanEqual[JsValue, JsValue] = CanEqual.derived
 
   def testBarsCheck(expectedDetails: JsValue)(event: ExtendedDataEvent): Any =
     testCallback(expectedDetails)(event)("BARSCheck")
@@ -673,6 +675,4 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
       Future.successful(AuditResult.Success)
     }
   }
-
-  implicit val format: Format[AccountType] = Json.format[AccountType]
 }

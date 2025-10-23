@@ -17,13 +17,14 @@
 package uk.gov.hmrc.selfassessmentrefundfrontend.connectors.barsLockout
 
 import play.api.libs.json.Json
+import play.api.libs.ws.writeableOf_JsValue
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.StringContextOps
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.selfassessmentrefundfrontend.connectors.barsLockout.model._
-import uk.gov.hmrc.selfassessmentrefundfrontend.util.RequestSupport._
+import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.action.RequestSupport._
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}

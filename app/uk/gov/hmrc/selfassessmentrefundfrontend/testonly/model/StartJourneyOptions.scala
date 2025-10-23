@@ -52,6 +52,18 @@ final case class StartJourneyOptions(
 object StartJourneyOptions {
   def default: StartJourneyOptions = StartJourneyPresets.default
 
+  def unapply(startJourneyOptions: StartJourneyOptions): Option[(StartJourneyType, String, Option[BigDecimal], Option[String], PrimeStubsOption, Option[String])] =
+    Some(
+      (
+        startJourneyOptions.`type`,
+        startJourneyOptions.nino,
+        startJourneyOptions.fullAmount,
+        startJourneyOptions.lastPaymentMethod,
+        startJourneyOptions.primeStubs,
+        startJourneyOptions.returnUrl
+      )
+    )
+
   implicit def bindable(implicit stringBinder: QueryStringBindable[String]): QueryStringBindable[StartJourneyOptions] = new QueryStringBindable[StartJourneyOptions] {
     override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, StartJourneyOptions]] = {
       val journeyType = StartJourneyType.queryBindable.bind("type", params).collect {
@@ -123,6 +135,5 @@ object StartJourneyOptions {
     case ViewHistory(nino) => StartJourneyOptions(StartJourneyType.ViewHistory, nino)
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Any"))
-  implicit val format: OFormat[StartJourneyOptions] = Json.format[StartJourneyOptions]
+  given OFormat[StartJourneyOptions] = Json.format[StartJourneyOptions]
 }

@@ -78,7 +78,7 @@ class AccountTypeController @Inject() (
 
 object AccountTypeController {
 
-  sealed trait AccountTypeEnum extends Product with Serializable
+  sealed trait AccountTypeEnum extends Product with Serializable derives CanEqual
 
   object AccountTypeEnum extends Enumerable.Implicits {
     case object Personal extends WithName("personal") with AccountTypeEnum
@@ -105,6 +105,9 @@ object AccountTypeController {
 
   object AccountTypeRequest {
 
+    def unapply(accountTypeRequest: AccountTypeRequest): Option[AccountTypeEnum] =
+      Some(accountTypeRequest.accountType)
+
     val form: Form[AccountTypeRequest] =
       Form(
         mapping(
@@ -114,15 +117,16 @@ object AccountTypeController {
 
     // Need to do this as if the radio buttons are not selected then we don't get the parameter at all.
     def accountTypeMapping: Mapping[AccountTypeEnum] = {
-        def permissiveStringFormatter: Formatter[AccountTypeEnum] =
-          new Formatter[AccountTypeEnum] {
-            def bind(key: String, data: Map[String, String]): Either[Seq[FormError], AccountTypeEnum] = {
-              val accountType = data.get(key).flatMap(AccountTypeEnum.enumerable.withName)
-              accountType.fold[Either[Seq[FormError], AccountTypeEnum]](Left[Seq[FormError], AccountTypeEnum](Seq(FormError("accountType", "accountType.error.required")))){ x => Right[Seq[FormError], AccountTypeEnum](x) }
-            }
-
-            def unbind(key: String, value: AccountTypeEnum): Map[String, String] = Map(key -> value.toString)
+      def permissiveStringFormatter: Formatter[AccountTypeEnum] =
+        new Formatter[AccountTypeEnum] {
+          def bind(key: String, data: Map[String, String]): Either[Seq[FormError], AccountTypeEnum] = {
+            val accountType = data.get(key).flatMap(AccountTypeEnum.enumerable.withName)
+            accountType.fold[Either[Seq[FormError], AccountTypeEnum]](Left[Seq[FormError], AccountTypeEnum](Seq(FormError("accountType", "accountType.error.required")))){ x => Right[Seq[FormError], AccountTypeEnum](x) }
           }
+
+          def unbind(key: String, value: AccountTypeEnum): Map[String, String] = Map(key -> value.toString)
+        }
+
       of[AccountTypeEnum](permissiveStringFormatter)
     }
   }

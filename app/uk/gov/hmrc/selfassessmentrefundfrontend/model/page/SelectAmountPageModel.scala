@@ -132,24 +132,24 @@ object SelectAmountPageModel {
         .transform[BigDecimal](BigDecimal(_), _.toString())
         .verifying(amountOutsideExpectedRange(totalCreditAvailableForRepayment))
 
-        def amount: Mapping[BigDecimal] = optional(amountMapping)
-          .verifying("selectamount.amount.error.empty", _.nonEmpty)
-          .transform[BigDecimal](_.getOrElse(throw new IllegalArgumentException("[SelectAmountForm][amount] Amount is missing")), Some(_))
+      def amount: Mapping[BigDecimal] = optional(amountMapping)
+        .verifying("selectamount.amount.error.empty", _.nonEmpty)
+        .transform[BigDecimal](_.getOrElse(throw new IllegalArgumentException("[SelectAmountForm][amount] Amount is missing")), Some(_))
 
-        def apply(choice: Option[SelectAmountChoice], amount: Option[BigDecimal]): SelectAmountForm = {
-          choice match {
-            case Some(Full)      => SelectAmountForm(totalCreditAvailableForRepayment, Full)
-            case Some(Suggested) => SelectAmountForm(suggestedAmount.getOrElse(totalCreditAvailableForRepayment), Suggested)
-            case Some(Partial)   => SelectAmountForm(amount.getOrElse(totalCreditAvailableForRepayment), Partial)
-            case other           => throw new IllegalArgumentException(s"[SelectAmountForm][apply] Expected SelectAmountChoice, got: ${other.toString}")
-          }
+      def apply(choice: Option[SelectAmountChoice], amount: Option[BigDecimal]): SelectAmountForm = {
+        choice match {
+          case Some(Full)      => SelectAmountForm(totalCreditAvailableForRepayment, Full)
+          case Some(Suggested) => SelectAmountForm(suggestedAmount.getOrElse(totalCreditAvailableForRepayment), Suggested)
+          case Some(Partial)   => SelectAmountForm(amount.getOrElse(totalCreditAvailableForRepayment), Partial)
+          case other           => throw new IllegalArgumentException(s"[SelectAmountForm][apply] Expected SelectAmountChoice, got: ${other.toString}")
         }
+      }
 
-        def unapply(data: SelectAmountForm): Option[(Option[SelectAmountChoice], Option[BigDecimal])] = {
-          val different = if (data.amount =!= totalCreditAvailableForRepayment) Partial else Full
+      def unapply(data: SelectAmountForm): Option[(Option[SelectAmountChoice], Option[BigDecimal])] = {
+        val different = if (data.amount =!= totalCreditAvailableForRepayment) Partial else Full
 
-          Some((Some(different), Some(data.amount)))
-        }
+        Some((Some(different), Some(data.amount)))
+      }
 
       Form(mapping(
         "choice" -> optional(text)

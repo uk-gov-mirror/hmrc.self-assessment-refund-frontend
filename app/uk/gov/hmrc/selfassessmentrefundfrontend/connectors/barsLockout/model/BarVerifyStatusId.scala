@@ -19,10 +19,10 @@ package uk.gov.hmrc.selfassessmentrefundfrontend.connectors.barsLockout.model
 import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.customer.Nino
 
-final case class BarVerifyStatusId(value: String)
+final case class BarVerifyStatusId(value: String) extends AnyVal
 
 object BarVerifyStatusId {
-  implicit val format: Format[BarVerifyStatusId] = Json.valueFormat
+  given Format[BarVerifyStatusId] = Json.valueFormat[BarVerifyStatusId]
 
   def from(nino: Nino): BarVerifyStatusId = BarVerifyStatusId(nino.value)
 }

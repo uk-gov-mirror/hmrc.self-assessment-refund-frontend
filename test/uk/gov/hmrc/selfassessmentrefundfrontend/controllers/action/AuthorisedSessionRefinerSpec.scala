@@ -30,6 +30,7 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.action.request.{Auth
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.customer.Nino
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.journey.JourneyTypes.TrackJourney
 import uk.gov.hmrc.selfassessmentrefundfrontend.testdata.TdSupport.FakeRequestOps
+import uk.gov.hmrc.selfassessmentrefundfrontent.util.CanEqualGivens.sessionIdCanEqual
 
 import scala.concurrent.Future
 

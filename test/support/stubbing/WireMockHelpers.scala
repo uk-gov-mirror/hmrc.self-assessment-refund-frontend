@@ -16,7 +16,6 @@
 
 package support.stubbing
 
-import cats.syntax.eq._
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.http.Request
 import com.github.tomakehurst.wiremock.matching.MatchResult
@@ -71,7 +70,7 @@ object WireMockHelpers {
    * If option is empty, it can't and wiremock verify should fail, else wiremock verify is successful.
    */
   private def customValueMatcher[A](url: String, request: Request)(implicit format: Format[A]): MatchResult =
-    MatchResult.of(request.getUrl === url && Json.parse(request.getBodyAsString).asOpt[A].nonEmpty)
+    MatchResult.of(request.getUrl == url && Json.parse(request.getBodyAsString).asOpt[A].nonEmpty)
 
   def stubForPostNoResponseBody(url: String, responseStatus: Int = Status.OK): StubMapping = stubFor(
     post(urlPathEqualTo(url)).willReturn(

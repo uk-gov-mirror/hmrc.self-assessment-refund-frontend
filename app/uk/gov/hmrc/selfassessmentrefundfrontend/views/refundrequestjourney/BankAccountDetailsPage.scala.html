@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import cats.syntax.eq._
+@import play.api.data.FormError
 @import uk.gov.hmrc.govukfrontend.views.Aliases.{ErrorMessage, Hint, HtmlContent, Label}
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.FormGroup
@@ -30,7 +30,7 @@
 @(model: AccountPageModel)(implicit messages: Messages, request: Request[_])
 
 @fieldErrorMessage(key: String) = @{
-    if (model.fieldMessageOverrides.exists(_.key === key)) {
+    if (model.fieldMessageOverrides.exists(_.key == key)) {
         None
     } else {
         model.form.error(key)
@@ -40,7 +40,7 @@
     }
 }
 
-@sortCodeAndAccountNumberFormError= @{ model.fieldMessageOverrides.find(_.key === "sortCodeAndAccountNumber") }
+@barsFormError = @{ model.fieldMessageOverrides.find(_.key == "sortCodeAndAccountNumber") }
 
 @layout(
     pageTitle = Some(PageTitle(model.title, messages("service.name.refund"))),
@@ -72,9 +72,9 @@
             errorMessage = fieldErrorMessage("accountName")
         ))
 
-        @defining(sortCodeAndAccountNumberFormError) { barsFormError =>
-        <fieldset class="govuk-fieldset long-word-wrap" @if(barsFormError.isDefined) {
-            aria-describedby="bars-invalid-error"}>
+        <fieldset class="govuk-fieldset long-word-wrap"
+
+            @if(barsFormError.isDefined) { aria-describedby="bars-invalid-error" }>
             <legend class="govuk-label govuk-visually-hidden">@messages("enter-bank-details.view-bank-details-hidden")</legend>
 
             <div id="bars-invalid" class="form-field @barsFormError.map { _ => govuk-form-group--error }">
@@ -130,7 +130,6 @@
         name = Some("continue"),
         inputType = Some("submit"), attributes = Map("id" -> "continue")))
 
-    }
   }
 
 }

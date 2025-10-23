@@ -21,7 +21,7 @@ object ScalariformSettings {
         .setPreference(FirstArgumentOnNewline, Force)
         .setPreference(FirstParameterOnNewline, Force)
         .setPreference(FormatXml, true)
-        .setPreference(IndentLocalDefs, true)
+        .setPreference(IndentLocalDefs, false)
         .setPreference(IndentPackageBlocks, true)
         .setPreference(IndentSpaces, 2)
         .setPreference(IndentWithTabs, false)

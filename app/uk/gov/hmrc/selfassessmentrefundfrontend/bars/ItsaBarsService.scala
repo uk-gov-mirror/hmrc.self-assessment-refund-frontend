@@ -43,41 +43,38 @@ class ItsaBarsService @Inject() (
 
     import ItsaBarsService._
 
-    val resp =
-      barsService.verifyBankDetails(
-        bankAccount       = ItsaBarsService.toBarsBankAccount(bankAccountDetails),
-        subject           = toBarsSubject(bankAccountDetails),
-        business          = toBarsBusiness(bankAccountDetails),
-        typeOfBankAccount = toBarsTypeOfBankAccount(typeOfAccount)
-      ).flatMap { result =>
-            def auditBars(barsVerifyStatusResponse: BarsVerifyStatusResponse): Unit = {
-              auditService.auditBarsCheck(
-                bankAccountDetails,
-                result,
-                barsVerifyStatusResponse,
-                request.journey.accountType,
-                Some(request.affinityGroup),
-                request.journey.nino,
-                request.agentReferenceNumber
-              )
-            }
-
-          result match {
-            // verify success but requires extra details ("roll number")
-            case result @ Right(VerifyResponse(NonStandardAccountDetailsRequired())) if bankAccountDetails.rollNumber.isEmpty =>
-              auditBars(BarsVerifyStatusResponse(request.numberOfBarsVerifyAttempts, None))
-              Future.successful(Left(NonStandardDetailsRequired(result.value)))
-            // a verify success or validate error
-            case result @ (Right(_) | Left(_: BarsValidateError) | Left(_: ThirdPartyError)) =>
-              // don't update the verify count in this case
-              auditBars(BarsVerifyStatusResponse(request.numberOfBarsVerifyAttempts, None))
-              Future.successful(result)
-            case result @ Left(bve: BarsVerifyError) =>
-              updateVerifyStatus(result, bve.barsResponse, auditBars)
-          }
+    barsService.verifyBankDetails(
+      bankAccount       = ItsaBarsService.toBarsBankAccount(bankAccountDetails),
+      subject           = toBarsSubject(bankAccountDetails),
+      business          = toBarsBusiness(bankAccountDetails),
+      typeOfBankAccount = toBarsTypeOfBankAccount(typeOfAccount)
+    ).flatMap { result =>
+        def auditBars(barsVerifyStatusResponse: BarsVerifyStatusResponse): Unit = {
+          auditService.auditBarsCheck(
+            bankAccountDetails,
+            result,
+            barsVerifyStatusResponse,
+            request.journey.accountType,
+            Some(request.affinityGroup),
+            request.journey.nino,
+            request.agentReferenceNumber
+          )
         }
 
-    resp
+        result match {
+          // verify success but requires extra details ("roll number")
+          case result @ Right(VerifyResponse(NonStandardAccountDetailsRequired())) if bankAccountDetails.rollNumber.isEmpty =>
+            auditBars(BarsVerifyStatusResponse(request.numberOfBarsVerifyAttempts, None))
+            Future.successful(Left(NonStandardDetailsRequired(result.value)))
+          // a verify success or validate error
+          case result @ (Right(_) | Left(_: BarsValidateError) | Left(_: ThirdPartyError)) =>
+            // don't update the verify count in this case
+            auditBars(BarsVerifyStatusResponse(request.numberOfBarsVerifyAttempts, None))
+            Future.successful(result)
+          case result @ Left(bve: BarsVerifyError) =>
+            updateVerifyStatus(result, bve.barsResponse, auditBars)
+        }
+      }
   }
 
   private def updateVerifyStatus(

@@ -26,8 +26,6 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset.Fieldset
 import uk.gov.hmrc.govukfrontend.views.viewmodels.table.TableRow
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.start.StartRequest
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.start.StartRequest.{StartRefund, ViewHistory}
-import uk.gov.hmrc.selfassessmentrefundfrontend.testonly.model.Preset
-import uk.gov.hmrc.selfassessmentrefundfrontend.testonly.model.StartJourneyPresets
 import uk.gov.hmrc.selfassessmentrefundfrontend.util.AmountFormatter
 
 import scala.reflect.ClassTag

@@ -18,7 +18,7 @@ package uk.gov.hmrc.selfassessmentrefundfrontend.model
 
 import play.api.libs.json.{Format, Json}
 
-final case class AccountType(name: String)
+final case class AccountType(name: String) extends AnyVal derives CanEqual
 
 object AccountType {
 
@@ -33,6 +33,6 @@ object AccountType {
     case s             => throw new IllegalArgumentException(s"invalid account type $s")
   }
 
-  implicit val format: Format[AccountType] = Json.valueFormat[AccountType]
+  given Format[AccountType] = Json.valueFormat[AccountType]
 
 }

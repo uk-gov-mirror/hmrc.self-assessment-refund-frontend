@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post, stubFor
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel}
+import uk.gov.hmrc.selfassessmentrefundfrontent.util.CanEqualGivens.affinityGroupCanEqual
 
 object AuthStub {
 

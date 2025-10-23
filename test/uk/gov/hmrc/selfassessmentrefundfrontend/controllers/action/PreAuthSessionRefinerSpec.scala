@@ -25,6 +25,7 @@ import support.ItSpec
 import uk.gov.hmrc.http.SessionId
 import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.action.request.PreAuthRequest
 import uk.gov.hmrc.selfassessmentrefundfrontend.testdata.TdSupport.FakeRequestOps
+import uk.gov.hmrc.selfassessmentrefundfrontent.util.CanEqualGivens.sessionIdCanEqual
 
 import scala.concurrent.Future
 

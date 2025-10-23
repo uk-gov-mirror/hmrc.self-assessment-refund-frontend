@@ -36,6 +36,6 @@ object RequestSupport {
    * If they refactor how hc is created our code will pick it up automatically.
    */
   private object HcProvider extends FrontendHeaderCarrierProvider {
-    def headerCarrier(implicit request: RequestHeader): HeaderCarrier = hc(request)
+    def headerCarrier(implicit request: RequestHeader): HeaderCarrier = super.hc(request)
   }
 }

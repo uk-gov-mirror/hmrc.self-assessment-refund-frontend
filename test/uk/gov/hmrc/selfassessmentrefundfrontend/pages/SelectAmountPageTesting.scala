@@ -18,7 +18,7 @@ package uk.gov.hmrc.selfassessmentrefundfrontend.pages
 
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
-import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
+import org.scalatest.matchers.must.Matchers.mustBe
 import support.PageContentTesting
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.Amount
 import uk.gov.hmrc.selfassessmentrefundfrontend.util.AmountFormatter

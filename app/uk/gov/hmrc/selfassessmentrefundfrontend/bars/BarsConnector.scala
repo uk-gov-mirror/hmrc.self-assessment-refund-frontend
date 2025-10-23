@@ -18,6 +18,7 @@ package uk.gov.hmrc.selfassessmentrefundfrontend.bars
 
 import cats.implicits.toBifunctorOps
 import play.api.libs.json.Json
+import play.api.libs.ws.writeableOf_JsValue
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2

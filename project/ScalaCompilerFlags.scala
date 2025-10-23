@@ -3,24 +3,22 @@ object ScalaCompilerFlags {
   val scalaCompilerOptions: Seq[String] = Seq(
     "-language:implicitConversions",
     "-language:reflectiveCalls",
+    "-language:strictEquality",
+    "-Ykind-projector",
     // required in place of silencer plugin
-    "-Wconf:cat=unused-imports&src=html/.*:s",
+    "-Wconf:msg=unused\\simport&src=html/.*:s",
+    "-Wconf:msg=unused\\simport&src=views/.*:s",
     "-Wconf:src=routes/.*:s"
   )
 
   val strictScalaCompilerOptions: Seq[String] = Seq(
     "-Xfatal-warnings",
-    "-Xlint:-missing-interpolator,_",
-    "-Xlint:adapted-args",
-    "-Xlint:-byname-implicit",
-    "-Ywarn-unused:implicits",
-    "-Ywarn-unused:imports",
-    "-Ywarn-unused:locals",
-    "-Ywarn-unused:params",
-    "-Ywarn-unused:patvars",
-    "-Ywarn-unused:privates",
-    "-Ywarn-value-discard",
-    "-Ywarn-dead-code",
+    "-Wunused:implicits",
+    "-Wunused:imports",
+    "-Wunused:locals",
+    "-Wunused:params",
+    "-Wunused:privates",
+    "-Wvalue-discard",
     "-deprecation",
     "-feature",
     "-unchecked"

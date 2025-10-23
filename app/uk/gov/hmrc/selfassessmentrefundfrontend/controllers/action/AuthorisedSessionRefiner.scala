@@ -31,6 +31,7 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.model.MtdItId
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.customer
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.journey.JourneyTypes.TrackJourney
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.journey.{JourneyType, JourneyTypes}
+import uk.gov.hmrc.selfassessmentrefundfrontent.util.CanEqualGivens.affinityGroupCanEqual
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}

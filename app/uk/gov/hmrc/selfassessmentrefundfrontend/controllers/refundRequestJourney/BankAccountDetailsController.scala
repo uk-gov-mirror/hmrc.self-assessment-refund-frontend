@@ -17,7 +17,6 @@
 package uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney
 
 import cats.data.EitherT
-import javax.inject.{Inject, Singleton}
 import play.api.Logging
 import play.api.data.{Form, FormError}
 import play.api.i18n.{I18nSupport, Messages}
@@ -38,6 +37,7 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.util.Mapping.ConversionOps
 import uk.gov.hmrc.selfassessmentrefundfrontend.util.{Mapping => CMapping}
 import uk.gov.hmrc.selfassessmentrefundfrontend.views.html.refundrequestjourney.BankAccountDetailsPage
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -50,14 +50,14 @@ class BankAccountDetailsController @Inject() (
 )(implicit ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport with Logging {
 
   val getAccountDetails: Action[AnyContent] = actions.authenticatedRefundJourneyAction { implicit request =>
-
     val journey = request.journey
     val details = journey.bankAccountInfo
+
     Ok(accountPage(AccountPageModel(details, request.isAgent)))
   }
 
   val postAccountDetails: Action[AnyContent] = actions.authenticatedRefundJourneyAction.async { implicit request =>
-    withFormData(request.isAgent) { form: Form[BankAccount] => bankAccount: BankAccount =>
+    withFormData(request.isAgent) { (form: Form[BankAccount]) => (bankAccount: BankAccount) =>
       val bankAccountInfo = BankAccountInfo(bankAccount)
       val accountType = getJourneyAccountType(request.journey)
       if (alreadyVerifiedBankDetails(accountType, bankAccountInfo, request.journey)) {
@@ -78,25 +78,24 @@ class BankAccountDetailsController @Inject() (
       bankAccountInfo: BankAccountInfo
   )(implicit messages: Messages, request: AuthenticatedRequest[AnyContent]): Future[Result] = {
 
-      def enterBankDetailsPageWithBarsError(error: FormErrorWithFieldMessageOverrides): Future[Result] = {
-        Future.successful(BadRequest(
-          accountPage(AccountPageModel(
-            form                  = form.withError(error.formError),
-            fieldMessageOverrides = error.fieldMessageOverrides,
-            request.isAgent
-          )(messages))(messages, request)
-        ))
-      }
+    def enterBankDetailsPageWithBarsError(error: FormErrorWithFieldMessageOverrides): Future[Result] = {
+      Future.successful(BadRequest(
+        accountPage(AccountPageModel(
+          form                  = form.withError(error.formError),
+          fieldMessageOverrides = error.fieldMessageOverrides,
+          request.isAgent
+        )(messages))(messages, request)
+      ))
+    }
 
-      def saveBankInfoAndContinue: Future[Result] = {
-        journeyConnector.setJourney(request.journey.id, request.journey.copy(bankAccountInfo = Some(bankAccountInfo)))
-      }.flatMap { _ =>
-        Future.successful(Redirect(refundRequestJourney.routes.CheckYourAnswersPageController.start))
-      }
+    def saveBankInfoAndContinue: Future[Result] = {
+      journeyConnector.setJourney(request.journey.id, request.journey.copy(bankAccountInfo = Some(bankAccountInfo)))
+    }.flatMap { _ =>
+      Future.successful(Redirect(refundRequestJourney.routes.CheckYourAnswersPageController.start))
+    }
 
     import BankAccountDetailsForm._
-    resp.fold(
-      {
+    resp.fold({
         case ThirdPartyError(resp) =>
           throw new RuntimeException(s"BARS verify third-party error. BARS response: ${resp.toString}")
         case AccountNumberNotWellFormatted(_) | AccountNumberNotWellFormattedValidateResponse(_) =>
@@ -169,9 +168,17 @@ object BankAccountDetailsController {
 
   object BankAccount {
 
-    @SuppressWarnings(Array("org.wartremover.warts.Any"))
-    implicit val bankAccountFormat: OFormat[BankAccount] = Json.format[BankAccount]
+    def unapply(bankAccount: BankAccount): Option[(String, String, String, Option[String])] =
+      Some(
+        (
+          bankAccount.accountName,
+          bankAccount.sortCode,
+          bankAccount.accountNumber,
+          bankAccount.rollNumber
+        )
+      )
 
+    given OFormat[BankAccount] = Json.format[BankAccount]
   }
 
   final case class AccountPageModel(

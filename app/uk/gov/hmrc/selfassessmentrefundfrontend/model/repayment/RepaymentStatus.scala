@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.selfassessmentrefundfrontend.model.repayment
 
-sealed trait RepaymentStatus {
+sealed trait RepaymentStatus derives CanEqual {
   val id: String
   val colour: String
   def msgKey: String = s"refund-tracker.status.$id"

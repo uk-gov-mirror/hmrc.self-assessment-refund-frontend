@@ -40,7 +40,7 @@ class BarsService @Inject() (barsConnector: BarsConnector)(implicit ec: Executio
   // NOTE: if the validate call is removed in the future (it is said to be deprecated)
   // then implement the "SORT_CODE_ON_DENY_LIST" handling in the verify calls below
   def validateBankAccount(bankAccount: BarsBankAccount)(implicit requestHeader: RequestHeader): Future[BarsResponse] = {
-    barsConnector.validateBankDetails(BarsValidateRequest(bankAccount)).map { httpResponse: HttpResponse =>
+    barsConnector.validateBankDetails(BarsValidateRequest(bankAccount)).map { (httpResponse: HttpResponse) =>
       httpResponse.status match {
         case OK =>
           httpResponse.parseJSON[BarsValidateResponse].map(ValidateResponse.apply)

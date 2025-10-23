@@ -19,16 +19,17 @@ package uk.gov.hmrc.selfassessmentrefundfrontend.connectors
 import com.google.inject.{Inject, Singleton}
 import play.api.Logging
 import play.api.libs.json.{JsObject, Json, OFormat}
+import play.api.libs.ws.writeableOf_JsValue
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 import uk.gov.hmrc.selfassessmentrefundfrontend.config.AppConfig
 import uk.gov.hmrc.selfassessmentrefundfrontend.connectors.RepaymentsConnector.Response
-import uk.gov.hmrc.selfassessmentrefundfrontend.model.{CreateRepaymentRequest, PaymentMethod, SaUtr}
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.customer.Nino
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.journey.JourneyId
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.repayment.{RepaymentCreatedResponse, RequestNumber, parseLocalDate}
+import uk.gov.hmrc.selfassessmentrefundfrontend.model.{CreateRepaymentRequest, PaymentMethod, SaUtr}
 import uk.gov.hmrc.selfassessmentrefundfrontend.services.RepaymentsService._
 import uk.gov.hmrc.selfassessmentrefundfrontend.util.Mapping
 import uk.gov.hmrc.selfassessmentrefundfrontend.util.Mapping._

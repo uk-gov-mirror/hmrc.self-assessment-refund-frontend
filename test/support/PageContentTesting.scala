@@ -21,7 +21,7 @@ import org.jsoup.helper.Validate.fail
 import org.jsoup.nodes.Document
 import org.scalatest.AppendedClues.convertToClueful
 import org.scalatest.matchers.must.Matchers.{endWith, include}
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.matchers.should.Matchers.{should, shouldBe}
 import play.api.mvc.{Call, Result}
 import play.api.test.Helpers._
 
@@ -115,17 +115,23 @@ trait PageContentTesting {
         case true =>
           val expectedTitleContent = expectedTitleIfDifferent.fold(expectedHeading)(identity)
           val optionalErrorPrefix = if (withError) "Gwall: " else ""
-            def serviceName = if (journey.equals("request")) { " - Gwneud cais am ad-daliad Hunanasesiad" }
+
+          def serviceName =
+            if (journey.equals("request")) { " - Gwneud cais am ad-daliad Hunanasesiad" }
             else if (journey.equals("track")) { " - Olrhain ad-daliad Hunanasesiad" }
             else { "" }
+
           val expectedTitle = optionalErrorPrefix + expectedTitleContent + serviceName + " - GOV.UK"
           doc.title() shouldBe expectedTitle
         case false =>
           val expectedTitleContent = expectedTitleIfDifferent.fold(expectedHeading)(identity)
           val optionalErrorPrefix = if (withError) "Error: " else ""
-            def serviceName = if (journey.equals("request")) { " - Request a Self Assessment refund" }
+
+          def serviceName =
+            if (journey.equals("request")) { " - Request a Self Assessment refund" }
             else if (journey.equals("track")) { " - Track a Self Assessment refund" }
             else { "" }
+
           val expectedTitle = optionalErrorPrefix + expectedTitleContent + serviceName + " - GOV.UK"
           doc.title() shouldBe expectedTitle
       }

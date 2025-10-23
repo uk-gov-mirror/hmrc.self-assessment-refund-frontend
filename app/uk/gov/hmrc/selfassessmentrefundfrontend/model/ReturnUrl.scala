@@ -18,8 +18,8 @@ package uk.gov.hmrc.selfassessmentrefundfrontend.model
 
 import play.api.libs.json.{Format, Json}
 
-final case class ReturnUrl(value: String)
+final case class ReturnUrl(value: String) extends AnyVal
 
 object ReturnUrl {
-  implicit val format: Format[ReturnUrl] = Json.valueFormat
+  given Format[ReturnUrl] = Json.valueFormat[ReturnUrl]
 }

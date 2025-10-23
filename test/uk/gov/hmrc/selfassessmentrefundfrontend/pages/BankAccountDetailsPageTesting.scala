@@ -17,7 +17,7 @@
 package uk.gov.hmrc.selfassessmentrefundfrontend.pages
 
 import org.jsoup.nodes.{Document, Element}
-import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
+import org.scalatest.matchers.must.Matchers.mustBe
 import support.PageContentTesting
 
 import scala.jdk.CollectionConverters.IteratorHasAsScala

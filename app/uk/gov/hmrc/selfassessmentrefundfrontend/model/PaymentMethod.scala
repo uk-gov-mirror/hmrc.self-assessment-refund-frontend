@@ -18,7 +18,7 @@ package uk.gov.hmrc.selfassessmentrefundfrontend.model
 
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 
-sealed trait PaymentMethod extends EnumEntry
+sealed trait PaymentMethod extends EnumEntry derives CanEqual
 
 object PaymentMethod extends Enum[PaymentMethod] with PlayJsonEnum[PaymentMethod] {
 

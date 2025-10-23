@@ -21,7 +21,7 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.model.start.StartRequest
 
 import scala.collection.immutable
 
-sealed trait StartJourneyType extends enumeratum.EnumEntry {
+sealed trait StartJourneyType extends enumeratum.EnumEntry derives CanEqual {
   val label: String
   val cls: Class[_ <: StartRequest]
 }

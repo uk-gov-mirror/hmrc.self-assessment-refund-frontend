@@ -21,17 +21,17 @@ import play.api.mvc.Request
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.play.audit.AuditExtensions.auditHeaderCarrier
 import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
-import uk.gov.hmrc.selfassessmentrefundfrontend.audit.model.{AuditOutcome, IVOutcomeAuditDetail}
 import uk.gov.hmrc.selfassessmentrefundfrontend.audit.model.bars._
 import uk.gov.hmrc.selfassessmentrefundfrontend.audit.model.startclaimjourney.RefundAmountAuditDetail
 import uk.gov.hmrc.selfassessmentrefundfrontend.audit.model.trackrefunds._
+import uk.gov.hmrc.selfassessmentrefundfrontend.audit.model.{AuditOutcome, IVOutcomeAuditDetail}
 import uk.gov.hmrc.selfassessmentrefundfrontend.bars.model.response.{BarsError, VerifyResponse}
 import uk.gov.hmrc.selfassessmentrefundfrontend.connectors.barsLockout.model.BarsVerifyStatusResponse
+import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.action.RequestSupport
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.customer.Nino
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.journey.{JourneyType, JourneyTypes}
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.{AccountType, BankAccountInfo}
 import uk.gov.hmrc.selfassessmentrefundfrontend.services.RepaymentsService.TaxRepayment
-import uk.gov.hmrc.selfassessmentrefundfrontend.util.RequestSupport
 
 object DataEventFactory {
   def barsCheckEvent(

@@ -5,7 +5,7 @@ import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings}
 
 val appName = "self-assessment-refund-frontend"
 
-scalaVersion  := "2.13.16"
+scalaVersion  := "3.3.6"
 
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
@@ -36,5 +36,3 @@ lazy val microservice = Project(appName, file("."))
   .settings(SbtUpdatesSettings.sbtUpdatesSettings *)
   .settings(ScalariformSettings.scalariformSettings *)
   .settings(WartRemoverSettings.wartRemoverSettings *)
-
-  addCompilerPlugin("org.typelevel" % "kind-projector" % "0.13.4" cross CrossVersion.full)

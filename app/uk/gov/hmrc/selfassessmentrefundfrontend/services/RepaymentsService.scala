@@ -20,11 +20,11 @@ import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.selfassessmentrefundfrontend.audit.AuditService
 import uk.gov.hmrc.selfassessmentrefundfrontend.connectors.{JourneyConnector, RepaymentsConnector}
+import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.action.RequestSupport
 import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.action.request.AuthenticatedRequest
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.customer.Nino
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.repayment.{RepaymentStatus, RequestNumber}
 import uk.gov.hmrc.selfassessmentrefundfrontend.services.RepaymentsService.TaxRepayment
-import uk.gov.hmrc.selfassessmentrefundfrontend.util.RequestSupport
 
 import java.time.LocalDate
 import javax.inject.{Inject, Singleton}

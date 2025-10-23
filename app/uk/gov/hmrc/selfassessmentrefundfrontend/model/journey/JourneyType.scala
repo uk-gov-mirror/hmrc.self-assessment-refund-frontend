@@ -19,7 +19,7 @@ package uk.gov.hmrc.selfassessmentrefundfrontend.model.journey
 import enumeratum.{Enum, EnumEntry}
 import play.api.libs.json.{Format, Reads, Writes, JsString, JsSuccess, JsError}
 
-sealed trait JourneyType extends EnumEntry
+sealed trait JourneyType extends EnumEntry derives CanEqual
 
 @SuppressWarnings(Array("org.wartremover.warts.Serializable", "org.wartremover.warts.JavaSerializable", "org.wartremover.warts.Product"))
 object JourneyType {
