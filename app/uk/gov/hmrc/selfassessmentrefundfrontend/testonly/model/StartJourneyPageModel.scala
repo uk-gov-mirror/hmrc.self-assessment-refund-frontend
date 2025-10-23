@@ -93,7 +93,7 @@ final case class StartJourneyPageModel(
 
   def makeStartRefundRow(req: StartRefund, description: String, n: Int): Seq[TableRow] = {
     val option = makeRadioOption(n.toString, "Start refund")
-    val paymentType = if (req.getLastPaymentViaCard) {
+    val paymentType = if (req.lastPaymentViaCard.getOrElse(false)) {
       "CARD"
     } else {
       "BACS"

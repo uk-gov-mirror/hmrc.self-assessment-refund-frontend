@@ -21,7 +21,7 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.audit.AuditService
 import uk.gov.hmrc.selfassessmentrefundfrontend.bars.model.request.{BarsBankAccount, BarsBusiness, BarsSubject}
 import uk.gov.hmrc.selfassessmentrefundfrontend.bars.model.response.BarsVerifyResponse.NonStandardAccountDetailsRequired
 import uk.gov.hmrc.selfassessmentrefundfrontend.bars.model.response._
-import uk.gov.hmrc.selfassessmentrefundfrontend.bars.model.{BarsTypeOfBankAccount, BarsTypesOfBankAccount}
+import uk.gov.hmrc.selfassessmentrefundfrontend.bars.model.BarsTypeOfBankAccount
 import uk.gov.hmrc.selfassessmentrefundfrontend.connectors.barsLockout.BarsVerifyStatusConnector
 import uk.gov.hmrc.selfassessmentrefundfrontend.connectors.barsLockout.model.{BarVerifyStatusId, BarsVerifyStatusResponse}
 import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.action.request.BarsVerifiedRequest
@@ -126,8 +126,8 @@ object ItsaBarsService {
 
   def toBarsTypeOfBankAccount(accountType: AccountType): BarsTypeOfBankAccount =
     accountType match {
-      case AccountType.Personal => BarsTypesOfBankAccount.Personal
-      case AccountType.Business => BarsTypesOfBankAccount.Business
+      case AccountType.Personal => BarsTypeOfBankAccount.Personal
+      case AccountType.Business => BarsTypeOfBankAccount.Business
       case s                    => throw new IllegalArgumentException(s"invalid account type ${s.name}")
     }
 

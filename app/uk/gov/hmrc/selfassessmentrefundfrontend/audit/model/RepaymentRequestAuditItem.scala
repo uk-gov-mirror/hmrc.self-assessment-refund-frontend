@@ -33,11 +33,9 @@ final case class RepaymentRequestAuditItem(
 )
 
 object RepaymentRequestAuditItem {
-  implicit def writes: OWrites[RepaymentRequestAuditItem] = Json.writes[RepaymentRequestAuditItem]
+  given OWrites[RepaymentRequestAuditItem] = Json.writes[RepaymentRequestAuditItem]
 
-  @SuppressWarnings(Array("org.wartremover.warts.Any"))
-  implicit val format: OFormat[BankAccountDetailsAudit] = Json.format[BankAccountDetailsAudit]
+  given OFormat[BankAccountDetailsAudit] = Json.format[BankAccountDetailsAudit]
 
-  @SuppressWarnings(Array("org.wartremover.warts.Any"))
-  implicit def reads: Reads[RepaymentRequestAuditItem] = Json.reads[RepaymentRequestAuditItem]
+  given Reads[RepaymentRequestAuditItem] = Json.reads[RepaymentRequestAuditItem]
 }

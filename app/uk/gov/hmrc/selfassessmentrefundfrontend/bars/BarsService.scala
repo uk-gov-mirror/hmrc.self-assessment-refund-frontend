@@ -25,7 +25,7 @@ import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.selfassessmentrefundfrontend.bars.model.request._
 import uk.gov.hmrc.selfassessmentrefundfrontend.bars.model.response.ValidateResponse.validateFailure
 import uk.gov.hmrc.selfassessmentrefundfrontend.bars.model.response._
-import uk.gov.hmrc.selfassessmentrefundfrontend.bars.model.{BarsTypeOfBankAccount, BarsTypesOfBankAccount}
+import uk.gov.hmrc.selfassessmentrefundfrontend.bars.model.BarsTypeOfBankAccount
 import uk.gov.hmrc.selfassessmentrefundfrontend.util.HttpResponseUtils.HttpResponseOps
 
 import javax.inject.{Inject, Singleton}
@@ -92,8 +92,8 @@ class BarsService @Inject() (barsConnector: BarsConnector)(implicit ec: Executio
         Future.successful(Left(SortCodeOnDenyListErrorResponse(response)))
       case _ =>
         (typeOfBankAccount match {
-          case BarsTypesOfBankAccount.Personal => verifyPersonal(bankAccount, subject)
-          case BarsTypesOfBankAccount.Business => verifyBusiness(bankAccount, business)
+          case BarsTypeOfBankAccount.Personal => verifyPersonal(bankAccount, subject)
+          case BarsTypeOfBankAccount.Business => verifyBusiness(bankAccount, business)
         }).map(handleVerifyResponse)
     }
   }
