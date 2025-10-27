@@ -23,28 +23,29 @@ object AmountFormatter {
 
   private val formatter: DecimalFormat = {
     Locale.setDefault(Locale.UK)
-    val en = Currency.getInstance(Locale.UK)
+    val en               = Currency.getInstance(Locale.UK)
     val f: DecimalFormat = new DecimalFormat("¤#,##0.00")
     f.setCurrency(en)
     f
   }
 
-  def formatOptionalAmount(amountInPence: Option[BigDecimal]): String = {
+  def formatOptionalAmount(amountInPence: Option[BigDecimal]): String =
     amountInPence match {
       case Some(amt) => formatAmount(amt)
       case None      => ""
     }
-  }
 
   def formatAmount(amount: BigDecimal): String = {
     val strippedAmount = amount.bigDecimal.stripTrailingZeros
     formatter.format(strippedAmount).replace(".00", "")
   }
 
-  def sanitize(amount: Option[String]): String = {
+  def sanitize(amount: Option[String]): String =
     amount match {
       case Some(value) if value.nonEmpty => value.trim.replaceAll("[\\s,£]", "")
-      case other                         => throw new IllegalArgumentException(s"[AmountFormatter][sanitize] Expected non-empty string, got: ${other.toString}")
+      case other                         =>
+        throw new IllegalArgumentException(
+          s"[AmountFormatter][sanitize] Expected non-empty string, got: ${other.toString}"
+        )
     }
-  }
 }

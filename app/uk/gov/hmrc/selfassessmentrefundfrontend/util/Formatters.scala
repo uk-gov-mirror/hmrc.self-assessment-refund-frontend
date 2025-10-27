@@ -28,28 +28,35 @@ import java.util.Locale
 object Formatters {
 
   private val WeekDaysInWelsh = Map(
-    DayOfWeek.MONDAY -> "dydd Llun",
-    DayOfWeek.TUESDAY -> "dydd Mawrth",
+    DayOfWeek.MONDAY    -> "dydd Llun",
+    DayOfWeek.TUESDAY   -> "dydd Mawrth",
     DayOfWeek.WEDNESDAY -> "dydd Mercher",
-    DayOfWeek.THURSDAY -> "dydd Iau",
-    DayOfWeek.FRIDAY -> "dydd Gwener",
-    DayOfWeek.SATURDAY -> "dydd Sadwrn",
-    DayOfWeek.SUNDAY -> "dydd Sul"
+    DayOfWeek.THURSDAY  -> "dydd Iau",
+    DayOfWeek.FRIDAY    -> "dydd Gwener",
+    DayOfWeek.SATURDAY  -> "dydd Sadwrn",
+    DayOfWeek.SUNDAY    -> "dydd Sul"
   )
 
-  def fullDateTime(dt: Instant, messages: Messages, languageUtils: LanguageUtils)(implicit requestHeader: RequestHeader): String = {
+  def fullDateTime(dt: Instant, messages: Messages, languageUtils: LanguageUtils)(implicit
+    requestHeader: RequestHeader
+  ): String = {
     val zonedDateTime = dt.atZone(ZoneId.of("Europe/London"))
-    val date = zonedDateTime.toLocalDate
-    val time = zonedDateTime.toLocalTime
-    val lang = languageUtils.getCurrentLang(requestHeader).code
+    val date          = zonedDateTime.toLocalDate
+    val time          = zonedDateTime.toLocalTime
+    val lang          = languageUtils.getCurrentLang(requestHeader).code
 
-    val day = lang match {
+    val day        = lang match {
       case "cy" => WeekDaysInWelsh(date.getDayOfWeek)
-      case _ => date.getDayOfWeek.toString.split(' ').map(day =>
-        day.charAt(0).toString + day.slice(1, day.length).toLowerCase(Locale.UK)).mkString(" ")
+      case _    =>
+        date.getDayOfWeek.toString
+          .split(' ')
+          .map(day => day.charAt(0).toString + day.slice(1, day.length).toLowerCase(Locale.UK))
+          .mkString(" ")
     }
     val dateString = s"$day ${date.getDayOfMonth.toString} ${messages(date.getMonth.toString)} ${date.getYear.toString}"
-    val timeString = DateTimeFormatter.ofPattern("h:mma").format(time)
+    val timeString = DateTimeFormatter
+      .ofPattern("h:mma")
+      .format(time)
       .replaceAll("AM$", "am")
       .replaceAll("PM$", "pm")
 

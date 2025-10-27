@@ -25,9 +25,9 @@ import javax.inject.{Inject, Singleton}
 
 @Singleton
 class FeedbackController @Inject() (
-    messagesControllerComponents: MessagesControllerComponents,
-    appConfig:                    AppConfig,
-    actions:                      Actions
+  messagesControllerComponents: MessagesControllerComponents,
+  appConfig:                    AppConfig,
+  actions:                      Actions
 ) extends FrontendController(messagesControllerComponents) {
 
   private lazy val feedbackUrl: String = appConfig.feedbackUrl

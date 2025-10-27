@@ -26,17 +26,22 @@ class RefundTrackerViewHelper {
   def refundTrackerYearModelMap(taxRepayments: List[TaxRepayment]): Map[Int, Seq[RefundTrackerModel]] = {
     val repaymentsToRefundTrackerModel: Seq[RefundTrackerModel] = taxRepayments.map { repayment =>
       RefundTrackerModel(
-        receivedOn    = repayment.claim.created,
+        receivedOn = repayment.claim.created,
         amountClaimed = AmountFormatter.formatAmount(repayment.claim.amount),
-        status        = repayment.status,
-        key           = repayment.claim.key
+        status = repayment.status,
+        key = repayment.claim.key
       )
     }
-    val uniqueYears = repaymentsToRefundTrackerModel.collect(_.receivedOn.getYear).distinct.sorted(Ordering.Int.reverse)
-    uniqueYears.map (year => (
-      year, repaymentsToRefundTrackerModel
-      .filter(_.receivedOn.getYear == year)
-      .sortBy(_.receivedOn)(Ordering[LocalDate].reverse)
-    )).toMap
+    val uniqueYears                                             = repaymentsToRefundTrackerModel.collect(_.receivedOn.getYear).distinct.sorted(Ordering.Int.reverse)
+    uniqueYears
+      .map(year =>
+        (
+          year,
+          repaymentsToRefundTrackerModel
+            .filter(_.receivedOn.getYear == year)
+            .sortBy(_.receivedOn)(Ordering[LocalDate].reverse)
+        )
+      )
+      .toMap
   }
 }

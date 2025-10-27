@@ -33,17 +33,19 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class StartJourneyController @Inject() (
-    val authConnector: AuthConnector,
-    appConfig:         AppConfig,
-    page:              StartJourneyPage,
-    service:           StartJourneyService,
-    mcc:               MessagesControllerComponents
-)(implicit ec: ExecutionContext) extends FrontendController(mcc) with AuthorisedFunctions {
+  val authConnector: AuthConnector,
+  appConfig:         AppConfig,
+  page:              StartJourneyPage,
+  service:           StartJourneyService,
+  mcc:               MessagesControllerComponents
+)(implicit ec: ExecutionContext)
+    extends FrontendController(mcc)
+    with AuthorisedFunctions {
 
   private val logger = Logger(this.getClass)
 
   def showStartJourneyPage(
-      options: StartJourneyOptions
+    options: StartJourneyOptions
   ): Action[AnyContent] = Action.async { implicit request =>
     val form = StartJourneyOptions.form
       .fill(options)
@@ -64,16 +66,18 @@ class StartJourneyController @Inject() (
         authorised() {
           service.start(startOptions, origin)
         }.recover {
-          case _: NoActiveSession =>
+          case _: NoActiveSession        =>
             val continueUrl = Seq(
-              appConfig.frontendBaseUrl + uk.gov.hmrc.selfassessmentrefundfrontend.testonly.controllers.routes.StartJourneyController.showStartJourneyPage(startOptions).url
+              appConfig.frontendBaseUrl + uk.gov.hmrc.selfassessmentrefundfrontend.testonly.controllers.routes.StartJourneyController
+                .showStartJourneyPage(startOptions)
+                .url
             )
             Redirect(appConfig.loginUrl, Map("continue" -> continueUrl))
           case e: AuthorisationException =>
             logger.warn(s"Unauthorised because of ${e.reason}")
             BadRequest("ERROR" + e.reason)
         }
-      case None =>
+      case None               =>
         val pageModel = StartJourneyPageModel(form)
 
         Future.successful(Ok(page(pageModel)))
@@ -95,7 +99,10 @@ class StartJourneyController @Inject() (
   val redirectToStartJourneyPage: Action[AnyContent] = Action {
     val details = StartJourneyOptions.default
 
-    Redirect(uk.gov.hmrc.selfassessmentrefundfrontend.testonly.controllers.routes.StartJourneyController.showStartJourneyPage(details))
+    Redirect(
+      uk.gov.hmrc.selfassessmentrefundfrontend.testonly.controllers.routes.StartJourneyController
+        .showStartJourneyPage(details)
+    )
   }
 
 }

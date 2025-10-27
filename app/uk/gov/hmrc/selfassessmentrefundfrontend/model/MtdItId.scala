@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.selfassessmentrefundfrontend.model
 
-import play.api.libs.json.{Json, Format}
+import play.api.libs.json.{Format, Json}
 
 final case class MtdItId(value: String) extends AnyVal
 

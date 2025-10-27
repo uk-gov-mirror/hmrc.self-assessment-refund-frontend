@@ -27,10 +27,12 @@ trait BarsLockoutPageTesting extends PageContentTesting {
 
   def checkPageContent(expiryDateTime: Instant, buttonLink: String)(doc: Document): Unit = {
     doc.checkHasNoBackLink()
-    doc.checkHasParagraphs(List(
-      "Your refund request has not been submitted.",
-      s"You can try again after ${formatDateTime(expiryDateTime)} to confirm your bank details."
-    ))
+    doc.checkHasParagraphs(
+      List(
+        "Your refund request has not been submitted.",
+        s"You can try again after ${formatDateTime(expiryDateTime)} to confirm your bank details."
+      )
+    )
 
     doc.checkHasActionAsButton(
       buttonLink,
@@ -40,10 +42,12 @@ trait BarsLockoutPageTesting extends PageContentTesting {
 
   def checkPageContentWelsh(expiryDateTime: Instant, buttonLink: String)(doc: Document): Unit = {
     doc.checkHasNoBackLink()
-    doc.checkHasParagraphs(List(
-      "Nid yw’ch cais am ad-daliad wedi’i gyflwyno.",
-      s"Gallwch roi cynnig arall ar gadarnhau’ch manylion banc ar ôl ${formatDateTimeWelsh(expiryDateTime)}."
-    ))
+    doc.checkHasParagraphs(
+      List(
+        "Nid yw’ch cais am ad-daliad wedi’i gyflwyno.",
+        s"Gallwch roi cynnig arall ar gadarnhau’ch manylion banc ar ôl ${formatDateTimeWelsh(expiryDateTime)}."
+      )
+    )
 
     doc.checkHasActionAsButton(
       buttonLink,
@@ -53,12 +57,17 @@ trait BarsLockoutPageTesting extends PageContentTesting {
 
   private def formatDateTime(dt: Instant): String = {
     val zonedDateTime = dt.atZone(ZoneId.of("Europe/London"))
-    val date = zonedDateTime.toLocalDate
-    val time = zonedDateTime.toLocalTime
-    val dayOfWeek = date.getDayOfWeek.toString.split(' ').map(day =>
-      day.charAt(0).toString + day.slice(1, day.length).toLowerCase(Locale.UK)).mkString(" ")
-    val dateString = s"$dayOfWeek ${date.getDayOfMonth.toString} ${date.getMonth.toString.toLowerCase(Locale.UK).capitalize} ${date.getYear.toString}"
-    val timeString = DateTimeFormatter.ofPattern("h:mma").format(time)
+    val date          = zonedDateTime.toLocalDate
+    val time          = zonedDateTime.toLocalTime
+    val dayOfWeek     = date.getDayOfWeek.toString
+      .split(' ')
+      .map(day => day.charAt(0).toString + day.slice(1, day.length).toLowerCase(Locale.UK))
+      .mkString(" ")
+    val dateString    =
+      s"$dayOfWeek ${date.getDayOfMonth.toString} ${date.getMonth.toString.toLowerCase(Locale.UK).capitalize} ${date.getYear.toString}"
+    val timeString    = DateTimeFormatter
+      .ofPattern("h:mma")
+      .format(time)
       .replaceAll("AM$", "am")
       .replaceAll("PM$", "pm")
 
@@ -66,25 +75,25 @@ trait BarsLockoutPageTesting extends PageContentTesting {
   }
 
   private val WeekDaysInWelsh = Map(
-    DayOfWeek.MONDAY -> "dydd Llun",
-    DayOfWeek.TUESDAY -> "dydd Mawrth",
+    DayOfWeek.MONDAY    -> "dydd Llun",
+    DayOfWeek.TUESDAY   -> "dydd Mawrth",
     DayOfWeek.WEDNESDAY -> "dydd Mercher",
-    DayOfWeek.THURSDAY -> "dydd Iau",
-    DayOfWeek.FRIDAY -> "dydd Gwener",
-    DayOfWeek.SATURDAY -> "dydd Sadwrn",
-    DayOfWeek.SUNDAY -> "dydd Sul"
+    DayOfWeek.THURSDAY  -> "dydd Iau",
+    DayOfWeek.FRIDAY    -> "dydd Gwener",
+    DayOfWeek.SATURDAY  -> "dydd Sadwrn",
+    DayOfWeek.SUNDAY    -> "dydd Sul"
   )
 
   private val MonthNamesInWelsh = Map(
-    1 -> "Ionawr",
-    2 -> "Chwefror",
-    3 -> "Mawrth",
-    4 -> "Ebrill",
-    5 -> "Mai",
-    6 -> "Mehefin",
-    7 -> "Gorffennaf",
-    8 -> "Awst",
-    9 -> "Medi",
+    1  -> "Ionawr",
+    2  -> "Chwefror",
+    3  -> "Mawrth",
+    4  -> "Ebrill",
+    5  -> "Mai",
+    6  -> "Mehefin",
+    7  -> "Gorffennaf",
+    8  -> "Awst",
+    9  -> "Medi",
     10 -> "Hydref",
     11 -> "Tachwedd",
     12 -> "Rhagfyr"
@@ -92,12 +101,15 @@ trait BarsLockoutPageTesting extends PageContentTesting {
 
   private def formatDateTimeWelsh(dt: Instant): String = {
     val zonedDateTime = dt.atZone(ZoneId.of("Europe/London"))
-    val date = zonedDateTime.toLocalDate
-    val time = zonedDateTime.toLocalTime
-    val day = WeekDaysInWelsh(date.getDayOfWeek)
-    val month = MonthNamesInWelsh(date.getMonthValue)
-    val dateString = s"$day ${date.getDayOfMonth.toString} ${month.toLowerCase(Locale.UK).capitalize} ${date.getYear.toString}"
-    val timeString = DateTimeFormatter.ofPattern("h:mma").format(time)
+    val date          = zonedDateTime.toLocalDate
+    val time          = zonedDateTime.toLocalTime
+    val day           = WeekDaysInWelsh(date.getDayOfWeek)
+    val month         = MonthNamesInWelsh(date.getMonthValue)
+    val dateString    =
+      s"$day ${date.getDayOfMonth.toString} ${month.toLowerCase(Locale.UK).capitalize} ${date.getYear.toString}"
+    val timeString    = DateTimeFormatter
+      .ofPattern("h:mma")
+      .format(time)
       .replaceAll("AM$", "am")
       .replaceAll("PM$", "pm")
 

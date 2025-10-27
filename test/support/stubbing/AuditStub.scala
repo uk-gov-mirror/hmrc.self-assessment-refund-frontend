@@ -26,7 +26,7 @@ object AuditStub extends Eventually {
 
   override implicit val patienceConfig: AuditStub.PatienceConfig = PatienceConfig(Span(5, Seconds))
 
-  val auditUrl: String = "/write/audit"
+  val auditUrl: String       = "/write/audit"
   val auditMergedUrl: String = "/write/audit/merged"
 
   def audit(): StubMapping = {
@@ -35,7 +35,7 @@ object AuditStub extends Eventually {
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.All"))
-  def verifyEventAudited(auditType: String, auditEvent: JsObject): Unit = {
+  def verifyEventAudited(auditType: String, auditEvent: JsObject): Unit =
     eventually {
       verify(
         1,
@@ -51,7 +51,6 @@ object AuditStub extends Eventually {
           )
       )
     }
-  }
 
   def verifyNoAuditEvent(): Unit =
     verify(exactly(0), postRequestedFor(urlPathEqualTo(auditUrl)))

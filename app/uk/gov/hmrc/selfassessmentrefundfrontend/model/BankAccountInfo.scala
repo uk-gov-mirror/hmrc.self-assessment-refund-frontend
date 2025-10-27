@@ -20,19 +20,19 @@ import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.BankAccountDetailsController.BankAccount
 
 final case class BankAccountInfo(
-    name:          String,
-    sortCode:      SortCode,
-    accountNumber: AccountNumber,
-    rollNumber:    Option[RollNumber] = None
+  name:          String,
+  sortCode:      SortCode,
+  accountNumber: AccountNumber,
+  rollNumber:    Option[RollNumber] = None
 )
 
 object BankAccountInfo {
   def apply(bankAccount: BankAccount): BankAccountInfo =
     BankAccountInfo(
-      name          = bankAccount.accountName,
-      sortCode      = SortCode(bankAccount.sortCode),
+      name = bankAccount.accountName,
+      sortCode = SortCode(bankAccount.sortCode),
       accountNumber = AccountNumber(bankAccount.accountNumber),
-      rollNumber    = bankAccount.rollNumber.map(str => RollNumber(str))
+      rollNumber = bankAccount.rollNumber.map(str => RollNumber(str))
     )
 
   @SuppressWarnings(Array("org.wartremover.warts.Any"))

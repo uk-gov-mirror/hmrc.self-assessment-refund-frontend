@@ -38,6 +38,9 @@ trait WeCannotConfirmYourIdentityPageTesting extends PageContentTesting {
       "Rydych wedi nodi gwybodaeth nad yw’n cyd-fynd â’n cofnodion ormod o weithiau. Am resymau diogelwch, mae’n rhaid i chi aros am 24 awr ac yna rhoi cynnig arall arni."
     )
 
-    doc.checkHasActionAsButton("http://localhost:9081/report-quarterly/income-and-expenses/view", "Ewch i’r cyfrif treth")
+    doc.checkHasActionAsButton(
+      "http://localhost:9081/report-quarterly/income-and-expenses/view",
+      "Ewch i’r cyfrif treth"
+    )
   }
 }

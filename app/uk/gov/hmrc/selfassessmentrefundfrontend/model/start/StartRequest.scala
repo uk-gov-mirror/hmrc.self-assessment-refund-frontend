@@ -28,10 +28,10 @@ sealed trait StartRequest extends Product with Serializable {
 object StartRequest {
 
   final case class StartRefund(
-      nino:               String,
-      fullAmount:         BigDecimal,
-      lastPaymentViaCard: Option[Boolean]   = None,
-      returnUrl:          Option[ReturnUrl]
+    nino:               String,
+    fullAmount:         BigDecimal,
+    lastPaymentViaCard: Option[Boolean] = None,
+    returnUrl:          Option[ReturnUrl]
   ) extends StartRequest {
     override val replyUrl = "/self-assessment-refund/refund-amount"
   }

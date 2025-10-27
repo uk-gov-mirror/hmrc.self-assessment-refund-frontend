@@ -41,14 +41,16 @@ class RefundTrackerControllerSpec extends ItSpec with TdRepayments with RefundTr
   private val refundTrackerController = app.injector.instanceOf[RefundTrackerController]
 
   trait HistoryWithSessionFixture {
-    val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/track-a-self-assessment-refund/refund-request-tracker")
-      .withAuthToken()
-      .withSessionId()
+    val fakeRequest: FakeRequest[AnyContentAsEmpty.type] =
+      FakeRequest("GET", "/track-a-self-assessment-refund/refund-request-tracker")
+        .withAuthToken()
+        .withSessionId()
 
-    val fakeRequestWelsh: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/track-a-self-assessment-refund/refund-request-tracker")
-      .withAuthToken()
-      .withSessionId()
-      .withCookies(Cookie("PLAY_LANG", "cy"))
+    val fakeRequestWelsh: FakeRequest[AnyContentAsEmpty.type] =
+      FakeRequest("GET", "/track-a-self-assessment-refund/refund-request-tracker")
+        .withAuthToken()
+        .withSessionId()
+        .withCookies(Cookie("PLAY_LANG", "cy"))
 
     AuthStub.authoriseIndividualL250()
     givenRepaymentsExistForNino(nino)
@@ -67,21 +69,30 @@ class RefundTrackerControllerSpec extends ItSpec with TdRepayments with RefundTr
     }
 
     "called on 'refundTracker'" when {
-      val authoriseFunctions: Seq[(AffinityGroup, () => StubMapping)] = Seq[(AffinityGroup, () => StubMapping)]((Agent, () => AuthStub.authoriseAgentL50()), (Individual, () => AuthStub.authoriseIndividualL250()), (Organisation, () => AuthStub.authoriseOrganisationL250()))
+      val authoriseFunctions: Seq[(AffinityGroup, () => StubMapping)] = Seq[(AffinityGroup, () => StubMapping)](
+        (Agent, () => AuthStub.authoriseAgentL50()),
+        (Individual, () => AuthStub.authoriseIndividualL250()),
+        (Organisation, () => AuthStub.authoriseOrganisationL250())
+      )
       "the user does not have a refund history" should {
         for ((affinity, authoriseAffinity) <- authoriseFunctions)
           s"display 'no refund history' content on the page for [${affinity.toString}]" in {
             authoriseAffinity()
 
-            val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/track-a-self-assessment-refund/refund-request-tracker")
-              .withAuthToken()
-              .withSessionId()
+            val fakeRequest: FakeRequest[AnyContentAsEmpty.type] =
+              FakeRequest("GET", "/track-a-self-assessment-refund/refund-request-tracker")
+                .withAuthToken()
+                .withSessionId()
 
             val repaymentsTwo: List[Response] = List()
-            stubFor(get(urlEqualTo(s"/self-assessment-refund-backend/repayments/${nino.value}"))
-              .willReturn(aResponse()
-                .withStatus(200)
-                .withBody(Json.prettyPrint(Json.toJson(repaymentsTwo)))))
+            stubFor(
+              get(urlEqualTo(s"/self-assessment-refund-backend/repayments/${nino.value}"))
+                .willReturn(
+                  aResponse()
+                    .withStatus(200)
+                    .withBody(Json.prettyPrint(Json.toJson(repaymentsTwo)))
+                )
+            )
             stubBackendPersonalJourney(Some(nino))
             stubBarsVerifyStatus()
             stubBackendBusinessJourney(Some(Nino("AA111111A")))
@@ -89,11 +100,11 @@ class RefundTrackerControllerSpec extends ItSpec with TdRepayments with RefundTr
             val result: Future[Result] = refundTrackerController.refundTracker()(fakeRequest)
 
             result.checkPageIsDisplayed(
-              expectedHeading     = "Refund request tracker",
+              expectedHeading = "Refund request tracker",
               expectedServiceLink = "http://localhost:9171/track-a-self-assessment-refund/refund-request-tracker",
-              contentChecks       = checkNoHistoryPageContent(isAgent = Option(affinity).contains(Agent), welsh = false),
-              expectedStatus      = Status.OK,
-              journey             = "track"
+              contentChecks = checkNoHistoryPageContent(isAgent = Option(affinity).contains(Agent), welsh = false),
+              expectedStatus = Status.OK,
+              journey = "track"
             )
           }
 
@@ -101,16 +112,21 @@ class RefundTrackerControllerSpec extends ItSpec with TdRepayments with RefundTr
           s"display welsh 'no refund history' content on the page for [${affinity.toString}]" in {
             authoriseAffinity()
 
-            val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/track-a-self-assessment-refund/refund-request-tracker")
-              .withAuthToken()
-              .withSessionId()
-              .withCookies(Cookie("PLAY_LANG", "cy"))
+            val fakeRequest: FakeRequest[AnyContentAsEmpty.type] =
+              FakeRequest("GET", "/track-a-self-assessment-refund/refund-request-tracker")
+                .withAuthToken()
+                .withSessionId()
+                .withCookies(Cookie("PLAY_LANG", "cy"))
 
             val repaymentsTwo: List[Response] = List()
-            stubFor(get(urlEqualTo(s"/self-assessment-refund-backend/repayments/${nino.value}"))
-              .willReturn(aResponse()
-                .withStatus(200)
-                .withBody(Json.prettyPrint(Json.toJson(repaymentsTwo)))))
+            stubFor(
+              get(urlEqualTo(s"/self-assessment-refund-backend/repayments/${nino.value}"))
+                .willReturn(
+                  aResponse()
+                    .withStatus(200)
+                    .withBody(Json.prettyPrint(Json.toJson(repaymentsTwo)))
+                )
+            )
             stubBackendPersonalJourney(Some(nino))
             stubBarsVerifyStatus()
             stubBackendBusinessJourney(Some(Nino("AA111111A")))
@@ -118,12 +134,12 @@ class RefundTrackerControllerSpec extends ItSpec with TdRepayments with RefundTr
             val result: Future[Result] = refundTrackerController.refundTracker()(fakeRequest)
 
             result.checkPageIsDisplayed(
-              expectedHeading     = "System olrhain ceisiadau am ad-daliad",
+              expectedHeading = "System olrhain ceisiadau am ad-daliad",
               expectedServiceLink = "http://localhost:9171/track-a-self-assessment-refund/refund-request-tracker",
-              contentChecks       = checkNoHistoryPageContent(isAgent = Option(affinity).contains(Agent), welsh = true),
-              expectedStatus      = Status.OK,
-              journey             = "track",
-              welsh               = true
+              contentChecks = checkNoHistoryPageContent(isAgent = Option(affinity).contains(Agent), welsh = true),
+              expectedStatus = Status.OK,
+              journey = "track",
+              welsh = true
             )
           }
       }
@@ -135,11 +151,11 @@ class RefundTrackerControllerSpec extends ItSpec with TdRepayments with RefundTr
           val result: Future[Result] = refundTrackerController.refundTracker()(fakeRequest)
 
           result.checkPageIsDisplayed(
-            expectedHeading     = "Refund request tracker",
+            expectedHeading = "Refund request tracker",
             expectedServiceLink = "http://localhost:9171/track-a-self-assessment-refund/refund-request-tracker",
-            contentChecks       = checkPageContent,
-            expectedStatus      = Status.OK,
-            journey             = "track"
+            contentChecks = checkPageContent,
+            expectedStatus = Status.OK,
+            journey = "track"
           )
         }
 
@@ -148,12 +164,12 @@ class RefundTrackerControllerSpec extends ItSpec with TdRepayments with RefundTr
           val result: Future[Result] = refundTrackerController.refundTracker()(fakeRequestWelsh)
 
           result.checkPageIsDisplayed(
-            expectedHeading     = "System olrhain ceisiadau am ad-daliad",
+            expectedHeading = "System olrhain ceisiadau am ad-daliad",
             expectedServiceLink = "http://localhost:9171/track-a-self-assessment-refund/refund-request-tracker",
-            contentChecks       = checkPageContentWelsh,
-            expectedStatus      = Status.OK,
-            journey             = "track",
-            welsh               = true
+            contentChecks = checkPageContentWelsh,
+            expectedStatus = Status.OK,
+            journey = "track",
+            welsh = true
           )
         }
       }
@@ -167,7 +183,9 @@ class RefundTrackerControllerSpec extends ItSpec with TdRepayments with RefundTr
           stubBackendBusinessJourney(Some(Nino("AA111111A")))
           val result = refundTrackerController.refundTracker()(fakeRequest)
           status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("http://localhost:9949/auth-login-stub/gg-sign-in?continue=http://localhost:9171/self-assessment-refund/self-assessment-refund/test-only")
+          redirectLocation(result) shouldBe Some(
+            "http://localhost:9949/auth-login-stub/gg-sign-in?continue=http://localhost:9171/self-assessment-refund/self-assessment-refund/test-only"
+          )
         }
       }
     }
@@ -176,30 +194,34 @@ class RefundTrackerControllerSpec extends ItSpec with TdRepayments with RefundTr
   def givenRepaymentsExistForNino(nino: Nino): StubMapping = {
     val repayments: List[Response] = List(
       Response(
-        key             = no1,
-        nino            = nino,
-        payment         = 12000,
-        status          = "Processing",
-        created         = "2021-08-14",
-        completed       = None,
-        rejection       = None,
+        key = no1,
+        nino = nino,
+        payment = 12000,
+        status = "Processing",
+        created = "2021-08-14",
+        completed = None,
+        rejection = None,
         repaymentMethod = Some("Card")
       ),
       Response(
-        key             = no2,
-        nino            = nino,
-        payment         = 76000,
-        status          = "Approved",
-        created         = "2023-08-16",
-        completed       = Some("2021-08-17"),
-        rejection       = None,
+        key = no2,
+        nino = nino,
+        payment = 76000,
+        status = "Approved",
+        created = "2023-08-16",
+        completed = Some("2021-08-17"),
+        rejection = None,
         repaymentMethod = Some("BACS")
-      ),
+      )
     )
 
-    stubFor(get(urlEqualTo(s"/self-assessment-refund-backend/repayments/${nino.value}"))
-      .willReturn(aResponse()
-        .withStatus(200)
-        .withBody(Json.prettyPrint(Json.toJson(repayments)))))
+    stubFor(
+      get(urlEqualTo(s"/self-assessment-refund-backend/repayments/${nino.value}"))
+        .willReturn(
+          aResponse()
+            .withStatus(200)
+            .withBody(Json.prettyPrint(Json.toJson(repayments)))
+        )
+    )
   }
 }

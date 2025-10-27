@@ -34,12 +34,14 @@ class BarsVerifyStatusConnector(httpClient: HttpClientV2, baseUrl: String)(impli
 
   // POST to keep the Id out of the url
   def status(id: BarVerifyStatusId)(implicit request: RequestHeader): Future[BarsVerifyStatusResponse] =
-    httpClient.post(url"$baseUrl/self-assessment-refund-backend/bars/verify/status")
+    httpClient
+      .post(url"$baseUrl/self-assessment-refund-backend/bars/verify/status")
       .withBody(Json.toJson(BarsUpdateVerifyStatusParams(id)))
       .execute[BarsVerifyStatusResponse]
 
   def update(id: BarVerifyStatusId)(implicit request: RequestHeader): Future[BarsVerifyStatusResponse] =
-    httpClient.post(url"$baseUrl/self-assessment-refund-backend/bars/verify/update")
+    httpClient
+      .post(url"$baseUrl/self-assessment-refund-backend/bars/verify/update")
       .withBody(Json.toJson(BarsUpdateVerifyStatusParams(id)))
       .execute[BarsVerifyStatusResponse]
 

@@ -29,12 +29,12 @@ sealed trait StartJourneyType extends enumeratum.EnumEntry derives CanEqual {
 object StartJourneyType extends enumeratum.Enum[StartJourneyType] with enumeratum.PlayEnum[StartJourneyType] {
   case object StartRefund extends StartJourneyType {
     override val label: String = "Start Refund"
-    override val cls = classOf[StartRequest.StartRefund]
+    override val cls           = classOf[StartRequest.StartRefund]
   }
 
   case object ViewHistory extends StartJourneyType {
     override val label: String = "View History"
-    override val cls = classOf[StartRequest.ViewHistory]
+    override val cls           = classOf[StartRequest.ViewHistory]
   }
 
   def fromSsarj(request: StartRequest): StartJourneyType = request match {
@@ -44,6 +44,7 @@ object StartJourneyType extends enumeratum.Enum[StartJourneyType] with enumeratu
 
   override def values: immutable.IndexedSeq[StartJourneyType] = findValues
 
-  implicit val binder: QueryStringBindable[StartJourneyType] = enumeratum.UrlBinders.queryBinder[StartJourneyType](StartJourneyType)
+  implicit val binder: QueryStringBindable[StartJourneyType] =
+    enumeratum.UrlBinders.queryBinder[StartJourneyType](StartJourneyType)
   //  implicit val binder: QueryStringBindable[StartJourneyType] = enumeratum.UrlBinders.queryBinder[StartJourneyType](StartJourneyType)
 }

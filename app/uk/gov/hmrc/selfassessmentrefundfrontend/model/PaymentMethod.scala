@@ -24,8 +24,7 @@ object PaymentMethod extends Enum[PaymentMethod] with PlayJsonEnum[PaymentMethod
 
   val values = findValues
   //  methods other than card currently not used, trait is for future proofing
-  case object Card extends PaymentMethod
-  case object BACS extends PaymentMethod
+  case object Card         extends PaymentMethod
+  case object BACS         extends PaymentMethod
   case object PaymentOrder extends PaymentMethod
 }
-

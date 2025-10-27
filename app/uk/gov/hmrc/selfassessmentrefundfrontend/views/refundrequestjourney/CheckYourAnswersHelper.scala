@@ -31,50 +31,65 @@ import javax.inject.{Inject, Singleton}
 class CheckYourAnswersHelper @Inject() (i18n: I18nSupport) {
   import i18n._
 
-  def buildSummaryList(amount: Amount, accountType: AccountType, bankAccountInfo: BankAccountInfo)(implicit request: Request[_]): SummaryList = SummaryList(rows = Seq(
-    amountRow(amount),
-    accountTypeRow(accountType),
-    accountDetailsRow(bankAccountInfo)
-  ))
-
-  private def amountRow(amount: Amount)(implicit request: Request[_]): SummaryListRow = {
-    buildSummaryListRow(
-      key   = Messages("check-your-answers.amount"),
-      value = AmountFormatter.formatAmount(amount.repay),
-      call  = uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.routes.CheckYourAnswersPageController.changeAmount
+  def buildSummaryList(amount: Amount, accountType: AccountType, bankAccountInfo: BankAccountInfo)(implicit
+    request: Request[_]
+  ): SummaryList = SummaryList(rows =
+    Seq(
+      amountRow(amount),
+      accountTypeRow(accountType),
+      accountDetailsRow(bankAccountInfo)
     )
-  }
+  )
 
-  private def accountTypeRow(accountType: AccountType)(implicit request: Request[_]): SummaryListRow = {
+  private def amountRow(amount: Amount)(implicit request: Request[_]): SummaryListRow =
     buildSummaryListRow(
-      key   = Messages("check-your-answers.bank-account-type"),
+      key = Messages("check-your-answers.amount"),
+      value = AmountFormatter.formatAmount(amount.repay),
+      call =
+        uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.routes.CheckYourAnswersPageController.changeAmount
+    )
+
+  private def accountTypeRow(accountType: AccountType)(implicit request: Request[_]): SummaryListRow =
+    buildSummaryListRow(
+      key = Messages("check-your-answers.bank-account-type"),
       value = if (accountType.name === "Personal") {
         Messages("check-your-answers.personal")
       } else Messages("check-your-answers.business"),
-      call  = uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.routes.CheckYourAnswersPageController.changeAccount
+      call =
+        uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.routes.CheckYourAnswersPageController.changeAccount
     )
-  }
 
-  private def accountDetailsRow(bankAccountInfo: BankAccountInfo)(implicit request: Request[_]): SummaryListRow = {
+  private def accountDetailsRow(bankAccountInfo: BankAccountInfo)(implicit request: Request[_]): SummaryListRow =
     buildSummaryListRow(
-      key   = Messages("check-your-answers.bank-account-details"),
+      key = Messages("check-your-answers.bank-account-details"),
       value = bankAccountInfoDisplayFormat(bankAccountInfo),
-      call  = uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.routes.BankAccountDetailsController.getAccountDetails
+      call =
+        uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.routes.BankAccountDetailsController.getAccountDetails
     )
-  }
 
-  private def buildSummaryListRow(key: String, value: String, call: Call)(implicit request: Request[_]): SummaryListRow = SummaryListRow(
-    key     = Key(Text(s"""$key""")),
-    value   = Value(HtmlContent(value)),
-    actions = Some(uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Actions(items = Seq(ActionItem(href               = s"${call.url}", content = Text(Messages("check-your-answers.change")), visuallyHiddenText = Some(key)))))
+  private def buildSummaryListRow(key: String, value: String, call: Call)(implicit
+    request: Request[_]
+  ): SummaryListRow = SummaryListRow(
+    key = Key(Text(s"""$key""")),
+    value = Value(HtmlContent(value)),
+    actions = Some(
+      uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Actions(items =
+        Seq(
+          ActionItem(
+            href = s"${call.url}",
+            content = Text(Messages("check-your-answers.change")),
+            visuallyHiddenText = Some(key)
+          )
+        )
+      )
+    )
   )
 
-  private def bankAccountInfoDisplayFormat(bankAccountInfo: BankAccountInfo): String = {
+  private def bankAccountInfoDisplayFormat(bankAccountInfo: BankAccountInfo): String =
     s"""
        |${bankAccountInfo.name}<br>
        |${bankAccountInfo.sortCode.displayFormat}<br>
        |${bankAccountInfo.accountNumber.value}<br>
        |${bankAccountInfo.rollNumber.map(_.value).getOrElse("")}
        |""".stripMargin.trim
-  }
 }

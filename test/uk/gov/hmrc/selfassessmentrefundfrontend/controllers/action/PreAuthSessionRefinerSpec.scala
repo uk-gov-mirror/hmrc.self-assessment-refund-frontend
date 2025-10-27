@@ -33,7 +33,7 @@ class PreAuthSessionRefinerSpec extends ItSpec {
 
   implicit val materializer: Materializer = app.injector.instanceOf[Materializer]
 
-  val defaultActionBuilder: DefaultActionBuilder = app.injector.instanceOf[DefaultActionBuilder]
+  val defaultActionBuilder: DefaultActionBuilder   = app.injector.instanceOf[DefaultActionBuilder]
   val preAuthSessionRefiner: PreAuthSessionRefiner = app.injector.instanceOf[PreAuthSessionRefiner]
 
   val preAuthJourneyAction: ActionBuilder[PreAuthRequest, AnyContent] =
@@ -69,7 +69,9 @@ class PreAuthSessionRefinerSpec extends ItSpec {
         val result = doTestNoSessionId(fakeRequest.withAuthToken())
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some("http://localhost:9949/auth-login-stub/gg-sign-in?continue=http://localhost:9171/self-assessment-refund/self-assessment-refund/test-only")
+        redirectLocation(result) shouldBe Some(
+          "http://localhost:9949/auth-login-stub/gg-sign-in?continue=http://localhost:9171/self-assessment-refund/self-assessment-refund/test-only"
+        )
       }
     }
   }

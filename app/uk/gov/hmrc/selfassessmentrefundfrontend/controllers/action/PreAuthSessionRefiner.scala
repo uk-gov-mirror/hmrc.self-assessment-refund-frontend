@@ -29,28 +29,33 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class PreAuthSessionRefiner @Inject() (
-    appConfig:        AppConfig,
-    journeyConnector: JourneyConnector
-)(implicit ec: ExecutionContext) extends ActionRefiner[Request, PreAuthRequest] with Logging {
+  appConfig:        AppConfig,
+  journeyConnector: JourneyConnector
+)(implicit ec: ExecutionContext)
+    extends ActionRefiner[Request, PreAuthRequest]
+    with Logging {
 
   override protected def refine[A](request: Request[A]): Future[Either[Result, PreAuthRequest[A]]] = {
     implicit val r: Request[A] = request
 
     hc(request).sessionId match {
-      case Some(sessionId) => {
-        journeyConnector.findLatestBySessionId().map { journey =>
-          Right(new PreAuthRequest(
-            request   = request,
-            journey   = journey,
-            sessionId = sessionId
-          ))
-        }.recover {
-          case err =>
+      case Some(sessionId) =>
+        journeyConnector
+          .findLatestBySessionId()
+          .map { journey =>
+            Right(
+              new PreAuthRequest(
+                request = request,
+                journey = journey,
+                sessionId = sessionId
+              )
+            )
+          }
+          .recover { case err =>
             logger.warn(s"PreAuthSessionRefiner: Exception: ${err.getMessage}")
             throw err
-        }
-      }
-      case None =>
+          }
+      case None            =>
         // TODO fix "appConfig.authLoginStubUrl" ?
         logger.warn(s"PreAuthSessionRefiner: Expected SessionId for logged in user")
         Future.successful(Left(Redirect(appConfig.authLoginStubUrl)))

@@ -33,7 +33,7 @@ object BarsVerifyStatusStub {
                                                 |    "lockoutExpiryDateTime": "${expiry.toString}"
                                                 |}""".stripMargin
 
-  private val getVerifyStatusUrl: String = "/self-assessment-refund-backend/bars/verify/status"
+  private val getVerifyStatusUrl: String    = "/self-assessment-refund-backend/bars/verify/status"
   private val updateVerifyStatusUrl: String = "/self-assessment-refund-backend/bars/verify/update"
 
   def statusUnlocked(): StubMapping = stubPost(getVerifyStatusUrl, noLockoutBody(numberOfAttempts = 1))
@@ -44,9 +44,8 @@ object BarsVerifyStatusStub {
 
   def updateAndLockout(expiry: Instant): StubMapping = stubPost(updateVerifyStatusUrl, lockoutBody(expiry))
 
-  def ensureVerifyUpdateStatusIsCalled(): Unit = {
+  def ensureVerifyUpdateStatusIsCalled(): Unit =
     verify(exactly(1), postRequestedFor(urlPathEqualTo(updateVerifyStatusUrl)))
-  }
 
   def ensureVerifyUpdateStatusIsNotCalled(): Unit =
     verify(exactly(0), postRequestedFor(urlPathEqualTo(updateVerifyStatusUrl)))

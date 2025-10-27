@@ -43,7 +43,7 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.testdata.TdBars.bankAccountInfo
 import uk.gov.hmrc.selfassessmentrefundfrontend.util.ApplicationLogging
 
 import java.time.format.DateTimeFormatter
-import java.time.{OffsetDateTime, ZonedDateTime, LocalDate}
+import java.time.{LocalDate, OffsetDateTime, ZonedDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -73,8 +73,9 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
 
   "audit Bars check" when {
     "result is a verify response" in {
-      val expectedDetails: JsValue = Json.parse(
-        s"""{
+      val expectedDetails: JsValue = Json
+        .parse(
+          s"""{
            |  "nino": "AA111111A",
            |  "userEnteredDetails": {
            |    "accountType": "personal",
@@ -100,7 +101,8 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
            |  },
            |  "userType": "Individual"
            |}""".stripMargin
-      ).as[JsValue]
+        )
+        .as[JsValue]
 
       val auditService = new AuditService(StubAuditConnector(expectedDetails)(testBarsCheck))
 
@@ -118,8 +120,9 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
       )(request)
     }
     "result is a verify response with 3 unsuccessfulAttempts" in {
-      val expectedDetails: JsValue = Json.parse(
-        s"""{
+      val expectedDetails: JsValue = Json
+        .parse(
+          s"""{
            |  "nino": "AA111111A",
            |  "userEnteredDetails": {
            |    "accountType": "personal",
@@ -147,7 +150,8 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
            |  "userType": "Agent",
            |  "agentReferenceNumber":"AARN1234567"
            |}""".stripMargin
-      ).as[JsValue]
+        )
+        .as[JsValue]
 
       val auditService = new AuditService(StubAuditConnector(expectedDetails)(testBarsCheck))
 
@@ -166,8 +170,9 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
     }
     "result is a bars error" when {
       "error is from Validate check" in {
-        val expectedDetails: JsValue = Json.parse(
-          s"""{
+        val expectedDetails: JsValue = Json
+          .parse(
+            s"""{
              |  "nino": "AA111111A",
              |  "userEnteredDetails": {
              |    "accountType": "personal",
@@ -188,13 +193,18 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
              |  },
              |  "userType": "Individual"
              |}""".stripMargin
-        ).as[JsValue]
+          )
+          .as[JsValue]
 
         val auditService = new AuditService(StubAuditConnector(expectedDetails)(testBarsCheck))
 
         auditService.auditBarsCheck(
           BankAccountInfo(bankAccountInfo),
-          Left(AccountNumberNotWellFormattedValidateResponse(ValidateResponse(TdBars.barsValidateResponseAccountNumNotWellFormatted))),
+          Left(
+            AccountNumberNotWellFormattedValidateResponse(
+              ValidateResponse(TdBars.barsValidateResponseAccountNumNotWellFormatted)
+            )
+          ),
           BarsVerifyStatusResponse(
             NumberOfBarsVerifyAttempts(3),
             Some(ZonedDateTime.parse("2022-09-07T10:01:15.315Z").toInstant)
@@ -207,8 +217,9 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
 
       }
       "error is from Verify check" in {
-        val expectedDetails: JsValue = Json.parse(
-          s"""{
+        val expectedDetails: JsValue = Json
+          .parse(
+            s"""{
              |  "nino": "AA111111A",
              |  "userEnteredDetails": {
              |    "accountType": "personal",
@@ -232,7 +243,8 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
              |  },
              |  "userType": "Individual"
              |}""".stripMargin
-        ).as[JsValue]
+          )
+          .as[JsValue]
 
         val auditService = new AuditService(StubAuditConnector(expectedDetails)(testBarsCheck))
 
@@ -251,8 +263,9 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
 
       }
       "error is due to sort code being on deny list" in {
-        val expectedDetails: JsValue = Json.parse(
-          s"""{
+        val expectedDetails: JsValue = Json
+          .parse(
+            s"""{
              |  "nino": "AA111111A",
              |  "userEnteredDetails": {
              |    "accountType": "personal",
@@ -271,7 +284,8 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
              |  },
              |  "userType": "Individual"
              |}""".stripMargin
-        ).as[JsValue]
+          )
+          .as[JsValue]
 
         val auditService = new AuditService(StubAuditConnector(expectedDetails)(testBarsCheck))
 
@@ -294,7 +308,7 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
 
   @SuppressWarnings(Array("org.wartremover.warts.AnyVal"))
   override lazy val configOverrides: Map[String, Any] = Map(
-    "auditing.enabled" -> true,
+    "auditing.enabled"               -> true,
     "auditing.consumer.baseUri.port" -> wireMockServer.port
   )
 
@@ -302,21 +316,26 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
 
     AuthStub.allEnrolments(affinityGroup, confidenceLevel)
 
-    val auditService: AuditService = app.injector.instanceOf[AuditService]
-    val testReturnUrl: Option[ReturnUrl] = Some(ReturnUrl("/returnUrl"))
+    val auditService: AuditService                   = app.injector.instanceOf[AuditService]
+    val testReturnUrl: Option[ReturnUrl]             = Some(ReturnUrl("/returnUrl"))
     val testBankAccountInfo: Option[BankAccountInfo] =
-      Some(BankAccountInfo(
-        "Jon Smith",
-        SortCode("111111"),
-        AccountNumber("12345678")
-      ))
+      Some(
+        BankAccountInfo(
+          "Jon Smith",
+          SortCode("111111"),
+          AccountNumber("12345678")
+        )
+      )
   }
 
   "the auditService" when {
     val longTimeout: Timeout = Timeout(scaled(Span(10, Seconds)))
-    val hc: HeaderCarrier = HeaderCarrier()
+    val hc: HeaderCarrier    = HeaderCarrier()
 
-    for ((affinityGroup, optArn) <- Seq[(AffinityGroup, Option[String])]((Individual, None), (Agent, Some("AARN1234567")), (Organisation, None)))
+    for (
+      (affinityGroup, optArn) <-
+        Seq[(AffinityGroup, Option[String])]((Individual, None), (Agent, Some("AARN1234567")), (Organisation, None))
+    )
       s"called with an existing journeyId as ${affinityGroup.toString}" should {
         "create an audit event (generate and send audit item)" when {
           "when the ETMP call has failed" should {
@@ -326,7 +345,15 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
                 JourneyId("1234"),
                 AuditFlags(),
                 JourneyTypes.RefundJourney,
-                Some(Amount(Some(1234.12), None, None, totalCreditAvailableForRepayment = Some(1234.12), unallocatedCredit = Some(123.45))),
+                Some(
+                  Amount(
+                    Some(1234.12),
+                    None,
+                    None,
+                    totalCreditAvailableForRepayment = Some(1234.12),
+                    unallocatedCredit = Some(123.45)
+                  )
+                ),
                 Some(Nino("Nino")),
                 None,
                 Some(PaymentMethod.Card),
@@ -341,9 +368,10 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
 
               eventually(longTimeout) {
                 AuditStub.verifyEventAudited(
-                  auditType  = "RefundRequest",
-                  auditEvent = Json.parse(
-                    s"""
+                  auditType = "RefundRequest",
+                  auditEvent = Json
+                    .parse(
+                      s"""
                        |{
                        |  "etmpResult": "Fail",
                        |  "userType": "${affinityGroup.toString}",
@@ -353,7 +381,8 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
                        |  "nino": "Nino",
                        |  "nrsSubmissionId" : "MissingNrsSubmissionId"
                   }""".stripMargin
-                  ).as[JsObject]
+                    )
+                    .as[JsObject]
                 )
               }
             }
@@ -373,7 +402,15 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
                 JourneyId("1234"),
                 AuditFlags(),
                 JourneyTypes.RefundJourney,
-                Some(Amount(Some(1234.12), None, None, totalCreditAvailableForRepayment = Some(1234.12), unallocatedCredit = Some(123.45))),
+                Some(
+                  Amount(
+                    Some(1234.12),
+                    None,
+                    None,
+                    totalCreditAvailableForRepayment = Some(1234.12),
+                    unallocatedCredit = Some(123.45)
+                  )
+                ),
                 None,
                 None,
                 Some(PaymentMethod.Card),
@@ -385,13 +422,19 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
                 testReturnUrl
               )
 
-              auditService.auditRefundRequestEvent(journey, Some(nrsSubmissionId), Some(affinityGroup.toString), optArn)(hc)
+              auditService.auditRefundRequestEvent(
+                journey,
+                Some(nrsSubmissionId),
+                Some(affinityGroup.toString),
+                optArn
+              )(hc)
 
               eventually(longTimeout) {
                 AuditStub.verifyEventAudited(
-                  auditType  = "RefundRequest",
-                  auditEvent = Json.parse(
-                    s"""
+                  auditType = "RefundRequest",
+                  auditEvent = Json
+                    .parse(
+                      s"""
                        |{
                        |  "etmpResult": "Success",
                        |  "userType": "${affinityGroup.toString}",
@@ -408,7 +451,8 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
                        |      "accountNumber" : "12345678"
                        |    }
                        |}""".stripMargin
-                  ).as[JsObject]
+                    )
+                    .as[JsObject]
                 )
               }
             }
@@ -420,8 +464,9 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
   "ViewRefundStatus" when {
     "successful event" when {
       "from view and change" in {
-        val expectedDetails: JsValue = Json.parse(
-          s"""{
+        val expectedDetails: JsValue = Json
+          .parse(
+            s"""{
              |  "outcome": {
              |    "isSuccessful":true
              |  },
@@ -460,62 +505,66 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
              |    }
              |  ]
              |}""".stripMargin
-        ).as[JsValue]
+          )
+          .as[JsValue]
 
         val auditService = new AuditService(StubAuditConnector(expectedDetails)(testViewRefundStatusChecks))
 
         auditService.auditViewRefundStatus(
-          taxRepayments = Some(List[TaxRepayment](
-            ProcessingTaxRepayment(
-              claim = Claim(
-                key             = RequestNumber("1"),
-                nino            = Nino("AA111111A"),
-                amount          = BigDecimal(12000),
-                created         = LocalDate.parse("2021-08-14", DateTimeFormatter.ISO_DATE),
-                repaymentMethod = Some(PaymentMethod.Card)
-              )
-            ),
-            ApprovedTaxRepayment(
-              claim     = Claim(
-                key             = RequestNumber("2"),
-                nino            = Nino("AA111111A"),
-                amount          = BigDecimal(76000),
-                created         = LocalDate.parse("2021-08-16", DateTimeFormatter.ISO_DATE),
-                repaymentMethod = Some(PaymentMethod.BACS)
+          taxRepayments = Some(
+            List[TaxRepayment](
+              ProcessingTaxRepayment(
+                claim = Claim(
+                  key = RequestNumber("1"),
+                  nino = Nino("AA111111A"),
+                  amount = BigDecimal(12000),
+                  created = LocalDate.parse("2021-08-14", DateTimeFormatter.ISO_DATE),
+                  repaymentMethod = Some(PaymentMethod.Card)
+                )
               ),
-              completed = LocalDate.parse("2021-08-17", DateTimeFormatter.ISO_DATE)
-            ),
-            ProcessingRiskingTaxRepayment(
-              claim = Claim(
-                key             = RequestNumber("3"),
-                nino            = Nino("AA111111A"),
-                amount          = BigDecimal(44000),
-                created         = LocalDate.parse("2021-08-18", DateTimeFormatter.ISO_DATE),
-                repaymentMethod = Some(PaymentMethod.PaymentOrder)
-              )
-            ),
-            RejectedTaxRepayment(
-              claim     = Claim(
-                key             = RequestNumber("4"),
-                nino            = Nino("AA111111A"),
-                amount          = BigDecimal(66000),
-                created         = LocalDate.parse("2021-08-06", DateTimeFormatter.ISO_DATE),
-                repaymentMethod = None
+              ApprovedTaxRepayment(
+                claim = Claim(
+                  key = RequestNumber("2"),
+                  nino = Nino("AA111111A"),
+                  amount = BigDecimal(76000),
+                  created = LocalDate.parse("2021-08-16", DateTimeFormatter.ISO_DATE),
+                  repaymentMethod = Some(PaymentMethod.BACS)
+                ),
+                completed = LocalDate.parse("2021-08-17", DateTimeFormatter.ISO_DATE)
               ),
-              completed = LocalDate.parse("2021-08-07", DateTimeFormatter.ISO_DATE),
-              message   = Some("got rejected")
+              ProcessingRiskingTaxRepayment(
+                claim = Claim(
+                  key = RequestNumber("3"),
+                  nino = Nino("AA111111A"),
+                  amount = BigDecimal(44000),
+                  created = LocalDate.parse("2021-08-18", DateTimeFormatter.ISO_DATE),
+                  repaymentMethod = Some(PaymentMethod.PaymentOrder)
+                )
+              ),
+              RejectedTaxRepayment(
+                claim = Claim(
+                  key = RequestNumber("4"),
+                  nino = Nino("AA111111A"),
+                  amount = BigDecimal(66000),
+                  created = LocalDate.parse("2021-08-06", DateTimeFormatter.ISO_DATE),
+                  repaymentMethod = None
+                ),
+                completed = LocalDate.parse("2021-08-07", DateTimeFormatter.ISO_DATE),
+                message = Some("got rejected")
+              )
             )
-          )),
+          ),
           affinityGroup = Some(AffinityGroup.Individual),
-          maybeNino     = Some(Nino("AA111111A")),
-          journeyType   = JourneyTypes.TrackJourney,
-          maybeArn      = None
+          maybeNino = Some(Nino("AA111111A")),
+          journeyType = JourneyTypes.TrackJourney,
+          maybeArn = None
         )(request)
       }
 
       "from claim journey" in {
-        val expectedDetails: JsValue = Json.parse(
-          s"""{
+        val expectedDetails: JsValue = Json
+          .parse(
+            s"""{
              |  "outcome": {
              |    "isSuccessful":true
              |  },
@@ -534,34 +583,38 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
              |    }
              |  ]
              |}""".stripMargin
-        ).as[JsValue]
+          )
+          .as[JsValue]
 
         val auditService = new AuditService(StubAuditConnector(expectedDetails)(testViewRefundStatusChecks))
 
         auditService.auditViewRefundStatus(
-          taxRepayments = Some(List[TaxRepayment](
-            ApprovedTaxRepayment(
-              claim     = Claim(
-                key             = RequestNumber("2"),
-                nino            = Nino("AA111111A"),
-                amount          = BigDecimal(76000),
-                created         = LocalDate.parse("2021-08-16", DateTimeFormatter.ISO_DATE),
-                repaymentMethod = Some(PaymentMethod.Card)
-              ),
-              completed = LocalDate.parse("2021-08-17", DateTimeFormatter.ISO_DATE)
+          taxRepayments = Some(
+            List[TaxRepayment](
+              ApprovedTaxRepayment(
+                claim = Claim(
+                  key = RequestNumber("2"),
+                  nino = Nino("AA111111A"),
+                  amount = BigDecimal(76000),
+                  created = LocalDate.parse("2021-08-16", DateTimeFormatter.ISO_DATE),
+                  repaymentMethod = Some(PaymentMethod.Card)
+                ),
+                completed = LocalDate.parse("2021-08-17", DateTimeFormatter.ISO_DATE)
+              )
             )
-          )),
+          ),
           affinityGroup = Some(AffinityGroup.Agent),
-          maybeNino     = Some(Nino("AA111111A")),
-          journeyType   = JourneyTypes.RefundJourney,
-          maybeArn      = Some("AARN1234567")
+          maybeNino = Some(Nino("AA111111A")),
+          journeyType = JourneyTypes.RefundJourney,
+          maybeArn = Some("AARN1234567")
         )(request)
       }
     }
 
     "failed event" in {
-      val expectedDetails: JsValue = Json.parse(
-        s"""{
+      val expectedDetails: JsValue = Json
+        .parse(
+          s"""{
              |  "outcome": {
              |    "isSuccessful":false,
              |    "failureReason":"low confidence level"
@@ -571,16 +624,17 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
              |  "userType": "Individual",
              |  "refunds": []
              |}""".stripMargin
-      ).as[JsValue]
+        )
+        .as[JsValue]
 
       val auditService = new AuditService(StubAuditConnector(expectedDetails)(testViewRefundStatusChecks))
 
       auditService.auditViewRefundStatus(
         taxRepayments = None,
         affinityGroup = Some(AffinityGroup.Individual),
-        maybeNino     = Some(Nino("AA111111A")),
-        maybeArn      = None,
-        journeyType   = JourneyTypes.TrackJourney,
+        maybeNino = Some(Nino("AA111111A")),
+        maybeArn = None,
+        journeyType = JourneyTypes.TrackJourney,
         failureReason = Some("low confidence level")
       )(request)
     }
@@ -589,8 +643,9 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
 
   "RefundAmount" when {
     "successful event" in {
-      val expectedDetails: JsValue = Json.parse(
-        s"""{
+      val expectedDetails: JsValue = Json
+        .parse(
+          s"""{
            |  "outcome": {
            |    "isSuccessful": true
            |  },
@@ -600,24 +655,26 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
            |  "nino": "AA111111A",
            |  "userType": "Individual"
            |}""".stripMargin
-      ).as[JsValue]
+        )
+        .as[JsValue]
 
       val auditService = new AuditService(StubAuditConnector(expectedDetails)(testRefundAmount))
 
       auditService.auditRefundAmount(
         totalCreditAvailableForRepayment = Some(987.65),
-        unallocatedCredit                = Some(345.67),
-        amountChosen                     = Some(641.98),
-        affinityGroup                    = Some(AffinityGroup.Individual),
-        maybeNino                        = Some(Nino("AA111111A")),
-        maybeArn                         = None,
-        failureReason                    = None
+        unallocatedCredit = Some(345.67),
+        amountChosen = Some(641.98),
+        affinityGroup = Some(AffinityGroup.Individual),
+        maybeNino = Some(Nino("AA111111A")),
+        maybeArn = None,
+        failureReason = None
       )(request)
     }
 
     "failure event" in {
-      val expectedDetails: JsValue = Json.parse(
-        s"""{
+      val expectedDetails: JsValue = Json
+        .parse(
+          s"""{
            |  "outcome": {
            |    "isSuccessful": false,
            |    "failureReason": "it failed"
@@ -626,18 +683,19 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
            |  "agentReferenceNumber":"AARN1234567",
            |  "userType": "Agent"
            |}""".stripMargin
-      ).as[JsValue]
+        )
+        .as[JsValue]
 
       val auditService = new AuditService(StubAuditConnector(expectedDetails)(testRefundAmount))
 
       auditService.auditRefundAmount(
         totalCreditAvailableForRepayment = None,
-        unallocatedCredit                = None,
-        amountChosen                     = None,
-        affinityGroup                    = Some(AffinityGroup.Agent),
-        maybeNino                        = Some(Nino("AA111111A")),
-        maybeArn                         = Some("AARN1234567"),
-        failureReason                    = Some("it failed")
+        unallocatedCredit = None,
+        amountChosen = None,
+        affinityGroup = Some(AffinityGroup.Agent),
+        maybeNino = Some(Nino("AA111111A")),
+        maybeArn = Some("AARN1234567"),
+        failureReason = Some("it failed")
       )(request)
     }
   }
@@ -645,31 +703,36 @@ class AuditServiceSpec extends ItSpec with ApplicationLogging {
   "IdentityVerificationOutcome" when {
     for ((test, result) <- Seq(("successful", true), ("failed", false)))
       s"$test event" in {
-        val expectedDetails: JsValue = Json.parse(
-          s"""{
+        val expectedDetails: JsValue = Json
+          .parse(
+            s"""{
            |  "isSuccessful": ${result.toString},
            |  "nino":"AA111111A",
            |  "userType":"Individual"
            |}""".stripMargin
-        ).as[JsValue]
+          )
+          .as[JsValue]
 
         val auditService = new AuditService(StubAuditConnector(expectedDetails)(testIVOutcome))
 
         auditService.auditIVOutcome(
-          isSuccessful  = result,
+          isSuccessful = result,
           affinityGroup = Some("Individual"),
-          maybeNino     = Some(Nino("AA111111A"))
+          maybeNino = Some(Nino("AA111111A"))
         )(request)
       }
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.TripleQuestionMark"))
-  case class StubAuditConnector(expectedDetails: JsValue)(callback: JsValue => ExtendedDataEvent => Any) extends AuditConnector {
-    override def auditingConfig: AuditingConfig = ???
-    override def auditChannel: AuditChannel = ???
+  case class StubAuditConnector(expectedDetails: JsValue)(callback: JsValue => ExtendedDataEvent => Any)
+      extends AuditConnector {
+    override def auditingConfig: AuditingConfig       = ???
+    override def auditChannel: AuditChannel           = ???
     override def datastreamMetrics: DatastreamMetrics = ???
 
-    override def sendExtendedEvent(event: ExtendedDataEvent)(implicit hc: HeaderCarrier = HeaderCarrier(), ec: ExecutionContext): Future[AuditResult] = {
+    override def sendExtendedEvent(
+      event: ExtendedDataEvent
+    )(implicit hc: HeaderCarrier = HeaderCarrier(), ec: ExecutionContext): Future[AuditResult] = {
       logger.info(">>>sendEvent CALLED " + event.toString)
       callback(expectedDetails)(event)
       Future.successful(AuditResult.Success)

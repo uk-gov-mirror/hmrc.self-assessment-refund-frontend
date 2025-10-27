@@ -33,15 +33,23 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-abstract class ItSpec extends AnyWordSpec with WireMockSupport with OptionValues with GuiceOneAppPerSuite with Matchers {
+abstract class ItSpec
+    extends AnyWordSpec
+    with WireMockSupport
+    with OptionValues
+    with GuiceOneAppPerSuite
+    with Matchers {
 
   def fakeAuthConnector: Option[AuthConnector] = Some(
     new AuthConnector {
-      override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[A] = {
+      override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit
+        hc: HeaderCarrier,
+        ec: ExecutionContext
+      ): Future[A] = {
         val jsonBody = Json.obj(
-          "affinityGroup" -> "Individual",
+          "affinityGroup"   -> "Individual",
           "confidenceLevel" -> 250,
-          "allEnrolments" -> Json.arr()
+          "allEnrolments"   -> Json.arr()
         )
         Future.successful(Json.toJson(jsonBody).as[A](retrieval.reads))
       }
@@ -51,15 +59,15 @@ abstract class ItSpec extends AnyWordSpec with WireMockSupport with OptionValues
   protected lazy val configOverrides: Map[String, Any] = Map()
 
   protected lazy val configMap: Map[String, Any] = Map[String, Any](
-    "metrics.jvm" -> false,
-    "metrics.enabled" -> false,
+    "metrics.jvm"                                               -> false,
+    "metrics.enabled"                                           -> false,
     "microservice.services.self-assessment-refund-backend.port" -> wireMockServer.port(),
-    "microservice.services.auth.port" -> wireMockServer.port(),
-    "microservice.services.bank-account-reputation.port" -> wireMockServer.port()
+    "microservice.services.auth.port"                           -> wireMockServer.port(),
+    "microservice.services.bank-account-reputation.port"        -> wireMockServer.port()
   ) ++ configOverrides
 
   protected lazy val configMapWithAuditing: Map[String, Any] = Map[String, Any](
-    "auditing.enabled" -> true,
+    "auditing.enabled"               -> true,
     "auditing.consumer.baseUri.port" -> wireMockServer.port
   ) ++ configMap
 

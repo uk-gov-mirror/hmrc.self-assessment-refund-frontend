@@ -45,7 +45,7 @@ import scala.concurrent.Future
 class CheckYourAnswersPageControllerSpec extends ItSpec with CheckYourAnswersPageTesting {
 
   val controller: CheckYourAnswersPageController = fakeApplication().injector.instanceOf[CheckYourAnswersPageController]
-  val cyaViewHelper: CheckYourAnswersHelper = fakeApplication().injector.instanceOf[CheckYourAnswersHelper]
+  val cyaViewHelper: CheckYourAnswersHelper      = fakeApplication().injector.instanceOf[CheckYourAnswersHelper]
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -58,11 +58,12 @@ class CheckYourAnswersPageControllerSpec extends ItSpec with CheckYourAnswersPag
   trait JourneyFixture {
     val sessionId: SessionId = SessionId(TdAll.sessionId)
     val journeyId: JourneyId = TdAll.journeyId
-    val nino: Nino = Nino("AA111111A")
+    val nino: Nino           = Nino("AA111111A")
   }
 
   trait RequestWithSessionFixture extends JourneyFixture {
-    implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(SessionKeys.sessionId -> sessionId.value).withAuthToken()
+    implicit val request: FakeRequest[AnyContentAsEmpty.type] =
+      FakeRequest().withSession(SessionKeys.sessionId -> sessionId.value).withAuthToken()
   }
 
   trait RequestWithSessionFixtureWelsh extends JourneyFixture {
@@ -72,7 +73,7 @@ class CheckYourAnswersPageControllerSpec extends ItSpec with CheckYourAnswersPag
       .withAuthToken()
   }
 
-  val headers: Map[String, JsString] = Map[String, JsString](
+  val headers: Map[String, JsString]                 = Map[String, JsString](
     "Host" -> JsString("localhost")
   )
   val createRepaymentRequest: CreateRepaymentRequest = CreateRepaymentRequest(
@@ -89,15 +90,20 @@ class CheckYourAnswersPageControllerSpec extends ItSpec with CheckYourAnswersPag
           val response: Future[Result] = controller.start(request)
 
           response.checkPageIsDisplayed(
-            expectedHeading     = "Check your answers",
+            expectedHeading = "Check your answers",
             expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-            contentChecks       = checkPageContent("Personal", BankAccountInfo("name", SortCode("111111"), AccountNumber("12345678")), 123),
-            expectedStatus      = OK,
-            journey             = "request"
+            contentChecks =
+              checkPageContent("Personal", BankAccountInfo("name", SortCode("111111"), AccountNumber("12345678")), 123),
+            expectedStatus = OK,
+            journey = "request"
           )
 
-          val page: CheckYourAnswersPage = app.injector.instanceOf[CheckYourAnswersPage]
-          val summaryList: SummaryList = cyaViewHelper.buildSummaryList(Amount(Some(123), None, None, Some(123), Some(123)), AccountType.Personal, BankAccountInfo("name", SortCode("111111"), AccountNumber("12345678")))
+          val page: CheckYourAnswersPage  = app.injector.instanceOf[CheckYourAnswersPage]
+          val summaryList: SummaryList    = cyaViewHelper.buildSummaryList(
+            Amount(Some(123), None, None, Some(123), Some(123)),
+            AccountType.Personal,
+            BankAccountInfo("name", SortCode("111111"), AccountNumber("12345678"))
+          )
           val html: HtmlFormat.Appendable = page(
             summaryList,
             routes.CheckYourAnswersPageController.confirm,
@@ -131,15 +137,20 @@ class CheckYourAnswersPageControllerSpec extends ItSpec with CheckYourAnswersPag
           val response: Future[Result] = controller.start(request)
 
           response.checkPageIsDisplayed(
-            expectedHeading     = "Check your answers",
+            expectedHeading = "Check your answers",
             expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/agents/claim-refund",
-            contentChecks       = checkPageContent("Personal", BankAccountInfo("name", SortCode("111111"), AccountNumber("12345678")), 123),
-            expectedStatus      = OK,
-            journey             = "request"
+            contentChecks =
+              checkPageContent("Personal", BankAccountInfo("name", SortCode("111111"), AccountNumber("12345678")), 123),
+            expectedStatus = OK,
+            journey = "request"
           )
 
-          val page: CheckYourAnswersPage = app.injector.instanceOf[CheckYourAnswersPage]
-          val summaryList: SummaryList = cyaViewHelper.buildSummaryList(Amount(Some(123), None, None, Some(123), Some(123)), AccountType.Personal, BankAccountInfo("name", SortCode("111111"), AccountNumber("12345678")))
+          val page: CheckYourAnswersPage  = app.injector.instanceOf[CheckYourAnswersPage]
+          val summaryList: SummaryList    = cyaViewHelper.buildSummaryList(
+            Amount(Some(123), None, None, Some(123), Some(123)),
+            AccountType.Personal,
+            BankAccountInfo("name", SortCode("111111"), AccountNumber("12345678"))
+          )
           val html: HtmlFormat.Appendable = page(
             summaryList,
             routes.CheckYourAnswersPageController.confirm,
@@ -172,16 +183,24 @@ class CheckYourAnswersPageControllerSpec extends ItSpec with CheckYourAnswersPag
           val response: Future[Result] = controller.start(request)
 
           response.checkPageIsDisplayed(
-            expectedHeading     = "Gwiriwch eich atebion",
+            expectedHeading = "Gwiriwch eich atebion",
             expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-            contentChecks       = checkPageContentWelsh("Personol", BankAccountInfo("name", SortCode("111111"), AccountNumber("12345678")), 123),
-            expectedStatus      = OK,
-            journey             = "request",
-            welsh               = true
+            contentChecks = checkPageContentWelsh(
+              "Personol",
+              BankAccountInfo("name", SortCode("111111"), AccountNumber("12345678")),
+              123
+            ),
+            expectedStatus = OK,
+            journey = "request",
+            welsh = true
           )
 
-          val page: CheckYourAnswersPage = app.injector.instanceOf[CheckYourAnswersPage]
-          val summaryList: SummaryList = cyaViewHelper.buildSummaryList(Amount(Some(123), None, None, Some(123), Some(123)), AccountType.Personal, BankAccountInfo("name", SortCode("111111"), AccountNumber("12345678")))
+          val page: CheckYourAnswersPage  = app.injector.instanceOf[CheckYourAnswersPage]
+          val summaryList: SummaryList    = cyaViewHelper.buildSummaryList(
+            Amount(Some(123), None, None, Some(123), Some(123)),
+            AccountType.Personal,
+            BankAccountInfo("name", SortCode("111111"), AccountNumber("12345678"))
+          )
           val html: HtmlFormat.Appendable = page(
             summaryList,
             routes.CheckYourAnswersPageController.confirm,

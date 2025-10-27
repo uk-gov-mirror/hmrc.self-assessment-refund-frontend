@@ -27,10 +27,15 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class BarsLockedOutJourneyActionRefiner @Inject() (
-    barsVerifyStatusConnector: BarsVerifyStatusConnector
-)(implicit ec: ExecutionContext) extends ActionRefiner[AuthenticatedRequest, LockedOutJourneyRequest] with Logging with Results {
+  barsVerifyStatusConnector: BarsVerifyStatusConnector
+)(implicit ec: ExecutionContext)
+    extends ActionRefiner[AuthenticatedRequest, LockedOutJourneyRequest]
+    with Logging
+    with Results {
 
-  override protected def refine[A](request: AuthenticatedRequest[A]): Future[Either[Result, LockedOutJourneyRequest[A]]] = {
+  override protected def refine[A](
+    request: AuthenticatedRequest[A]
+  ): Future[Either[Result, LockedOutJourneyRequest[A]]] = {
     implicit val rh: Request[A] = request.request
 
     request.journey.nino match {
@@ -38,25 +43,33 @@ class BarsLockedOutJourneyActionRefiner @Inject() (
         barsVerifyStatusConnector.status(BarVerifyStatusId.from(nino)).map { status =>
           status.lockoutExpiryDateTime match {
             case Some(expiry) =>
-              Right(new LockedOutJourneyRequest(
-                request                    = request,
-                journey                    = request.journey,
-                sessionId                  = request.sessionId,
-                barsLockoutExpiryTime      = expiry,
-                numberOfBarsVerifyAttempts = status.attempts,
-                returnUrl                  = request.journey.returnUrl
-              ))
-            case None => throw new RuntimeException("Unexpected condition. This refiner should only be called when service is locked out")
+              Right(
+                new LockedOutJourneyRequest(
+                  request = request,
+                  journey = request.journey,
+                  sessionId = request.sessionId,
+                  barsLockoutExpiryTime = expiry,
+                  numberOfBarsVerifyAttempts = status.attempts,
+                  returnUrl = request.journey.returnUrl
+                )
+              )
+            case None         =>
+              throw new RuntimeException(
+                "Unexpected condition. This refiner should only be called when service is locked out"
+              )
           }
-        } recover {
-          case e =>
-            logger.error(s"[BarsLockedOutJourneyActionRefiner] failed to retrieve BarsVerifyStatus for nino=${request.journey.nino.toString}, reason:${e.getMessage}")
-            Left(InternalServerError)
+        } recover { case e =>
+          logger.error(
+            s"[BarsLockedOutJourneyActionRefiner] failed to retrieve BarsVerifyStatus for nino=${request.journey.nino.toString}, reason:${e.getMessage}"
+          )
+          Left(InternalServerError)
         }
-      case None => throw new RuntimeException("Unexpected condition. This refiner should only be called when service is locked out")
+      case None       =>
+        throw new RuntimeException(
+          "Unexpected condition. This refiner should only be called when service is locked out"
+        )
     }
   }
 
   override protected def executionContext: ExecutionContext = ec
 }
-

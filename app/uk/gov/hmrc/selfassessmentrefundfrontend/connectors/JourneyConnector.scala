@@ -37,7 +37,7 @@ class JourneyConnector @Inject() (servicesConfig: ServicesConfig, http: HttpClie
 
   private val baseUrl = servicesConfig.baseUrl("self-assessment-refund-backend")
 
-  //This is a test only route to mimic View and Change calling the self-assessment-refund-backend
+  // This is a test only route to mimic View and Change calling the self-assessment-refund-backend
   def start(req: StartRequest, origin: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[ReplyURL] = {
     val startUrl = {
       val intent = req match {
@@ -48,21 +48,26 @@ class JourneyConnector @Inject() (servicesConfig: ServicesConfig, http: HttpClie
       s"$baseUrl/self-assessment-refund-backend/$origin/journey/$intent"
     }
 
-    http.post(url"$startUrl")
+    http
+      .post(url"$startUrl")
       .withBody(Json.toJson(req))
       .execute[ReplyURL]
   }
 
   def findLatestBySessionId()(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Journey] = {
     val url = s"$baseUrl/self-assessment-refund-backend/journey/find-latest-by-session-id"
-    http.get(url"$url")
+    http
+      .get(url"$url")
       .execute[Journey]
   }
 
-  def lastPaymentMethod(journeyId: JourneyId)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[PaymentMethod] = {
+  def lastPaymentMethod(
+    journeyId: JourneyId
+  )(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[PaymentMethod] = {
     val url = s"$baseUrl/self-assessment-refund-backend/last-payment/${journeyId.value}"
 
-    http.get(url"$url")
+    http
+      .get(url"$url")
       .execute[Option[PaymentMethod]]
       .map {
         case Some(method) => method
@@ -70,9 +75,13 @@ class JourneyConnector @Inject() (servicesConfig: ServicesConfig, http: HttpClie
       }
   }
 
-  def setJourney(journeyId: JourneyId, value: Journey)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Unit] = {
+  def setJourney(journeyId: JourneyId, value: Journey)(implicit
+    ec: ExecutionContext,
+    hc: HeaderCarrier
+  ): Future[Unit] = {
     val url = s"$baseUrl/self-assessment-refund-backend/journey/${journeyId.value}"
-    http.post(url"$url")
+    http
+      .post(url"$url")
       .withBody(Json.toJson(value))
       .execute[HttpResponse]
       .map { response =>

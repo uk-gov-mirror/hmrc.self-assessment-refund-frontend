@@ -19,17 +19,17 @@ package uk.gov.hmrc.selfassessmentrefundfrontend.audit.model
 import play.api.libs.json.{JsValue, Json, OFormat, OWrites, Reads}
 
 final case class RepaymentRequestAuditItem(
-    etmpResult:                       String,
-    userType:                         String,
-    agentReferenceNumber:             Option[String],
-    totalCreditAvailableForRepayment: String,
-    unallocatedCredit:                String,
-    amountChosen:                     String,
-    barsResponse:                     Option[JsValue],
-    reference:                        Option[String],
-    nino:                             String,
-    nrsSubmissionId:                  String,
-    bankAccount:                      Option[BankAccountDetailsAudit]
+  etmpResult:                       String,
+  userType:                         String,
+  agentReferenceNumber:             Option[String],
+  totalCreditAvailableForRepayment: String,
+  unallocatedCredit:                String,
+  amountChosen:                     String,
+  barsResponse:                     Option[JsValue],
+  reference:                        Option[String],
+  nino:                             String,
+  nrsSubmissionId:                  String,
+  bankAccount:                      Option[BankAccountDetailsAudit]
 )
 
 object RepaymentRequestAuditItem {

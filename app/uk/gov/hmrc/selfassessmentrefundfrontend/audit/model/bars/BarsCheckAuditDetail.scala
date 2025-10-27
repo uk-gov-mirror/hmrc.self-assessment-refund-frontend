@@ -21,11 +21,11 @@ import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.selfassessmentrefundfrontend.audit.model.AuditDetail
 
 final case class BarsCheckAuditDetail(
-    nino:                 String,
-    userEnteredDetails:   BarsUserEnteredDetails,
-    outcome:              BarsVerifyOutcome,
-    userType:             Option[AffinityGroup],
-    agentReferenceNumber: Option[String]
+  nino:                 String,
+  userEnteredDetails:   BarsUserEnteredDetails,
+  outcome:              BarsVerifyOutcome,
+  userType:             Option[AffinityGroup],
+  agentReferenceNumber: Option[String]
 ) extends AuditDetail {
 
   override val auditType: String = "BarsCheck"

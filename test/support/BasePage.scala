@@ -35,9 +35,8 @@ abstract class BasePage(baseUrl: BaseUrl)(implicit driver: WebDriver) extends Ri
   def assertErrors(errors: (String, String)*): Unit = {
     assertPath()
 
-    errors.foreach {
-      case (summaryErrorId, text) =>
-        id(summaryErrorId).element.text shouldBe text
+    errors.foreach { case (summaryErrorId, text) =>
+      id(summaryErrorId).element.text shouldBe text
     }
   }
 
@@ -47,26 +46,22 @@ abstract class BasePage(baseUrl: BaseUrl)(implicit driver: WebDriver) extends Ri
     className("govuk-error-summary").findElement shouldBe None
   }
 
-  def assertAccountOnFile(): Assertion = {
+  def assertAccountOnFile(): Assertion =
     currentPath shouldBe "/self-assessment-refund/we-need-to-get-your-bank-details"
-  }
 
-  def assertMovedToAccountOnFileContinue(): Boolean = {
+  def assertMovedToAccountOnFileContinue(): Boolean =
     currentPath.contains("/bank-account/account-type/")
-  }
 
-  def open(): Unit = {
+  def open(): Unit =
     driver.get(s"${baseUrl.url}$path")
-  }
 
   def currentPath: String = {
     val url = new java.net.URI(driver.getCurrentUrl).toURL
     url.getPath
   }
 
-  def assertPath(): Assertion = {
+  def assertPath(): Assertion =
     currentPath shouldBe path
-  }
 
   def clickContinue(): Unit = {
     val button = id("continue")
@@ -77,8 +72,8 @@ abstract class BasePage(baseUrl: BaseUrl)(implicit driver: WebDriver) extends Ri
 }
 
 object BasePage {
-  private val time = now()
-  private val seq = new AtomicInteger(0)
+  private val time   = now()
+  private val seq    = new AtomicInteger(0)
   def nextSeq(): Int = seq.getAndIncrement()
 
   val dumpTargetDir: String = {

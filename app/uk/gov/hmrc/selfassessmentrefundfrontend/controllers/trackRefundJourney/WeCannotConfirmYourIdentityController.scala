@@ -28,11 +28,12 @@ import scala.concurrent.Future
 
 @Singleton
 class WeCannotConfirmYourIdentityController @Inject() (
-    i18nSupport:                     I18nSupport,
-    weCannotConfirmYourIdentityPage: WeCannotConfirmYourIdentityPage,
-    mcc:                             MessagesControllerComponents,
-    auditService:                    AuditService
-)(implicit appConfig: AppConfig) extends FrontendController(mcc) {
+  i18nSupport:                     I18nSupport,
+  weCannotConfirmYourIdentityPage: WeCannotConfirmYourIdentityPage,
+  mcc:                             MessagesControllerComponents,
+  auditService:                    AuditService
+)(implicit appConfig: AppConfig)
+    extends FrontendController(mcc) {
 
   import i18nSupport._
 

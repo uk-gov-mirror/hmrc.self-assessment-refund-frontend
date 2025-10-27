@@ -27,21 +27,31 @@ trait RefundTrackerPageTesting extends PageContentTesting {
     doc.checkHasTabs(List("2023", "2021"))
     doc.checkHasTable(
       columnHeaders = List("Request date", "Amount", "Status", "Action"),
-      rowHeaders    = List(),
-      cells         = List(
-        "16 Aug 2023", "£76,000", "Approved", "View",
-        "14 Aug 2021", "£12,000", "Processing", "View"
+      rowHeaders = List(),
+      cells = List(
+        "16 Aug 2023",
+        "£76,000",
+        "Approved",
+        "View",
+        "14 Aug 2021",
+        "£12,000",
+        "Processing",
+        "View"
       )
     )
 
     doc.checkHasHyperlink(
       "View details for the refund requested on 14 August 2021",
-      uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.routes.RefundProcessingController.onPageLoad(RequestNumber("1")).url
+      uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.routes.RefundProcessingController
+        .onPageLoad(RequestNumber("1"))
+        .url
     )
 
     doc.checkHasHyperlink(
       "View details for the refund requested on 16 August 2023",
-      uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.routes.RefundApprovedController.showApprovedPage(RequestNumber("2")).url
+      uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.routes.RefundApprovedController
+        .showApprovedPage(RequestNumber("2"))
+        .url
     )
   }
 
@@ -49,18 +59,30 @@ trait RefundTrackerPageTesting extends PageContentTesting {
     doc.checkHasBackLinkWithUrl("#")
 
     if (welsh) {
-      doc.checkHasParagraphs(List("Nid ydych wedi gwneud cais am ad-daliad Hunanasesiad eto.", "Os oes gennych gredyd yn eich cyfrif ar-lein, gallwch wneud cais am ad-daliad."))
+      doc.checkHasParagraphs(
+        List(
+          "Nid ydych wedi gwneud cais am ad-daliad Hunanasesiad eto.",
+          "Os oes gennych gredyd yn eich cyfrif ar-lein, gallwch wneud cais am ad-daliad."
+        )
+      )
 
       doc.checkHasHyperlink(
         "wneud cais am ad-daliad",
-        if (isAgent) "http://localhost:9081/report-quarterly/income-and-expenses/view/agents/claim-refund" else "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund"
+        if (isAgent) "http://localhost:9081/report-quarterly/income-and-expenses/view/agents/claim-refund"
+        else "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund"
       )
     } else {
-      doc.checkHasParagraphs(List("You have not yet requested a Self Assessment refund.", "If you have credit in your online account, you can request a refund."))
+      doc.checkHasParagraphs(
+        List(
+          "You have not yet requested a Self Assessment refund.",
+          "If you have credit in your online account, you can request a refund."
+        )
+      )
 
       doc.checkHasHyperlink(
         "request a refund",
-        if (isAgent) "http://localhost:9081/report-quarterly/income-and-expenses/view/agents/claim-refund" else "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund"
+        if (isAgent) "http://localhost:9081/report-quarterly/income-and-expenses/view/agents/claim-refund"
+        else "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund"
       )
     }
   }
@@ -71,21 +93,31 @@ trait RefundTrackerPageTesting extends PageContentTesting {
     doc.checkHasTabs(List("2023", "2021"))
     doc.checkHasTable(
       columnHeaders = List("Dyddiad y cais", "Swm", "Statws", "Camau"),
-      rowHeaders    = List(),
-      cells         = List(
-        "16 Awst 2023", "£76,000", "Wedi’i gymeradwyo", "golwg",
-        "14 Awst 2021", "£12,000", "Wrthi’n prosesu", "golwg"
+      rowHeaders = List(),
+      cells = List(
+        "16 Awst 2023",
+        "£76,000",
+        "Wedi’i gymeradwyo",
+        "golwg",
+        "14 Awst 2021",
+        "£12,000",
+        "Wrthi’n prosesu",
+        "golwg"
       )
     )
 
     doc.checkHasHyperlink(
       "Bwrw golwg dros y manylion ar gyfer y cais am ad-daliad, dyddiedig 14 Awst 2021",
-      uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.routes.RefundProcessingController.onPageLoad(RequestNumber("1")).url
+      uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.routes.RefundProcessingController
+        .onPageLoad(RequestNumber("1"))
+        .url
     )
 
     doc.checkHasHyperlink(
       "Bwrw golwg dros y manylion ar gyfer y cais am ad-daliad, dyddiedig 16 Awst 2023",
-      uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.routes.RefundApprovedController.showApprovedPage(RequestNumber("2")).url
+      uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney.routes.RefundApprovedController
+        .showApprovedPage(RequestNumber("2"))
+        .url
     )
   }
 }

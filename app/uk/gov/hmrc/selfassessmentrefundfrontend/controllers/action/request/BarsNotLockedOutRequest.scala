@@ -21,9 +21,8 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.connectors.barsLockout.model.Num
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.journey.Journey
 
 class BarsVerifiedRequest[A](
-    override val request:           AuthenticatedRequest[A],
-    override val journey:           Journey,
-    override val sessionId:         SessionId,
-    val numberOfBarsVerifyAttempts: NumberOfBarsVerifyAttempts = NumberOfBarsVerifyAttempts.zero
+  override val request:           AuthenticatedRequest[A],
+  override val journey:           Journey,
+  override val sessionId:         SessionId,
+  val numberOfBarsVerifyAttempts: NumberOfBarsVerifyAttempts = NumberOfBarsVerifyAttempts.zero
 ) extends AuthenticatedRequest[A](request, journey, sessionId, request.affinityGroup, request.agentReferenceNumber)
-

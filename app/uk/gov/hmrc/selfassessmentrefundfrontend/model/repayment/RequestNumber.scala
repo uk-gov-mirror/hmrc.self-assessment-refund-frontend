@@ -23,5 +23,5 @@ final case class RequestNumber(value: String) extends AnyVal
 
 object RequestNumber {
   implicit val pathBinder: PathBindable[RequestNumber] = PathBindable.anyValPathBindable[RequestNumber]
-  implicit val fmt: Format[RequestNumber] = Json.valueFormat[RequestNumber]
+  implicit val fmt: Format[RequestNumber]              = Json.valueFormat[RequestNumber]
 }

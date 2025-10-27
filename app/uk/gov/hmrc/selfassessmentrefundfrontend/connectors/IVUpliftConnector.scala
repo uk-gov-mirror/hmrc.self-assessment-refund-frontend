@@ -33,8 +33,14 @@ class IVUpliftConnector @Inject() (appConfig: AppConfig) {
 
   def performUplift[A](request: PreAuthRequest[A], userType: String): Future[Result] = {
     val journeyTypeBasedFailedUrl = request.journey.journeyType match {
-      case JourneyTypes.RefundJourney => controllers.refundRequestJourney.routes.WeCannotConfirmYourIdentityController.failedUplift(userType = userType).url
-      case JourneyTypes.TrackJourney  => controllers.trackRefundJourney.routes.WeCannotConfirmYourIdentityController.failedUplift(userType = userType).url
+      case JourneyTypes.RefundJourney =>
+        controllers.refundRequestJourney.routes.WeCannotConfirmYourIdentityController
+          .failedUplift(userType = userType)
+          .url
+      case JourneyTypes.TrackJourney  =>
+        controllers.trackRefundJourney.routes.WeCannotConfirmYourIdentityController
+          .failedUplift(userType = userType)
+          .url
     }
 
     val failedURL = URLEncoder.encode(appConfig.ivCallbackUrl + journeyTypeBasedFailedUrl, StandardCharsets.UTF_8)
@@ -43,10 +49,11 @@ class IVUpliftConnector @Inject() (appConfig: AppConfig) {
 
     val confidenceLevel = appConfig.confidenceLevel
 
-    val upliftBase = appConfig.upliftUrl
+    val upliftBase   = appConfig.upliftUrl
     val upliftOrigin = appConfig.upliftOrigin
 
-    val url = s"$upliftBase?confidenceLevel=$confidenceLevel&origin=$upliftOrigin&completionURL=$continueURL&failureURL=$failedURL"
+    val url =
+      s"$upliftBase?confidenceLevel=$confidenceLevel&origin=$upliftOrigin&completionURL=$continueURL&failureURL=$failedURL"
     Future.successful(Redirect(url))
   }
 

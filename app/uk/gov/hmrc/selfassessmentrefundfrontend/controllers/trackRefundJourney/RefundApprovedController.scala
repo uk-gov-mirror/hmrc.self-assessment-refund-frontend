@@ -33,35 +33,46 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.views.html.trackRefundJourney.Re
 import scala.concurrent.ExecutionContext
 
 class RefundApprovedController @Inject() (
-    mcc:                MessagesControllerComponents,
-    actions:            Actions,
-    languageUtils:      LanguageUtils,
-    appConfig:          AppConfig,
-    refundApprovedPage: RefundApprovedPage,
-    repaymentsService:  RepaymentsService,
-    errorHandler:       ErrorHandler
-)(implicit ec: ExecutionContext) extends FrontendController(mcc) with Logging {
+  mcc:                MessagesControllerComponents,
+  actions:            Actions,
+  languageUtils:      LanguageUtils,
+  appConfig:          AppConfig,
+  refundApprovedPage: RefundApprovedPage,
+  repaymentsService:  RepaymentsService,
+  errorHandler:       ErrorHandler
+)(implicit ec: ExecutionContext)
+    extends FrontendController(mcc)
+    with Logging {
 
-  def showApprovedPage(requestNumber: RequestNumber): Action[AnyContent] = actions.authenticatedTrackJourneyAction.async { implicit request =>
-    repaymentsService
-      .repayment(request.journey.nino.getOrElse(throw new Throwable("nino not found")), requestNumber)
-      .map {
-        case repayment: ApprovedTaxRepayment =>
-          lazy val redirectUrl = if (request.isAgent) appConfig.refundIssuedAgentUrl else appConfig.refundIssuedIndividualOrOrganisationUrl
+  def showApprovedPage(requestNumber: RequestNumber): Action[AnyContent] =
+    actions.authenticatedTrackJourneyAction.async { implicit request =>
+      repaymentsService
+        .repayment(request.journey.nino.getOrElse(throw new Throwable("nino not found")), requestNumber)
+        .map {
+          case repayment: ApprovedTaxRepayment =>
+            lazy val redirectUrl =
+              if (request.isAgent) appConfig.refundIssuedAgentUrl else appConfig.refundIssuedIndividualOrOrganisationUrl
 
-          Ok(refundApprovedPage(
-            amount          = AmountFormatter.formatAmount(repayment.claim.amount),
-            completedDate   = languageUtils.Dates.formatDate(repayment.completed),
-            refundReference = repayment.claim.key.value,
-            moreDetailsUrl  = s"$redirectUrl/${repayment.claim.key.value}"
-          ))
-        case e =>
-          logger.warn(s"[RepaymentApprovedController][showApprovedPage] - ApprovedTaxRepayment not found in Journey, found ${e.toString} instead")
-          InternalServerError("")
-      }.recoverWith {
-        case e: Throwable =>
-          logger.warn(s"[RepaymentApprovedController][showApprovedPage] - Unsuccessful retrieval from the repayments service", e)
+            Ok(
+              refundApprovedPage(
+                amount = AmountFormatter.formatAmount(repayment.claim.amount),
+                completedDate = languageUtils.Dates.formatDate(repayment.completed),
+                refundReference = repayment.claim.key.value,
+                moreDetailsUrl = s"$redirectUrl/${repayment.claim.key.value}"
+              )
+            )
+          case e                               =>
+            logger.warn(
+              s"[RepaymentApprovedController][showApprovedPage] - ApprovedTaxRepayment not found in Journey, found ${e.toString} instead"
+            )
+            InternalServerError("")
+        }
+        .recoverWith { case e: Throwable =>
+          logger.warn(
+            s"[RepaymentApprovedController][showApprovedPage] - Unsuccessful retrieval from the repayments service",
+            e
+          )
           errorHandler.internalServerErrorTemplate.map(InternalServerError(_))
-      }
-  }
+        }
+    }
 }

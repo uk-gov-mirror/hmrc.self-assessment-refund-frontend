@@ -31,27 +31,28 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.util.AmountFormatter
 import scala.reflect.ClassTag
 
 final case class StartJourneyPageModel(
-    form:    Form[StartJourneyOptions],
-    presets: List[Preset]
+  form:    Form[StartJourneyOptions],
+  presets: List[Preset]
 ) {
 
   lazy val journeyType: StartJourneyType = form.value.map(_.`type`).getOrElse(StartJourneyType.StartRefund)
 
-  def submitStartJourney: Call = uk.gov.hmrc.selfassessmentrefundfrontend.testonly.controllers.routes.StartJourneyController.submitStartJourneyForm()
+  def submitStartJourney: Call =
+    uk.gov.hmrc.selfassessmentrefundfrontend.testonly.controllers.routes.StartJourneyController.submitStartJourneyForm()
 
-  def selectPreset: Call = uk.gov.hmrc.selfassessmentrefundfrontend.testonly.controllers.routes.StartJourneyController.selectPreset()
+  def selectPreset: Call =
+    uk.gov.hmrc.selfassessmentrefundfrontend.testonly.controllers.routes.StartJourneyController.selectPreset()
 
   def hideInputsClass: String = journeyType match {
     case StartJourneyType.StartRefund => ""
     case StartJourneyType.ViewHistory => "govuk-visually-hidden"
   }
 
-  def errorSummary(implicit messages: Messages): ErrorSummary = {
+  def errorSummary(implicit messages: Messages): ErrorSummary =
     ErrorSummary(
       errorList = form.errors.asTextErrorLinks,
-      title     = Text("Issues")
+      title = Text("Issues")
     )
-  }
 
   def makePresetTable[T <: StartRequest: ClassTag]: Table = {
     val baseHeader = Seq(
@@ -60,17 +61,17 @@ final case class StartJourneyPageModel(
     )
 
     val typedPresets: List[(Preset, Int)] =
-      presets
-        .zipWithIndex
+      presets.zipWithIndex
         .collect { case (Preset(v: T, desc), idx) => Preset(v, desc) -> idx }
 
     val header =
       typedPresets.headOption.map(t => t._1.startRequest -> t._2) match {
-        case Some((_: StartRefund, _)) => baseHeader ++ Seq(
-          HeadCell(content = Text("Full amount")),
-          HeadCell(content = Text("Last payment type")),
-          HeadCell(content = Text("Description"))
-        )
+        case Some((_: StartRefund, _)) =>
+          baseHeader ++ Seq(
+            HeadCell(content = Text("Full amount")),
+            HeadCell(content = Text("Last payment type")),
+            HeadCell(content = Text("Description"))
+          )
         case Some((_: ViewHistory, _)) =>
           baseHeader ++ Seq(
             HeadCell(content = Text("Description"))
@@ -92,7 +93,7 @@ final case class StartJourneyPageModel(
   }
 
   def makeStartRefundRow(req: StartRefund, description: String, n: Int): Seq[TableRow] = {
-    val option = makeRadioOption(n.toString, "Start refund")
+    val option      = makeRadioOption(n.toString, "Start refund")
     val paymentType = if (req.lastPaymentViaCard.getOrElse(false)) {
       "CARD"
     } else {
@@ -132,31 +133,36 @@ final case class StartJourneyPageModel(
   def makeLastPaymentItems: Seq[SelectItem] = Seq()
 
   def makeStubPrimerRadios(implicit messages: Messages): Radios = Radios(
-    fieldset = Some(Fieldset(
-      legend = Some(Legend(
-        content = Text("Prime stubs for this tax account")
-      ))
-    )),
-    hint     = Some(Hint(
-      content = Text("What should self-assessment-refund-stubs return for this NINO?")
-    )),
-    items    = PrimeStubsOption.values.map { opt =>
+    fieldset = Some(
+      Fieldset(
+        legend = Some(
+          Legend(
+            content = Text("Prime stubs for this tax account")
+          )
+        )
+      )
+    ),
+    hint = Some(
+      Hint(
+        content = Text("What should self-assessment-refund-stubs return for this NINO?")
+      )
+    ),
+    items = PrimeStubsOption.values.map { opt =>
       RadioItem(
         content = Text(opt.label),
-        id      = Some(opt.entryName),
-        value   = Some(opt.entryName),
-      //          checked = opt == options.primeStubs
+        id = Some(opt.entryName),
+        value = Some(opt.entryName)
+        //          checked = opt == options.primeStubs
       )
     },
-    classes  = "govuk-!-full-width govuk-radios--inline govuk-radios--small"
+    classes = "govuk-!-full-width govuk-radios--inline govuk-radios--small"
   ).withFormField(form("primeStubs"))
 
 }
 
 object StartJourneyPageModel {
 
-  def apply(form: Form[StartJourneyOptions]): StartJourneyPageModel = {
+  def apply(form: Form[StartJourneyOptions]): StartJourneyPageModel =
     StartJourneyPageModel(form, presets = StartJourneyPresets.presets)
-  }
 
 }

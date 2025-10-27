@@ -31,22 +31,23 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.testdata.TdSupport.FakeRequestOp
 import scala.concurrent.Future
 
 class WeNeedBankDetailsControllerSpec
-  extends ItSpec
-  with GuiceOneAppPerSuite
-  with WireMockSupport
-  with WeNeedBankDetailsPageTesting {
+    extends ItSpec
+    with GuiceOneAppPerSuite
+    with WireMockSupport
+    with WeNeedBankDetailsPageTesting {
   that: TestSuite =>
 
   private val bankDetailsController = app.injector.instanceOf[WeNeedBankDetailsController]
 
-  private val bankDetailsPageHeading = "We need your bank details"
-  private val bankDetailsPageHeadingWelsh = "Mae angen eich manylion banc arnom"
-  private val bankDetailsPageHeadingAgent = "We need your client’s bank details"
+  private val bankDetailsPageHeading           = "We need your bank details"
+  private val bankDetailsPageHeadingWelsh      = "Mae angen eich manylion banc arnom"
+  private val bankDetailsPageHeadingAgent      = "We need your client’s bank details"
   private val bankDetailsPageHeadingAgentWelsh = "Mae angen manylion banc eich cleient arnom"
 
   "GET /we-need-your-bank-details" when {
     val fakeRequest = FakeRequest("GET", "/request-a-self-assessment-refund/we-need-your-bank-details")
-      .withSessionId().withAuthToken()
+      .withSessionId()
+      .withAuthToken()
 
     "called" should {
       "display 'we need your bank details' page with correct content" in {
@@ -56,26 +57,27 @@ class WeNeedBankDetailsControllerSpec
         val result: Future[Result] = bankDetailsController.onPageLoad(fakeRequest)
 
         result.checkPageIsDisplayed(
-          expectedHeading     = bankDetailsPageHeading,
+          expectedHeading = bankDetailsPageHeading,
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-          contentChecks       = checkPageContent(isAgent = false),
-          expectedStatus      = Status.OK,
-          journey             = "request"
+          contentChecks = checkPageContent(isAgent = false),
+          expectedStatus = Status.OK,
+          journey = "request"
         )
       }
       "display welsh 'we need your bank details' page with correct content" in {
         stubBackendJourneyId()
         stubBackendPersonalJourney()
 
-        val result: Future[Result] = bankDetailsController.onPageLoad(fakeRequest.withCookies(Cookie("PLAY_LANG", "cy")))
+        val result: Future[Result] =
+          bankDetailsController.onPageLoad(fakeRequest.withCookies(Cookie("PLAY_LANG", "cy")))
 
         result.checkPageIsDisplayed(
-          expectedHeading     = bankDetailsPageHeadingWelsh,
+          expectedHeading = bankDetailsPageHeadingWelsh,
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-          contentChecks       = checkPageContentWelsh(isAgent = false),
-          expectedStatus      = Status.OK,
-          journey             = "request",
-          welsh               = true
+          contentChecks = checkPageContentWelsh(isAgent = false),
+          expectedStatus = Status.OK,
+          journey = "request",
+          welsh = true
         )
       }
     }
@@ -83,7 +85,8 @@ class WeNeedBankDetailsControllerSpec
 
   "GET /we-need-your-clients-bank-details" when {
     val fakeRequest = FakeRequest("GET", "/request-a-self-assessment-refund/we-need-your-clients-bank-details")
-      .withSessionId().withAuthToken()
+      .withSessionId()
+      .withAuthToken()
 
     "called" should {
       "display 'we need your client's bank details' page with correct content" in {
@@ -93,26 +96,27 @@ class WeNeedBankDetailsControllerSpec
         val result: Future[Result] = bankDetailsController.onPageLoadAgent(fakeRequest)
 
         result.checkPageIsDisplayed(
-          expectedHeading     = bankDetailsPageHeadingAgent,
+          expectedHeading = bankDetailsPageHeadingAgent,
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/agents/claim-refund",
-          contentChecks       = checkPageContent(isAgent = true),
-          expectedStatus      = Status.OK,
-          journey             = "request"
+          contentChecks = checkPageContent(isAgent = true),
+          expectedStatus = Status.OK,
+          journey = "request"
         )
       }
       "display welsh 'we need your client's bank details' page with correct content" in {
         stubBackendJourneyId()
         stubBackendPersonalJourney()
 
-        val result: Future[Result] = bankDetailsController.onPageLoadAgent(fakeRequest.withCookies(Cookie("PLAY_LANG", "cy")))
+        val result: Future[Result] =
+          bankDetailsController.onPageLoadAgent(fakeRequest.withCookies(Cookie("PLAY_LANG", "cy")))
 
         result.checkPageIsDisplayed(
-          expectedHeading     = bankDetailsPageHeadingAgentWelsh,
+          expectedHeading = bankDetailsPageHeadingAgentWelsh,
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/agents/claim-refund",
-          contentChecks       = checkPageContentWelsh(isAgent = true),
-          expectedStatus      = Status.OK,
-          journey             = "request",
-          welsh               = true
+          contentChecks = checkPageContentWelsh(isAgent = true),
+          expectedStatus = Status.OK,
+          journey = "request",
+          welsh = true
         )
       }
     }
@@ -120,7 +124,8 @@ class WeNeedBankDetailsControllerSpec
 
   "POST /we-need-your-bank-details" when {
     val fakeRequest = FakeRequest("POST", "/request-a-self-assessment-refund/we-need-your-bank-details")
-      .withSessionId().withAuthToken()
+      .withSessionId()
+      .withAuthToken()
 
     "called" should {
       "redirect to /request-a-self-assessment-refund/type-of-bank-account" in {

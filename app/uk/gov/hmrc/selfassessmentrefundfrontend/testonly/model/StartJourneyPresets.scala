@@ -21,8 +21,8 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.model.start.StartRequest
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.start.StartRequest.{StartRefund, ViewHistory}
 
 final case class Preset(
-    startRequest: StartRequest,
-    description:  String
+  startRequest: StartRequest,
+  description:  String
 )
 
 object StartJourneyPresets {
@@ -47,8 +47,14 @@ object StartJourneyPresets {
   val presets: List[Preset] = List(
     Preset(StartRefund("AB200111C", 987.65, CARD, defaultReturnUrl), "Happy path, with last payment by CARD"),
     Preset(StartRefund("AB200111D", 123.45, BACS, defaultReturnUrl), "Happy path, with last payment by BACS"),
-    Preset(StartRefund("AB200131C", 345.67, CARD, defaultReturnUrl), "HIP#5277 - unallocatedCredit > totalCreditAvailableForRepayment (absolute values)"),
-    Preset(StartRefund("AB200141C", 345.67, CARD, defaultReturnUrl), "HIP#5277 - unallocatedCredit = totalCreditAvailableForRepayment"),
+    Preset(
+      StartRefund("AB200131C", 345.67, CARD, defaultReturnUrl),
+      "HIP#5277 - unallocatedCredit > totalCreditAvailableForRepayment (absolute values)"
+    ),
+    Preset(
+      StartRefund("AB200141C", 345.67, CARD, defaultReturnUrl),
+      "HIP#5277 - unallocatedCredit = totalCreditAvailableForRepayment"
+    ),
     Preset(StartRefund("AB500111C", 987.65, CARD, defaultReturnUrl), "HIP#5277 - Get Financial Details returns error"),
     Preset(StartRefund("AB200111B", 987.65, CARD, defaultReturnUrl), "API 1770 Send Repayment Request returns error"),
     Preset(StartRefund("AB200400D", 987.65, CARD, defaultReturnUrl), "NRS Submission returns 400"),

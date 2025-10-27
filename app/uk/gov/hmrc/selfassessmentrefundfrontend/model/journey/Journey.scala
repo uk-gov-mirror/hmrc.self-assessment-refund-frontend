@@ -22,20 +22,20 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.model._
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.customer.Nino
 
 final case class Journey(
-    sessionId:             Option[String],
-    id:                    JourneyId,
-    audit:                 AuditFlags,
-    journeyType:           JourneyType,
-    amount:                Option[Amount],
-    nino:                  Option[Nino],
-    mtdItId:               Option[MtdItId],
-    paymentMethod:         Option[PaymentMethod],
-    accountType:           Option[AccountType],
-    bankAccountInfo:       Option[BankAccountInfo],
-    nrsWebpage:            Option[String],
-    hasStartedReauth:      Option[Boolean],
-    repaymentConfirmation: Option[RepaymentResponse],
-    returnUrl:             Option[ReturnUrl]
+  sessionId:             Option[String],
+  id:                    JourneyId,
+  audit:                 AuditFlags,
+  journeyType:           JourneyType,
+  amount:                Option[Amount],
+  nino:                  Option[Nino],
+  mtdItId:               Option[MtdItId],
+  paymentMethod:         Option[PaymentMethod],
+  accountType:           Option[AccountType],
+  bankAccountInfo:       Option[BankAccountInfo],
+  nrsWebpage:            Option[String],
+  hasStartedReauth:      Option[Boolean],
+  repaymentConfirmation: Option[RepaymentResponse],
+  returnUrl:             Option[ReturnUrl]
 ) {
   def toLogMessage: String =
     s"""

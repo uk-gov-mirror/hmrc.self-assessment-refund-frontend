@@ -29,12 +29,13 @@ import scala.concurrent.Future
 
 @Singleton
 class WeNeedBankDetailsController @Inject() (
-    i18n:                  I18nSupport,
-    weNeedBankDetailsPage: WeNeedBankDetailsPage,
-    val authConnector:     AuthConnector,
-    actions:               Actions,
-    mcc:                   MessagesControllerComponents
-) extends FrontendController(mcc) with AuthorisedFunctions {
+  i18n:                  I18nSupport,
+  weNeedBankDetailsPage: WeNeedBankDetailsPage,
+  val authConnector:     AuthConnector,
+  actions:               Actions,
+  mcc:                   MessagesControllerComponents
+) extends FrontendController(mcc)
+    with AuthorisedFunctions {
 
   import i18n._
 

@@ -19,7 +19,7 @@ package uk.gov.hmrc.selfassessmentrefundfrontend.audit.model
 import play.api.libs.json.{Json, OFormat}
 
 final case class AuditFlags(
-    hasSentViewRefund: Boolean = false
+  hasSentViewRefund: Boolean = false
 )
 
 object AuditFlags {

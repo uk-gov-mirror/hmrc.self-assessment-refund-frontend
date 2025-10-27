@@ -21,12 +21,12 @@ import play.api.libs.json.{Format, Json, OFormat}
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.ContentOptions.BannerTitle
 
 final case class SsjJourneyRequest(
-    origin:         String,
-    returnMsg:      String,
-    returnHref:     String,
-    auditName:      String,
-    audit:          AuditOptions,
-    contentOptions: ContentOptions
+  origin:         String,
+  returnMsg:      String,
+  returnHref:     String,
+  auditName:      String,
+  audit:          AuditOptions,
+  contentOptions: ContentOptions
 )
 
 object SsjJourneyRequest {
@@ -37,8 +37,8 @@ object SsjJourneyRequest {
 }
 
 final case class SsjResponse(
-    journeyId: PaysurvJourneyId,
-    nextUrl:   String
+  journeyId: PaysurvJourneyId,
+  nextUrl:   String
 )
 
 object SsjResponse {
@@ -55,10 +55,10 @@ object PaysurvJourneyId {
 }
 
 final case class AuditOptions(
-    userType:  String,
-    journey:   Option[String] = None,
-    orderId:   Option[String] = None,
-    liability: Option[String] = None
+  userType:  String,
+  journey:   Option[String] = None,
+  orderId:   Option[String] = None,
+  liability: Option[String] = None
 )
 
 object AuditOptions {
@@ -69,8 +69,8 @@ object AuditOptions {
 }
 
 final case class ContentOptions(
-    isWelshSupported: Boolean,
-    title:            BannerTitle
+  isWelshSupported: Boolean,
+  title:            BannerTitle
 )
 
 object ContentOptions {

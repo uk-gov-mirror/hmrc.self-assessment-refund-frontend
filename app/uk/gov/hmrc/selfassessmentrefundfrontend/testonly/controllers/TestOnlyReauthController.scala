@@ -27,11 +27,13 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class TestOnlyReauthController @Inject() (
-    i18nSupport:       I18nSupport,
-    val authConnector: AuthConnector,
-    val dummyReauth:   DummyReauth,
-    mcc:               MessagesControllerComponents
-)(implicit ec: ExecutionContext) extends FrontendController(mcc) with AuthorisedFunctions {
+  i18nSupport:       I18nSupport,
+  val authConnector: AuthConnector,
+  val dummyReauth:   DummyReauth,
+  mcc:               MessagesControllerComponents
+)(implicit ec: ExecutionContext)
+    extends FrontendController(mcc)
+    with AuthorisedFunctions {
 
   import i18nSupport._
 

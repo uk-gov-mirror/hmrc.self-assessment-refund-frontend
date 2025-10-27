@@ -38,11 +38,12 @@ class ReauthControllerSpec extends ItSpec {
   trait JourneyFixture {
     val sessionId: SessionId = SessionId(TdAll.sessionId)
     val journeyId: JourneyId = TdAll.journeyId
-    val nino: Nino = Nino("AA111111A")
+    val nino: Nino           = Nino("AA111111A")
   }
 
   trait RequestWithSessionFixture extends JourneyFixture {
-    implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(SessionKeys.sessionId -> sessionId.value)
+    implicit val request: FakeRequest[AnyContentAsEmpty.type] =
+      FakeRequest().withSession(SessionKeys.sessionId -> sessionId.value)
   }
 
   "the Reauth controller" when {
@@ -56,25 +57,28 @@ class ReauthControllerSpec extends ItSpec {
           val response = controller.reauthentication(TdAll.request)
           status(response) shouldBe Status.SEE_OTHER
 
-          redirectLocation(response) shouldBe Some("/self-assessment-refund/test-only/reauthentication?continue=/request-a-self-assessment-refund/reauthenticated-submit")
+          redirectLocation(response) shouldBe Some(
+            "/self-assessment-refund/test-only/reauthentication?continue=/request-a-self-assessment-refund/reauthenticated-submit"
+          )
         }
       }
 
       def journey(fixture: RequestWithSessionFixture) = Journey(
-        sessionId             = Some(fixture.sessionId.value),
-        id                    = fixture.journeyId,
-        audit                 = AuditFlags(),
-        journeyType           = JourneyTypes.RefundJourney,
-        amount                = Some(testAmount),
-        nino                  = Some(fixture.nino),
-        mtdItId               = None,
-        paymentMethod         = None,
-        accountType           = Some(AccountType("Personal")),
-        bankAccountInfo       = Some(BankAccountInfo("name", SortCode("111111"), AccountNumber("12345678"))),
-        nrsWebpage            = None,
-        hasStartedReauth      = Some(true),
-        repaymentConfirmation = Some(RepaymentResponse(OffsetDateTime.parse("2023-12-01T17:35:30+01:00"), RequestNumber("1234567890"))),
-        returnUrl             = None
+        sessionId = Some(fixture.sessionId.value),
+        id = fixture.journeyId,
+        audit = AuditFlags(),
+        journeyType = JourneyTypes.RefundJourney,
+        amount = Some(testAmount),
+        nino = Some(fixture.nino),
+        mtdItId = None,
+        paymentMethod = None,
+        accountType = Some(AccountType("Personal")),
+        bankAccountInfo = Some(BankAccountInfo("name", SortCode("111111"), AccountNumber("12345678"))),
+        nrsWebpage = None,
+        hasStartedReauth = Some(true),
+        repaymentConfirmation =
+          Some(RepaymentResponse(OffsetDateTime.parse("2023-12-01T17:35:30+01:00"), RequestNumber("1234567890"))),
+        returnUrl = None
       )
 
       "return an error if the hasStartedReauth cannot be set" in new RequestWithSessionFixture {
@@ -97,7 +101,9 @@ class ReauthControllerSpec extends ItSpec {
 
         val response = controller.reauthentication(request)
         status(response) shouldBe SEE_OTHER
-        redirectLocation(response) shouldBe Some("/self-assessment-refund/test-only/reauthentication?continue=/request-a-self-assessment-refund/reauthenticated-submit")
+        redirectLocation(response) shouldBe Some(
+          "/self-assessment-refund/test-only/reauthentication?continue=/request-a-self-assessment-refund/reauthenticated-submit"
+        )
 
         verifyUpdateJourneyCalled(journey(this))
       }

@@ -23,75 +23,75 @@ import java.time.Instant
 
 object TdBars {
 
-  val name = "Account Name"
-  val sortCode = "123456"
+  val name              = "Account Name"
+  val sortCode          = "123456"
   val bankAccountNumber = "12345678"
-  val accountNumber = bankAccountNumber
+  val accountNumber     = bankAccountNumber
 
   val bankAccountInfo = BankAccount(
-    accountName   = name,
-    sortCode      = sortCode,
+    accountName = name,
+    sortCode = sortCode,
     accountNumber = bankAccountNumber,
-    rollNumber    = None
+    rollNumber = None
   )
 
   val barsValidateResponse = BarsValidateResponse(
-    accountNumberIsWellFormatted             = BarsAssessmentType.Yes,
+    accountNumberIsWellFormatted = BarsAssessmentType.Yes,
     nonStandardAccountDetailsRequiredForBacs = BarsAssessmentType.No,
-    sortCodeIsPresentOnEISCD                 = BarsAssessmentType.Yes,
-    sortCodeSupportsDirectDebit              = Some(BarsAssessmentType.Yes),
-    sortCodeSupportsDirectCredit             = None,
-    sortCodeBankName                         = None,
-    iban                                     = None
+    sortCodeIsPresentOnEISCD = BarsAssessmentType.Yes,
+    sortCodeSupportsDirectDebit = Some(BarsAssessmentType.Yes),
+    sortCodeSupportsDirectCredit = None,
+    sortCodeBankName = None,
+    iban = None
   )
 
   val barsValidateResponseAccountNumNotWellFormatted = BarsValidateResponse(
-    accountNumberIsWellFormatted             = BarsAssessmentType.No,
+    accountNumberIsWellFormatted = BarsAssessmentType.No,
     nonStandardAccountDetailsRequiredForBacs = BarsAssessmentType.No,
-    sortCodeIsPresentOnEISCD                 = BarsAssessmentType.Yes,
-    sortCodeSupportsDirectDebit              = Some(BarsAssessmentType.Yes),
-    sortCodeSupportsDirectCredit             = None,
-    sortCodeBankName                         = None,
-    iban                                     = None
+    sortCodeIsPresentOnEISCD = BarsAssessmentType.Yes,
+    sortCodeSupportsDirectDebit = Some(BarsAssessmentType.Yes),
+    sortCodeSupportsDirectCredit = None,
+    sortCodeBankName = None,
+    iban = None
   )
 
   val barsVerifyResponse = BarsVerifyResponse(
-    accountNumberIsWellFormatted             = BarsAssessmentType.Yes,
-    accountExists                            = BarsAssessmentType.Yes,
-    nameMatches                              = BarsAssessmentType.Yes,
+    accountNumberIsWellFormatted = BarsAssessmentType.Yes,
+    accountExists = BarsAssessmentType.Yes,
+    nameMatches = BarsAssessmentType.Yes,
     nonStandardAccountDetailsRequiredForBacs = BarsAssessmentType.No,
-    sortCodeIsPresentOnEISCD                 = BarsAssessmentType.Yes,
-    sortCodeSupportsDirectDebit              = BarsAssessmentType.Yes,
-    sortCodeSupportsDirectCredit             = BarsAssessmentType.Yes,
-    accountName                              = None,
-    sortCodeBankName                         = None,
-    iban                                     = None
+    sortCodeIsPresentOnEISCD = BarsAssessmentType.Yes,
+    sortCodeSupportsDirectDebit = BarsAssessmentType.Yes,
+    sortCodeSupportsDirectCredit = BarsAssessmentType.Yes,
+    accountName = None,
+    sortCodeBankName = None,
+    iban = None
   )
 
   val barsVerifyResponseAcountDoesNotExist = BarsVerifyResponse(
-    accountNumberIsWellFormatted             = BarsAssessmentType.Yes,
-    accountExists                            = BarsAssessmentType.No,
-    nameMatches                              = BarsAssessmentType.Indeterminate,
+    accountNumberIsWellFormatted = BarsAssessmentType.Yes,
+    accountExists = BarsAssessmentType.No,
+    nameMatches = BarsAssessmentType.Indeterminate,
     nonStandardAccountDetailsRequiredForBacs = BarsAssessmentType.Indeterminate,
-    sortCodeIsPresentOnEISCD                 = BarsAssessmentType.Indeterminate,
-    sortCodeSupportsDirectDebit              = BarsAssessmentType.Indeterminate,
-    sortCodeSupportsDirectCredit             = BarsAssessmentType.Indeterminate,
-    accountName                              = None,
-    sortCodeBankName                         = None,
-    iban                                     = None
+    sortCodeIsPresentOnEISCD = BarsAssessmentType.Indeterminate,
+    sortCodeSupportsDirectDebit = BarsAssessmentType.Indeterminate,
+    sortCodeSupportsDirectCredit = BarsAssessmentType.Indeterminate,
+    accountName = None,
+    sortCodeBankName = None,
+    iban = None
   )
 
   val barsVerifyResponseAllFields = BarsVerifyResponse(
-    accountNumberIsWellFormatted             = BarsAssessmentType.Yes,
-    accountExists                            = BarsAssessmentType.Yes,
-    nameMatches                              = BarsAssessmentType.Yes,
+    accountNumberIsWellFormatted = BarsAssessmentType.Yes,
+    accountExists = BarsAssessmentType.Yes,
+    nameMatches = BarsAssessmentType.Yes,
     nonStandardAccountDetailsRequiredForBacs = BarsAssessmentType.No,
-    sortCodeIsPresentOnEISCD                 = BarsAssessmentType.Yes,
-    sortCodeSupportsDirectDebit              = BarsAssessmentType.Yes,
-    sortCodeSupportsDirectCredit             = BarsAssessmentType.Yes,
-    accountName                              = Some("Account Name"),
-    sortCodeBankName                         = Some("Lloyds"),
-    iban                                     = Some("GB59 HBUK 1234 5678")
+    sortCodeIsPresentOnEISCD = BarsAssessmentType.Yes,
+    sortCodeSupportsDirectDebit = BarsAssessmentType.Yes,
+    sortCodeSupportsDirectCredit = BarsAssessmentType.Yes,
+    accountName = Some("Account Name"),
+    sortCodeBankName = Some("Lloyds"),
+    iban = Some("GB59 HBUK 1234 5678")
   )
 
   val barsErrorResponse = BarsErrorResponse(

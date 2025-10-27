@@ -29,28 +29,29 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 final case class StartJourneyService @Inject() (
-    stubsAdmin:       StubsAdminConnector,
-    journeyConnector: JourneyConnector
-)(implicit ec: ExecutionContext) extends Logging {
+  stubsAdmin:       StubsAdminConnector,
+  journeyConnector: JourneyConnector
+)(implicit ec: ExecutionContext)
+    extends Logging {
 
   def start(
-      options: StartJourneyOptions,
-      origin:  String
+    options: StartJourneyOptions,
+    origin:  String
   )(implicit hc: HeaderCarrier): Future[Result] = {
     val req = options.toSsarjRequest
 
     for {
-      _ <- options.primeStubs match {
-        case PrimeStubsOption.IfNotExists =>
-          logger.info(s"Priming ${req.nino} with empty account (if not exists)")
-          stubsAdmin.createAccount(req.nino, true)
-        case PrimeStubsOption.SetEmpty =>
-          logger.info(s"Priming ${req.nino} with empty account (reset if exists)")
-          stubsAdmin.createAccount(req.nino)
-        case PrimeStubsOption.SetDefault =>
-          logger.info(s"Priming ${req.nino} with mock account")
-          stubsAdmin.updateAccount(req.nino, mock = true)
-      }
+      _       <- options.primeStubs match {
+                   case PrimeStubsOption.IfNotExists =>
+                     logger.info(s"Priming ${req.nino} with empty account (if not exists)")
+                     stubsAdmin.createAccount(req.nino, true)
+                   case PrimeStubsOption.SetEmpty    =>
+                     logger.info(s"Priming ${req.nino} with empty account (reset if exists)")
+                     stubsAdmin.createAccount(req.nino)
+                   case PrimeStubsOption.SetDefault  =>
+                     logger.info(s"Priming ${req.nino} with mock account")
+                     stubsAdmin.updateAccount(req.nino, mock = true)
+                 }
       created <- journeyConnector.start(req, origin)
     } yield Redirect(created.nextUrl)
   }

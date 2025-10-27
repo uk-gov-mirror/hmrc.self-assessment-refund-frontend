@@ -30,13 +30,16 @@ trait SelectAmountPageTesting extends PageContentTesting {
     doc.checkHasBackLinkWithUrl("#")
 
     val suggestedAmount = AmountFormatter.formatOptionalAmount(amount.unallocatedCredit)
-    val fullAmount = AmountFormatter.formatOptionalAmount(amount.totalCreditAvailableForRepayment)
+    val fullAmount      = AmountFormatter.formatOptionalAmount(amount.totalCreditAvailableForRepayment)
 
-    doc.checkHasRadioButtonOptionsWith(List(
-      if (withoutSuggestedAmount) None else Some((s"$suggestedAmount", Some("This will leave enough in your tax account to cover your next bill"))),
-      Some((s"$fullAmount", None)),
-      Some(("A different amount", None))
-    ).flatten)
+    doc.checkHasRadioButtonOptionsWith(
+      List(
+        if (withoutSuggestedAmount) None
+        else Some((s"$suggestedAmount", Some("This will leave enough in your tax account to cover your next bill"))),
+        Some((s"$fullAmount", None)),
+        Some(("A different amount", None))
+      ).flatten
+    )
 
     val conditionalForChoiceDifferent = conditionalElementsForChoiceDifferent(doc)
     conditionalForChoiceDifferent.select(".govuk-label").text() mustBe "Enter an amount"
@@ -52,13 +55,16 @@ trait SelectAmountPageTesting extends PageContentTesting {
     doc.checkHasBackLinkWithUrl("#")
 
     val suggestedAmount = AmountFormatter.formatOptionalAmount(amount.unallocatedCredit)
-    val fullAmount = AmountFormatter.formatOptionalAmount(amount.totalCreditAvailableForRepayment)
+    val fullAmount      = AmountFormatter.formatOptionalAmount(amount.totalCreditAvailableForRepayment)
 
-    doc.checkHasRadioButtonOptionsWith(List(
-      if (withoutSuggestedAmount) None else Some((s"$suggestedAmount", Some("Bydd hyn yn gadael digon yn eich cyfrif treth i dalu’ch bil nesaf"))),
-      Some((s"$fullAmount", None)),
-      Some(("Swm gwahanol", None))
-    ).flatten)
+    doc.checkHasRadioButtonOptionsWith(
+      List(
+        if (withoutSuggestedAmount) None
+        else Some((s"$suggestedAmount", Some("Bydd hyn yn gadael digon yn eich cyfrif treth i dalu’ch bil nesaf"))),
+        Some((s"$fullAmount", None)),
+        Some(("Swm gwahanol", None))
+      ).flatten
+    )
 
     val conditionalForChoiceDifferent = conditionalElementsForChoiceDifferent(doc)
     conditionalForChoiceDifferent.select(".govuk-label").text() mustBe "Nodwch swm"
@@ -71,31 +77,42 @@ trait SelectAmountPageTesting extends PageContentTesting {
     )
   }
 
-  def checkPageWithFormError(amount: Amount, errorMessage: String, errorLink: String, withoutSuggestedAmount: Boolean = false)(doc: Document): Unit = {
+  def checkPageWithFormError(
+    amount:                 Amount,
+    errorMessage:           String,
+    errorLink:              String,
+    withoutSuggestedAmount: Boolean = false
+  )(doc: Document): Unit = {
 
     checkPageContent(amount, withoutSuggestedAmount = withoutSuggestedAmount)(doc)
 
     doc.checkHasErrorSummaryWith(errorMessage, errorLink)
 
-    if (errorLink == "#different-amount") conditionalElementsForChoiceDifferent(doc).select(".govuk-error-message").text() mustBe "Error: " + errorMessage
+    if (errorLink == "#different-amount")
+      conditionalElementsForChoiceDifferent(doc).select(".govuk-error-message").text() mustBe "Error: " + errorMessage
     else doc.select("#choice-error").text() mustBe "Error: " + errorMessage
 
     ()
   }
-  def checkPageWithFormErrorWelsh(amount: Amount, errorMessage: String, errorLink: String, withoutSuggestedAmount: Boolean = false)(doc: Document): Unit = {
+  def checkPageWithFormErrorWelsh(
+    amount:                 Amount,
+    errorMessage:           String,
+    errorLink:              String,
+    withoutSuggestedAmount: Boolean = false
+  )(doc: Document): Unit = {
 
     checkPageContentWelsh(amount, withoutSuggestedAmount = withoutSuggestedAmount)(doc)
 
     doc.checkHasErrorSummaryWithWelsh(errorMessage, errorLink)
 
-    if (errorLink == "#different-amount") conditionalElementsForChoiceDifferent(doc).select(".govuk-error-message").text() mustBe "Gwall: " + errorMessage
+    if (errorLink == "#different-amount")
+      conditionalElementsForChoiceDifferent(doc).select(".govuk-error-message").text() mustBe "Gwall: " + errorMessage
     else doc.select("#choice-error").text() mustBe "Gwall: " + errorMessage
 
     ()
   }
 
-  private def conditionalElementsForChoiceDifferent(doc: Document): Elements = {
+  private def conditionalElementsForChoiceDifferent(doc: Document): Elements =
     doc.select(".govuk-radios__conditional").select("#conditional-choice-different")
-  }
 
 }

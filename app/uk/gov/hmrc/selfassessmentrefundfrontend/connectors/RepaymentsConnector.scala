@@ -37,16 +37,20 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.util.Mapping._
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class RepaymentsConnector @Inject() (client: HttpClientV2, config: AppConfig)(implicit ec: ExecutionContext) extends Logging {
+class RepaymentsConnector @Inject() (client: HttpClientV2, config: AppConfig)(implicit ec: ExecutionContext)
+    extends Logging {
 
   val baseUrl: String = s"${config.selfAssessmentRepaymentBackendUrl}/self-assessment-refund-backend"
 
-  def createRepayment(journeyId: JourneyId, headerData: JsObject)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, RepaymentCreatedResponse]] = {
+  def createRepayment(journeyId: JourneyId, headerData: JsObject)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[UpstreamErrorResponse, RepaymentCreatedResponse]] = {
     val url = s"$baseUrl/repayments/${journeyId.value}"
 
     val requestBody = CreateRepaymentRequest(headerData)
 
-    client.post(url"$url")
+    client
+      .post(url"$url")
       .withBody(Json.toJson(requestBody))
       .execute[Either[UpstreamErrorResponse, RepaymentCreatedResponse]]
   }
@@ -54,7 +58,8 @@ class RepaymentsConnector @Inject() (client: HttpClientV2, config: AppConfig)(im
   def taxPayerRepayments(nino: Nino)(implicit hc: HeaderCarrier): Future[List[TaxRepayment]] = {
     val url = s"$baseUrl/repayments/${nino.value}"
 
-    val repaymentsListFuture = client.get(url"$url")
+    val repaymentsListFuture = client
+      .get(url"$url")
       .execute[List[Response]]
       .map(_.mapTo[List[TaxRepayment]])
 
@@ -64,7 +69,8 @@ class RepaymentsConnector @Inject() (client: HttpClientV2, config: AppConfig)(im
   def taxPayerRepayment(nino: Nino, number: RequestNumber)(implicit hc: HeaderCarrier): Future[TaxRepayment] = {
     val url = s"$baseUrl/repayments/${nino.value}/${number.value}"
 
-    client.get(url"$url")
+    client
+      .get(url"$url")
       .execute[Response]
       .map(_.mapTo[TaxRepayment])
   }
@@ -72,12 +78,12 @@ class RepaymentsConnector @Inject() (client: HttpClientV2, config: AppConfig)(im
   def getSaUtr(nino: Nino)(implicit hc: HeaderCarrier): Future[SaUtr] = {
     val url = s"$baseUrl/retrieve-utr/${nino.value}"
 
-    client.get(url"$url")
+    client
+      .get(url"$url")
       .execute[SaUtr]
-      .recover {
-        case e: Throwable =>
-          logger.warn(s"[RepaymentsConnector][getSaUtr] Failed to retrieve SA UTR for nino: ${nino.value}", e)
-          SaUtr(None)
+      .recover { case e: Throwable =>
+        logger.warn(s"[RepaymentsConnector][getSaUtr] Failed to retrieve SA UTR for nino: ${nino.value}", e)
+        SaUtr(None)
       }
   }
 
@@ -86,14 +92,14 @@ class RepaymentsConnector @Inject() (client: HttpClientV2, config: AppConfig)(im
 object RepaymentsConnector {
 
   final case class Response(
-      key:             RequestNumber,
-      nino:            Nino,
-      payment:         BigDecimal,
-      status:          String,
-      created:         String,
-      completed:       Option[String] = None,
-      rejection:       Option[String] = None,
-      repaymentMethod: Option[String] = None
+    key:             RequestNumber,
+    nino:            Nino,
+    payment:         BigDecimal,
+    status:          String,
+    created:         String,
+    completed:       Option[String] = None,
+    rejection:       Option[String] = None,
+    repaymentMethod: Option[String] = None
   )
 
   object Response {
@@ -102,7 +108,13 @@ object RepaymentsConnector {
     implicit val format: OFormat[Response] = Json.format[Response]
 
     implicit val conv: Mapping[Response, TaxRepayment] = (response: Response) => {
-      @SuppressWarnings(Array("org.wartremover.warts.JavaSerializable", "org.wartremover.warts.Product", "org.wartremover.warts.Serializable"))
+      @SuppressWarnings(
+        Array(
+          "org.wartremover.warts.JavaSerializable",
+          "org.wartremover.warts.Product",
+          "org.wartremover.warts.Serializable"
+        )
+      )
       val maybePaymentMethod = response.repaymentMethod.map(_.toUpperCase) match {
         case Some("CARD") => Some(PaymentMethod.Card)
         case Some("BACS") => Some(PaymentMethod.BACS)
@@ -111,18 +123,29 @@ object RepaymentsConnector {
       }
 
       response.status match {
-        case "ProcessingRisking" => ProcessingRiskingTaxRepayment(Claim(response.key, response.nino, response.payment, parseLocalDate(response.created), maybePaymentMethod))
-        case "Processing"        => ProcessingTaxRepayment(Claim(response.key, response.nino, response.payment, parseLocalDate(response.created), maybePaymentMethod))
+        case "ProcessingRisking" =>
+          ProcessingRiskingTaxRepayment(
+            Claim(response.key, response.nino, response.payment, parseLocalDate(response.created), maybePaymentMethod)
+          )
+        case "Processing"        =>
+          ProcessingTaxRepayment(
+            Claim(response.key, response.nino, response.payment, parseLocalDate(response.created), maybePaymentMethod)
+          )
 
-        case "Approved" => ApprovedTaxRepayment(
-          Claim(response.key, response.nino, response.payment, parseLocalDate(response.created), maybePaymentMethod),
-          response.completed.map(parseLocalDate).getOrElse(throw new IllegalArgumentException("missing completion date"))
-        ) // throw an exception for now since the real data types are unknown
+        case "Approved" =>
+          ApprovedTaxRepayment(
+            Claim(response.key, response.nino, response.payment, parseLocalDate(response.created), maybePaymentMethod),
+            response.completed
+              .map(parseLocalDate)
+              .getOrElse(throw new IllegalArgumentException("missing completion date"))
+          ) // throw an exception for now since the real data types are unknown
 
         case "Rejected" =>
           RejectedTaxRepayment(
             Claim(response.key, response.nino, response.payment, parseLocalDate(response.created), maybePaymentMethod),
-            response.completed.map(parseLocalDate).getOrElse(throw new IllegalArgumentException("missing completion date"))
+            response.completed
+              .map(parseLocalDate)
+              .getOrElse(throw new IllegalArgumentException("missing completion date"))
           )
 
       }

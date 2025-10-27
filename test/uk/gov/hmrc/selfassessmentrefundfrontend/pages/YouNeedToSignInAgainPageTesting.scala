@@ -25,10 +25,12 @@ trait YouNeedToSignInAgainPageTesting extends PageContentTesting {
 
     doc.checkHasBackLinkWithUrl("#")
 
-    doc.checkHasParagraphs(List(
-      "You need to sign in again with the same details you used before.",
-      "This is for security reasons and to protect you against fraud."
-    ))
+    doc.checkHasParagraphs(
+      List(
+        "You need to sign in again with the same details you used before.",
+        "This is for security reasons and to protect you against fraud."
+      )
+    )
 
     doc.checkHasFormActionAsContinueButton(
       uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.routes.YouNeedToSignInAgainController.onSubmit
@@ -38,10 +40,12 @@ trait YouNeedToSignInAgainPageTesting extends PageContentTesting {
 
     doc.checkHasBackLinkWithUrl("#")
 
-    doc.checkHasParagraphs(List(
-      "Mae angen i chi fewngofnodi eto gan ddefnyddio’r un manylion a ddefnyddiwyd gennych o’r blaen.",
-      "Mae hyn am resymau diogelwch ac er mwyn eich diogelu rhag twyll."
-    ))
+    doc.checkHasParagraphs(
+      List(
+        "Mae angen i chi fewngofnodi eto gan ddefnyddio’r un manylion a ddefnyddiwyd gennych o’r blaen.",
+        "Mae hyn am resymau diogelwch ac er mwyn eich diogelu rhag twyll."
+      )
+    )
 
     doc.checkHasFormActionAsContinueButton(
       uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.routes.YouNeedToSignInAgainController.onSubmit,

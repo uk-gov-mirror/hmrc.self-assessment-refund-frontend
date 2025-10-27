@@ -30,24 +30,26 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class CheckYourAnswersPageController @Inject() (
-    i18n:                   I18nSupport,
-    mcc:                    MessagesControllerComponents,
-    checkYourAnswersPage:   CheckYourAnswersPage,
-    actions:                Actions,
-    journeyConnector:       JourneyConnector,
-    checkYourAnswersHelper: CheckYourAnswersHelper
-)(implicit ec: ExecutionContext) extends FrontendController(mcc) {
+  i18n:                   I18nSupport,
+  mcc:                    MessagesControllerComponents,
+  checkYourAnswersPage:   CheckYourAnswersPage,
+  actions:                Actions,
+  journeyConnector:       JourneyConnector,
+  checkYourAnswersHelper: CheckYourAnswersHelper
+)(implicit ec: ExecutionContext)
+    extends FrontendController(mcc) {
 
   import i18n._
 
   val start: Action[AnyContent] = actions.authenticatedRefundJourneyAction.async { implicit request =>
-    val journey = request.journey
-    val amount = journey.amount.getOrElse(sys.error("could not find amount"))
+    val journey         = request.journey
+    val amount          = journey.amount.getOrElse(sys.error("could not find amount"))
     val bankAccountInfo = journey.bankAccountInfo.getOrElse(sys.error("Could not find bank details"))
-    val html = checkYourAnswersPage(
-      summaryList = checkYourAnswersHelper.buildSummaryList(amount, journey.accountType.getOrElse(sys.error("account type not found")), bankAccountInfo),
-      formAction  = routes.CheckYourAnswersPageController.confirm,
-      isAgent     = request.isAgent
+    val html            = checkYourAnswersPage(
+      summaryList = checkYourAnswersHelper
+        .buildSummaryList(amount, journey.accountType.getOrElse(sys.error("account type not found")), bankAccountInfo),
+      formAction = routes.CheckYourAnswersPageController.confirm,
+      isAgent = request.isAgent
     )
 
     journeyConnector.setJourney(journey.id, journey.copy(nrsWebpage = Some(html.toString()))).map { _ =>
@@ -59,18 +61,24 @@ class CheckYourAnswersPageController @Inject() (
     Future.successful(Redirect(refundRequestJourney.routes.YouNeedToSignInAgainController.onPageLoad))
   }
 
-  val changeAmount: Action[AnyContent] = actions.authenticatedRefundJourneyAction.async { implicit request: Request[_] =>
-    Future.successful(
-      Redirect(uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.routes.SelectRepaymentAmountController.selectAmount)
-        .addingToSession("self-assessment-refund.changing-amount-from-cya-page" -> "redirectToCYA")
-    )
+  val changeAmount: Action[AnyContent] = actions.authenticatedRefundJourneyAction.async {
+    implicit request: Request[_] =>
+      Future.successful(
+        Redirect(
+          uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.routes.SelectRepaymentAmountController.selectAmount
+        )
+          .addingToSession("self-assessment-refund.changing-amount-from-cya-page" -> "redirectToCYA")
+      )
   }
 
-  val changeAccount: Action[AnyContent] = actions.authenticatedRefundJourneyAction.async { implicit request: Request[_] =>
-    Future.successful(
-      Redirect(uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.routes.AccountTypeController.getAccountType)
-        .addingToSession("self-assessment-refund.changing-account-from-cya-page" -> "redirectToCYA")
-    )
+  val changeAccount: Action[AnyContent] = actions.authenticatedRefundJourneyAction.async {
+    implicit request: Request[_] =>
+      Future.successful(
+        Redirect(
+          uk.gov.hmrc.selfassessmentrefundfrontend.controllers.refundRequestJourney.routes.AccountTypeController.getAccountType
+        )
+          .addingToSession("self-assessment-refund.changing-account-from-cya-page" -> "redirectToCYA")
+      )
   }
 
 }

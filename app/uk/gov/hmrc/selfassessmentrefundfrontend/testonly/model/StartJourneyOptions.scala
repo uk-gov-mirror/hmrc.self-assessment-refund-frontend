@@ -28,31 +28,37 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.model.start.StartRequest.{StartR
 import uk.gov.voa.play.form.ConditionalMappings.{isEqual, mandatoryIf}
 
 final case class StartJourneyOptions(
-    `type`:            StartJourneyType,
-    nino:              String,
-    fullAmount:        Option[BigDecimal] = None,
-    lastPaymentMethod: Option[String]     = None,
-    primeStubs:        PrimeStubsOption   = PrimeStubsOption.IfNotExists,
-    returnUrl:         Option[String]     = None
+  `type`:            StartJourneyType,
+  nino:              String,
+  fullAmount:        Option[BigDecimal] = None,
+  lastPaymentMethod: Option[String] = None,
+  primeStubs:        PrimeStubsOption = PrimeStubsOption.IfNotExists,
+  returnUrl:         Option[String] = None
 ) {
 
-  def toSsarjRequest: StartRequest = {
+  def toSsarjRequest: StartRequest =
     `type` match {
-      case StartJourneyType.StartRefund => StartRefund(
-        nino, fullAmount.getOrElse(sys.error("Could not find full amount")), lastPaymentMethod.contains("CARD").some, returnUrl.map(ReturnUrl(_))
-      )
-      case StartJourneyType.ViewHistory => ViewHistory(
-        nino
-      )
+      case StartJourneyType.StartRefund =>
+        StartRefund(
+          nino,
+          fullAmount.getOrElse(sys.error("Could not find full amount")),
+          lastPaymentMethod.contains("CARD").some,
+          returnUrl.map(ReturnUrl(_))
+        )
+      case StartJourneyType.ViewHistory =>
+        ViewHistory(
+          nino
+        )
     }
-  }
 
 }
 
 object StartJourneyOptions {
   def default: StartJourneyOptions = StartJourneyPresets.default
 
-  def unapply(startJourneyOptions: StartJourneyOptions): Option[(StartJourneyType, String, Option[BigDecimal], Option[String], PrimeStubsOption, Option[String])] =
+  def unapply(
+    startJourneyOptions: StartJourneyOptions
+  ): Option[(StartJourneyType, String, Option[BigDecimal], Option[String], PrimeStubsOption, Option[String])] =
     Some(
       (
         startJourneyOptions.`type`,
@@ -64,75 +70,87 @@ object StartJourneyOptions {
       )
     )
 
-  implicit def bindable(implicit stringBinder: QueryStringBindable[String]): QueryStringBindable[StartJourneyOptions] = new QueryStringBindable[StartJourneyOptions] {
-    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, StartJourneyOptions]] = {
-      val journeyType = StartJourneyType.queryBindable.bind("type", params).collect {
-        case Right(value) => value
-      }.getOrElse(StartJourneyType.StartRefund)
+  implicit def bindable(implicit stringBinder: QueryStringBindable[String]): QueryStringBindable[StartJourneyOptions] =
+    new QueryStringBindable[StartJourneyOptions] {
+      override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, StartJourneyOptions]] = {
+        val journeyType = StartJourneyType.queryBindable
+          .bind("type", params)
+          .collect { case Right(value) =>
+            value
+          }
+          .getOrElse(StartJourneyType.StartRefund)
 
-      val nino = stringBinder.bind("nino", params).flatMap(_.toOption).getOrElse("")
+        val nino = stringBinder.bind("nino", params).flatMap(_.toOption).getOrElse("")
 
-      val fullAmount: Option[BigDecimal] = QueryStringBindable.bindableDouble.bind("fullAmount", params).collect {
-        case Right(value) => BigDecimal.apply(value)
+        val fullAmount: Option[BigDecimal] = QueryStringBindable.bindableDouble.bind("fullAmount", params).collect {
+          case Right(value) => BigDecimal.apply(value)
+        }
+
+        val lastPaymentMethod = stringBinder.bind("lastPaymentMethod", params).collect { case Right(v) =>
+          v
+        }
+
+        val returnUrl = stringBinder.bind("returnUrl", params).collect { case Right(v) =>
+          v
+        }
+
+        val primeStubs = PrimeStubsOption.queryBindable
+          .bind("primeStubs", params)
+          .collect { case Right(value) =>
+            value
+          }
+          .getOrElse(PrimeStubsOption.IfNotExists)
+
+        val details = StartJourneyOptions(
+          journeyType,
+          nino,
+          fullAmount,
+          lastPaymentMethod,
+          primeStubs,
+          returnUrl
+        )
+
+        Some(Right(details))
       }
 
-      val lastPaymentMethod = stringBinder.bind("lastPaymentMethod", params).collect {
-        case Right(v) => v
+      override def unbind(key: String, value: StartJourneyOptions): String = {
+        val qs = QueryString.fromPairs(
+          "type"              -> value.`type`.entryName,
+          "nino"              -> value.nino,
+          "fullAmount"        -> value.fullAmount.map(_.toString).getOrElse(""),
+          "lastPaymentMethod" -> value.lastPaymentMethod.getOrElse("BACS"),
+          "primeStubs"        -> value.primeStubs.entryName,
+          "returnUrl"         -> value.returnUrl.getOrElse("")
+        )
+
+        qs.toString()
       }
-
-      val returnUrl = stringBinder.bind("returnUrl", params).collect {
-        case Right(v) => v
-      }
-
-      val primeStubs = PrimeStubsOption.queryBindable.bind("primeStubs", params).collect {
-        case Right(value) => value
-      }.getOrElse(PrimeStubsOption.IfNotExists)
-
-      val details = StartJourneyOptions(
-        journeyType,
-        nino,
-        fullAmount,
-        lastPaymentMethod,
-        primeStubs,
-        returnUrl
-      )
-
-      Some(Right(details))
     }
 
-    override def unbind(key: String, value: StartJourneyOptions): String = {
-      val qs = QueryString.fromPairs(
-        "type" -> value.`type`.entryName,
-        "nino" -> value.nino,
-        "fullAmount" -> value.fullAmount.map(_.toString).getOrElse(""),
-        "lastPaymentMethod" -> value.lastPaymentMethod.getOrElse("BACS"),
-        "primeStubs" -> value.primeStubs.entryName,
-        "returnUrl" -> value.returnUrl.getOrElse("")
-      )
-
-      qs.toString()
-    }
-  }
-
-  implicit val form: Form[StartJourneyOptions] = {
+  implicit val form: Form[StartJourneyOptions] =
     Form(
       mapping(
-        "type" -> StartJourneyType.formField,
-        "nino" -> text.verifying("NINO required", _.nonEmpty),
-        "fullAmount" -> mandatoryIf(isEqual("type", "StartRefund"), bigDecimal(10, 2)),
+        "type"              -> StartJourneyType.formField,
+        "nino"              -> text.verifying("NINO required", _.nonEmpty),
+        "fullAmount"        -> mandatoryIf(isEqual("type", "StartRefund"), bigDecimal(10, 2)),
         //        "fullAmount" -> optional(bigDecimal(10, 2)),
         "lastPaymentMethod" -> optional(text),
-        "primeStubs" -> PrimeStubsOption.formField,
-        "returnUrl" -> optional(text)
+        "primeStubs"        -> PrimeStubsOption.formField,
+        "returnUrl"         -> optional(text)
       )(StartJourneyOptions.apply)(StartJourneyOptions.unapply)
     )
-  }
 
   def fromRequest(request: StartRequest): StartJourneyOptions = request match {
     case StartRefund(nino, fullAmount, lastPaymentViaCard, returnUrl) =>
       val lastPaymentMethod = if (lastPaymentViaCard.contains(true)) "CARD" else "BACS"
-      StartJourneyOptions(StartJourneyType.StartRefund, nino, Some(fullAmount), lastPaymentMethod.some, returnUrl = returnUrl.map(_.value))
-    case ViewHistory(nino) => StartJourneyOptions(StartJourneyType.ViewHistory, nino)
+      StartJourneyOptions(
+        StartJourneyType.StartRefund,
+        nino,
+        Some(fullAmount),
+        lastPaymentMethod.some,
+        returnUrl = returnUrl.map(_.value)
+      )
+    case ViewHistory(nino)                                            => StartJourneyOptions(StartJourneyType.ViewHistory, nino)
   }
 
   given OFormat[StartJourneyOptions] = Json.format[StartJourneyOptions]

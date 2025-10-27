@@ -33,33 +33,34 @@ import uk.gov.voa.play.form.ConditionalMappings.{isEqual, mandatoryIf}
 import scala.util.Try
 
 final case class SelectAmountPageModel(
-    selectAmount:                     Option[String],
-    partialRepaymentSelected:         Option[Boolean],
-    totalCreditAvailableForRepayment: String,
-    unallocatedCredit:                Option[String],
-    form:                             Form[SelectAmountForm],
-    suggestedRepaymentSelected:       Option[Boolean],
-    isAgent:                          Boolean
+  selectAmount:                     Option[String],
+  partialRepaymentSelected:         Option[Boolean],
+  totalCreditAvailableForRepayment: String,
+  unallocatedCredit:                Option[String],
+  form:                             Form[SelectAmountForm],
+  suggestedRepaymentSelected:       Option[Boolean],
+  isAgent:                          Boolean
 ) {
 
-  def withFormBound()(implicit request: play.api.mvc.Request[_], formBinding: FormBinding): SelectAmountPageModel = copy(
-    form = form.bindFromRequest()
-  )
+  def withFormBound()(implicit request: play.api.mvc.Request[_], formBinding: FormBinding): SelectAmountPageModel =
+    copy(
+      form = form.bindFromRequest()
+    )
 
   def errorSummary(implicit messages: Messages): Option[ErrorSummary] = if (form.hasErrors) {
     val errorLinks = form.errors
       .map { formError =>
         val href = {
-          val inputId = {
+          val inputId =
             formError.key match {
               case "amount" => "different-amount"
-              case "choice" => if (unallocatedCredit.isEmpty) {
-                "choice-full"
-              } else {
-                "choice-suggested"
-              }
+              case "choice" =>
+                if (unallocatedCredit.isEmpty) {
+                  "choice-full"
+                } else {
+                  "choice-suggested"
+                }
             }
-          }
           s"#$inputId"
         }
 
@@ -68,31 +69,35 @@ final case class SelectAmountPageModel(
         )
 
         ErrorLink(
-          href       = Some(href),
-          content    = Text.apply(formError.format),
+          href = Some(href),
+          content = Text.apply(formError.format),
           attributes = attributes
         )
       }
 
-    Option(ErrorSummary(
-      errorList = errorLinks,
-      title     = HtmlContent(s"""<span id="error-summary-title">${messages("selectamount.error-summary.title")}</span>""")
-    ))
+    Option(
+      ErrorSummary(
+        errorList = errorLinks,
+        title =
+          HtmlContent(s"""<span id="error-summary-title">${messages("selectamount.error-summary.title")}</span>""")
+      )
+    )
   } else Option.empty
 
-  def errorMessage(formError: FormError)(implicit messages: Messages): String = messages(formError.message, formError.args: _*)
+  def errorMessage(formError: FormError)(implicit messages: Messages): String =
+    messages(formError.message, formError.args: _*)
 }
 
 object SelectAmountPageModel {
 
   def apply(
-      chosenAmount:                     Option[BigDecimal] = None,
-      partialRepaymentSelected:         Option[Boolean]    = None,
-      totalCreditAvailableForRepayment: BigDecimal,
-      suggestedAmount:                  Option[BigDecimal],
-      suggestedRepaymentSelected:       Option[Boolean]    = None,
-      isAgent:                          Boolean
-  ): SelectAmountPageModel = {
+    chosenAmount:                     Option[BigDecimal] = None,
+    partialRepaymentSelected:         Option[Boolean] = None,
+    totalCreditAvailableForRepayment: BigDecimal,
+    suggestedAmount:                  Option[BigDecimal],
+    suggestedRepaymentSelected:       Option[Boolean] = None,
+    isAgent:                          Boolean
+  ): SelectAmountPageModel =
     SelectAmountPageModel(
       chosenAmount.map(_.toString()),
       partialRepaymentSelected,
@@ -102,15 +107,16 @@ object SelectAmountPageModel {
       suggestedRepaymentSelected,
       isAgent
     )
-  }
 
   final case class SelectAmountForm(amount: BigDecimal, choice: SelectAmountChoice)
 
-  @SuppressWarnings(Array(
-    "org.wartremover.warts.Serializable",
-    "org.wartremover.warts.JavaSerializable",
-    "org.wartremover.warts.Product"
-  ))
+  @SuppressWarnings(
+    Array(
+      "org.wartremover.warts.Serializable",
+      "org.wartremover.warts.JavaSerializable",
+      "org.wartremover.warts.Product"
+    )
+  )
   object SelectAmountForm {
     val min: BigDecimal = 0.01
 
@@ -124,26 +130,37 @@ object SelectAmountPageModel {
       }
     }
 
-    def form(totalCreditAvailableForRepayment: BigDecimal, suggestedAmount: Option[BigDecimal]): Form[SelectAmountForm] = {
+    def form(
+      totalCreditAvailableForRepayment: BigDecimal,
+      suggestedAmount:                  Option[BigDecimal]
+    ): Form[SelectAmountForm] = {
       val amountMapping: Mapping[BigDecimal] = text
         .transform[String](chosenAmount => AmountFormatter.sanitize(Some(chosenAmount)), identity)
-        .verifying("selectamount.amount.error.invalid", str =>
-          Try(BigDecimal(str)).toOption.exists(amount => amount.scale <= 2 && amount.precision <= 10))
+        .verifying(
+          "selectamount.amount.error.invalid",
+          str => Try(BigDecimal(str)).toOption.exists(amount => amount.scale <= 2 && amount.precision <= 10)
+        )
         .transform[BigDecimal](BigDecimal(_), _.toString())
         .verifying(amountOutsideExpectedRange(totalCreditAvailableForRepayment))
 
       def amount: Mapping[BigDecimal] = optional(amountMapping)
         .verifying("selectamount.amount.error.empty", _.nonEmpty)
-        .transform[BigDecimal](_.getOrElse(throw new IllegalArgumentException("[SelectAmountForm][amount] Amount is missing")), Some(_))
+        .transform[BigDecimal](
+          _.getOrElse(throw new IllegalArgumentException("[SelectAmountForm][amount] Amount is missing")),
+          Some(_)
+        )
 
-      def apply(choice: Option[SelectAmountChoice], amount: Option[BigDecimal]): SelectAmountForm = {
+      def apply(choice: Option[SelectAmountChoice], amount: Option[BigDecimal]): SelectAmountForm =
         choice match {
           case Some(Full)      => SelectAmountForm(totalCreditAvailableForRepayment, Full)
-          case Some(Suggested) => SelectAmountForm(suggestedAmount.getOrElse(totalCreditAvailableForRepayment), Suggested)
+          case Some(Suggested) =>
+            SelectAmountForm(suggestedAmount.getOrElse(totalCreditAvailableForRepayment), Suggested)
           case Some(Partial)   => SelectAmountForm(amount.getOrElse(totalCreditAvailableForRepayment), Partial)
-          case other           => throw new IllegalArgumentException(s"[SelectAmountForm][apply] Expected SelectAmountChoice, got: ${other.toString}")
+          case other           =>
+            throw new IllegalArgumentException(
+              s"[SelectAmountForm][apply] Expected SelectAmountChoice, got: ${other.toString}"
+            )
         }
-      }
 
       def unapply(data: SelectAmountForm): Option[(Option[SelectAmountChoice], Option[BigDecimal])] = {
         val different = if (data.amount =!= totalCreditAvailableForRepayment) Partial else Full
@@ -151,12 +168,17 @@ object SelectAmountPageModel {
         Some((Some(different), Some(data.amount)))
       }
 
-      Form(mapping(
-        "choice" -> optional(text)
-          .verifying("selectamount.choice.error.required", { _.isDefined })
-          .transform[Option[SelectAmountChoice]](choice => choice.map(SelectAmountChoice.withNameLowercaseOnly), choice => choice.map(_.toString)),
-        "amount" -> mandatoryIf(isEqual("choice", "partial"), amount)
-      )(apply)(unapply))
+      Form(
+        mapping(
+          "choice" -> optional(text)
+            .verifying("selectamount.choice.error.required", _.isDefined)
+            .transform[Option[SelectAmountChoice]](
+              choice => choice.map(SelectAmountChoice.withNameLowercaseOnly),
+              choice => choice.map(_.toString)
+            ),
+          "amount" -> mandatoryIf(isEqual("choice", "partial"), amount)
+        )(apply)(unapply)
+      )
     }
   }
 }

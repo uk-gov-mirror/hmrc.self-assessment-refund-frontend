@@ -19,23 +19,27 @@ package uk.gov.hmrc.selfassessmentrefundfrontend.model
 import play.api.libs.json.{Json, OFormat}
 
 final case class Amount(
-    fullFromVC:                       Option[BigDecimal],
-    repayment:                        Option[BigDecimal],
-    partialRepaymentSelected:         Option[Boolean]    = None,
-    totalCreditAvailableForRepayment: Option[BigDecimal],
-    unallocatedCredit:                Option[BigDecimal],
-    suggestedRepaymentSelected:       Option[Boolean]    = None
+  fullFromVC:                       Option[BigDecimal],
+  repayment:                        Option[BigDecimal],
+  partialRepaymentSelected:         Option[Boolean] = None,
+  totalCreditAvailableForRepayment: Option[BigDecimal],
+  unallocatedCredit:                Option[BigDecimal],
+  suggestedRepaymentSelected:       Option[Boolean] = None
 ) {
-  def repay: BigDecimal = repayment.getOrElse(totalCreditAvailableForRepayment.getOrElse(throw new Throwable("totalCreditAvailableForRepayment not found for journey")))
+  def repay: BigDecimal = repayment.getOrElse(
+    totalCreditAvailableForRepayment.getOrElse(
+      throw new Throwable("totalCreditAvailableForRepayment not found for journey")
+    )
+  )
 
   def setFullRepayment(repayment: Option[BigDecimal]): Amount =
-    this.copy(repayment                  = repayment, partialRepaymentSelected = Some(false), suggestedRepaymentSelected = Some(false))
+    this.copy(repayment = repayment, partialRepaymentSelected = Some(false), suggestedRepaymentSelected = Some(false))
 
   def setPartialRepayment(repayment: Option[BigDecimal]): Amount =
-    this.copy(repayment                  = repayment, partialRepaymentSelected = Some(true), suggestedRepaymentSelected = Some(false))
+    this.copy(repayment = repayment, partialRepaymentSelected = Some(true), suggestedRepaymentSelected = Some(false))
 
   def setSuggestedRepayment(repayment: Option[BigDecimal]): Amount =
-    this.copy(repayment                  = repayment, partialRepaymentSelected = Some(false), suggestedRepaymentSelected = Some(true))
+    this.copy(repayment = repayment, partialRepaymentSelected = Some(false), suggestedRepaymentSelected = Some(true))
 }
 
 object Amount {

@@ -19,8 +19,8 @@ package uk.gov.hmrc.selfassessmentrefundfrontend.model.repayment
 import play.api.libs.json.{Json, OFormat}
 
 final case class RepaymentCreatedResponse(
-    repaymentRequestNumber: RequestNumber,
-    nrsSubmissionId:        Option[String]
+  repaymentRequestNumber: RequestNumber,
+  nrsSubmissionId:        Option[String]
 )
 
 object RepaymentCreatedResponse {

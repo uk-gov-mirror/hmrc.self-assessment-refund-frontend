@@ -28,9 +28,9 @@ object ScoverageSettings {
 
   lazy val settings: Seq[Def.Setting[?]] =
     Seq(
-      ScoverageKeys.coverageExcludedPackages := coverageExcludedPackages.mkString(";"),
+      ScoverageKeys.coverageExcludedPackages := coverageExcludedPackages.mkString(","),
       ScoverageKeys.coverageMinimumStmtTotal := 80.00,
-      ScoverageKeys.coverageExcludedFiles := coverageExcludedFiles.mkString(";"),
+      ScoverageKeys.coverageExcludedFiles := coverageExcludedFiles.mkString(","),
       ScoverageKeys.coverageFailOnMinimum := false,
       ScoverageKeys.coverageHighlighting := true
     )

@@ -20,8 +20,8 @@ import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.customer.Nino
 
 final case class JourneyWithOptNino(
-    journeyId: JourneyId,
-    nino:      Option[Nino]
+  journeyId: JourneyId,
+  nino:      Option[Nino]
 )
 
 object JourneyWithOptNino {

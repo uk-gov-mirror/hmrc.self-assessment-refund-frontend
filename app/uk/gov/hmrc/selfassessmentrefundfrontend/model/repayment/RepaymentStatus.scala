@@ -24,22 +24,22 @@ sealed trait RepaymentStatus derives CanEqual {
 
 object RepaymentStatus {
   case object Processing extends RepaymentStatus {
-    override val id: String = "processing"
+    override val id: String     = "processing"
     override val colour: String = "blue"
   }
 
   case object ProcessingRisking extends RepaymentStatus {
-    override val id: String = "processing"
+    override val id: String     = "processing"
     override val colour: String = "blue"
   }
 
   case object Approved extends RepaymentStatus {
-    override val id: String = "approved"
+    override val id: String     = "approved"
     override val colour: String = "turquoise"
   }
 
   case object Rejected extends RepaymentStatus {
-    override val id: String = "rejected"
+    override val id: String     = "rejected"
     override val colour: String = "red"
   }
 }

@@ -19,11 +19,11 @@ package uk.gov.hmrc.selfassessmentrefundfrontend.audit.model.bars
 import play.api.libs.json.{Json, OWrites}
 
 final case class BarsUserEnteredDetails(
-    accountType:       String,
-    accountHolderName: String,
-    sortCode:          String,
-    accountNumber:     String,
-    rollNumber:        Option[String]
+  accountType:       String,
+  accountHolderName: String,
+  sortCode:          String,
+  accountNumber:     String,
+  rollNumber:        Option[String]
 )
 
 object BarsUserEnteredDetails {

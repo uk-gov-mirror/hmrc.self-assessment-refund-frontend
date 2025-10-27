@@ -19,8 +19,8 @@ package uk.gov.hmrc.selfassessmentrefundfrontend.bars.model.request
 import play.api.libs.json.{Json, OFormat}
 
 final case class BarsVerifyBusinessRequest(
-    account:  BarsBankAccount,
-    business: BarsBusiness
+  account:  BarsBankAccount,
+  business: BarsBusiness
 )
 
 object BarsVerifyBusinessRequest {

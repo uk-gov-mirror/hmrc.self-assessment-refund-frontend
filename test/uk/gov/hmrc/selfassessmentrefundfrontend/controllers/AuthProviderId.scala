@@ -22,11 +22,13 @@ import uk.gov.hmrc.auth.core.retrieve.{Retrieval, SimpleRetrieval}
 object AuthProviderId {
   val reads: Reads[String] = Reads[String] { json =>
     JsSuccess(
-      json.as[JsObject].
-        fields
+      json
+        .as[JsObject]
+        .fields
         .headOption
         .getOrElse(sys.error("Could not find auth provider id"))
-        ._2.as[String]
+        ._2
+        .as[String]
     )
   }
 

@@ -26,9 +26,16 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ErrorHandler @Inject() (errorTemplate: ErrorTemplate, internalServerErrorTemplate: InternalServerErrorTemplate, val messagesApi: MessagesApi, implicit val ec: ExecutionContext) extends FrontendErrorHandler {
+class ErrorHandler @Inject() (
+  errorTemplate:               ErrorTemplate,
+  internalServerErrorTemplate: InternalServerErrorTemplate,
+  val messagesApi:             MessagesApi,
+  implicit val ec:             ExecutionContext
+) extends FrontendErrorHandler {
 
-  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: RequestHeader): Future[Html] =
+  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit
+    request: RequestHeader
+  ): Future[Html] =
     Future.successful(errorTemplate(pageTitle, heading, message))
 
   override def internalServerErrorTemplate(implicit request: RequestHeader): Future[Html] =
@@ -40,6 +47,10 @@ class ErrorHandler @Inject() (errorTemplate: ErrorTemplate, internalServerErrorT
   private def getServiceName(implicit request: RequestHeader): String = {
     val pathParts: Array[String] = request.path.split("/")
 
-    if (pathParts.contains("track-a-self-assessment-refund") || request.headers.get("Referer").exists(_.contains("ViewHistory"))) "track" else "refund"
+    if (
+      pathParts
+        .contains("track-a-self-assessment-refund") || request.headers.get("Referer").exists(_.contains("ViewHistory"))
+    ) "track"
+    else "refund"
   }
 }

@@ -24,45 +24,55 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.util.AmountFormatter
 
 trait CheckYourAnswersPageTesting extends PageContentTesting {
   def checkPageContent(
-      accountType:      String,
-      bankAccountInfo:  BankAccountInfo,
-      amountToBeRepaid: BigDecimal
+    accountType:      String,
+    bankAccountInfo:  BankAccountInfo,
+    amountToBeRepaid: BigDecimal
   )(doc: Document): Unit = {
 
     doc.checkHasBackLinkWithUrl("#")
     doc.checkHasSummaryList(
-      keyValuePairs          = List(
+      keyValuePairs = List(
         ("Refund amount", AmountFormatter.formatAmount(amountToBeRepaid)),
         ("Bank account type", accountType),
-        ("Bank account details", s"${bankAccountInfo.name} ${bankAccountInfo.sortCode.displayFormat} ${bankAccountInfo.accountNumber.value}"),
+        (
+          "Bank account details",
+          s"${bankAccountInfo.name} ${bankAccountInfo.sortCode.displayFormat} ${bankAccountInfo.accountNumber.value}"
+        )
       ),
-      maybeLinkTextHrefPairs = Some(List(
-        ("Change", "/request-a-self-assessment-refund/check-your-answers-change-amount"),
-        ("Change", "/request-a-self-assessment-refund/check-your-answers-change-account"),
-        ("Change", "/request-a-self-assessment-refund/bank-building-society-details"),
-      ))
+      maybeLinkTextHrefPairs = Some(
+        List(
+          ("Change", "/request-a-self-assessment-refund/check-your-answers-change-amount"),
+          ("Change", "/request-a-self-assessment-refund/check-your-answers-change-account"),
+          ("Change", "/request-a-self-assessment-refund/bank-building-society-details")
+        )
+      )
     )
 
     doc.checkHasFormAction("Confirm and continue", routes.CheckYourAnswersPageController.confirm)
   }
   def checkPageContentWelsh(
-      accountType:      String,
-      bankAccountInfo:  BankAccountInfo,
-      amountToBeRepaid: BigDecimal
+    accountType:      String,
+    bankAccountInfo:  BankAccountInfo,
+    amountToBeRepaid: BigDecimal
   )(doc: Document): Unit = {
 
     doc.checkHasBackLinkWithUrl("#")
     doc.checkHasSummaryList(
-      keyValuePairs          = List(
+      keyValuePairs = List(
         ("Swm yr ad-daliad", AmountFormatter.formatAmount(amountToBeRepaid)),
         ("Math o gyfrif banc", accountType),
-        ("Manylion cyfrif banc", s"${bankAccountInfo.name} ${bankAccountInfo.sortCode.displayFormat} ${bankAccountInfo.accountNumber.value}"),
+        (
+          "Manylion cyfrif banc",
+          s"${bankAccountInfo.name} ${bankAccountInfo.sortCode.displayFormat} ${bankAccountInfo.accountNumber.value}"
+        )
       ),
-      maybeLinkTextHrefPairs = Some(List(
-        ("Newid", "/request-a-self-assessment-refund/check-your-answers-change-amount"),
-        ("Newid", "/request-a-self-assessment-refund/check-your-answers-change-account"),
-        ("Newid", "/request-a-self-assessment-refund/bank-building-society-details"),
-      ))
+      maybeLinkTextHrefPairs = Some(
+        List(
+          ("Newid", "/request-a-self-assessment-refund/check-your-answers-change-amount"),
+          ("Newid", "/request-a-self-assessment-refund/check-your-answers-change-account"),
+          ("Newid", "/request-a-self-assessment-refund/bank-building-society-details")
+        )
+      )
     )
 
     doc.checkHasFormAction("Cadarnhau ac yn eich blaen", routes.CheckYourAnswersPageController.confirm)

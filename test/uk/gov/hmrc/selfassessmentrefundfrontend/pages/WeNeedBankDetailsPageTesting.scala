@@ -26,13 +26,17 @@ trait WeNeedBankDetailsPageTesting extends PageContentTesting {
     doc.checkHasBackLinkWithUrl("#")
 
     if (isAgent) {
-      doc.checkHasParagraphs(List(
-        "To get a refund, you need to enter your client’s bank details."
-      ))
+      doc.checkHasParagraphs(
+        List(
+          "To get a refund, you need to enter your client’s bank details."
+        )
+      )
     } else {
-      doc.checkHasParagraphs(List(
-        "To get a refund, you need to enter your own or your agent’s bank details."
-      ))
+      doc.checkHasParagraphs(
+        List(
+          "To get a refund, you need to enter your own or your agent’s bank details."
+        )
+      )
     }
 
     doc.checkHasFormActionAsContinueButton(
@@ -44,13 +48,17 @@ trait WeNeedBankDetailsPageTesting extends PageContentTesting {
     doc.checkHasBackLinkWithUrl("#")
 
     if (isAgent) {
-      doc.checkHasParagraphs(List(
-        "I gael ad-daliad, mae angen i chi nodi manylion banc eich cleient."
-      ))
+      doc.checkHasParagraphs(
+        List(
+          "I gael ad-daliad, mae angen i chi nodi manylion banc eich cleient."
+        )
+      )
     } else {
-      doc.checkHasParagraphs(List(
-        "I gael ad-daliad, mae angen i chi nodi eich manylion banc chi, neu rai eich asiant."
-      ))
+      doc.checkHasParagraphs(
+        List(
+          "I gael ad-daliad, mae angen i chi nodi eich manylion banc chi, neu rai eich asiant."
+        )
+      )
     }
 
     doc.checkHasFormActionAsContinueButton(

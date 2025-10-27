@@ -25,21 +25,23 @@ import uk.gov.hmrc.selfassessmentrefundfrontent.util.CanEqualGivens.affinityGrou
 object AuthStub {
 
   def authorise(
-      affinityGroup:   AffinityGroup,
-      confidenceLevel: ConfidenceLevel
+    affinityGroup:   AffinityGroup,
+    confidenceLevel: ConfidenceLevel
   ): StubMapping = {
 
     val authoriseJsonBody = Json.obj(
-      "affinityGroup" -> affinityGroup.toString,
+      "affinityGroup"   -> affinityGroup.toString,
       "confidenceLevel" -> confidenceLevel.level,
-      "allEnrolments" -> allEnrolments(affinityGroup, confidenceLevel)
+      "allEnrolments"   -> allEnrolments(affinityGroup, confidenceLevel)
     )
 
     stubFor(
       post(urlPathEqualTo("/auth/authorise"))
-        .willReturn(aResponse()
-          .withStatus(200)
-          .withBody(Json.prettyPrint(authoriseJsonBody)))
+        .willReturn(
+          aResponse()
+            .withStatus(200)
+            .withBody(Json.prettyPrint(authoriseJsonBody))
+        )
     )
   }
 
@@ -48,28 +50,32 @@ object AuthStub {
       case AffinityGroup.Agent =>
         Json.arr(
           Json.obj(
-            "key" -> "HMRC-MTD-IT",
-            "identifiers" -> Json.arr(Json.obj(
-              "key" -> "MTDITID",
-              "value" -> "123"
-            )),
-            "state" -> "Activated",
+            "key"             -> "HMRC-MTD-IT",
+            "identifiers"     -> Json.arr(
+              Json.obj(
+                "key"   -> "MTDITID",
+                "value" -> "123"
+              )
+            ),
+            "state"           -> "Activated",
             "confidenceLevel" -> confidenceLevel.level
           ),
           Json.obj(
-            "key" -> "HMRC-AS-AGENT",
-            "identifiers" -> Json.arr(Json.obj(
-              "key" -> "AgentReferenceNumber",
-              "value" -> "AARN1234567"
-            )),
-            "state" -> "Activated",
+            "key"             -> "HMRC-AS-AGENT",
+            "identifiers"     -> Json.arr(
+              Json.obj(
+                "key"   -> "AgentReferenceNumber",
+                "value" -> "AARN1234567"
+              )
+            ),
+            "state"           -> "Activated",
             "confidenceLevel" -> confidenceLevel.level
           )
         )
-      case _ => Json.arr()
+      case _                   => Json.arr()
     }
 
-  def authoriseAgentL50(): StubMapping = authorise(AffinityGroup.Agent, ConfidenceLevel.L50)
+  def authoriseAgentL50(): StubMapping         = authorise(AffinityGroup.Agent, ConfidenceLevel.L50)
   def authoriseOrganisationL250(): StubMapping = authorise(AffinityGroup.Organisation, ConfidenceLevel.L250)
-  def authoriseIndividualL250(): StubMapping = authorise(AffinityGroup.Individual, ConfidenceLevel.L250)
+  def authoriseIndividualL250(): StubMapping   = authorise(AffinityGroup.Individual, ConfidenceLevel.L250)
 }

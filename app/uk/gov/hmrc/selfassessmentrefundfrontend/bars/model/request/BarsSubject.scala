@@ -19,12 +19,12 @@ package uk.gov.hmrc.selfassessmentrefundfrontend.bars.model.request
 import play.api.libs.json.{Json, OFormat}
 
 final case class BarsSubject(
-    title:     Option[String], // e.g. "Mr" etc; must >= 2 character and <= 35 characters long
-    name:      Option[String], // Must be between 1 and 70 characters long
-    firstName: Option[String], // Must be between 1 and 35 characters long
-    lastName:  Option[String], // Must be between 1 and 35 characters long
-    dob:       Option[String], // date of birth: ISO-8601 YYYY-MM-DD
-    address:   Option[BarsAddress]
+  title:     Option[String], // e.g. "Mr" etc; must >= 2 character and <= 35 characters long
+  name:      Option[String], // Must be between 1 and 70 characters long
+  firstName: Option[String], // Must be between 1 and 35 characters long
+  lastName:  Option[String], // Must be between 1 and 35 characters long
+  dob:       Option[String], // date of birth: ISO-8601 YYYY-MM-DD
+  address:   Option[BarsAddress]
 ) {
   require(
     (name.isEmpty && firstName.isDefined && lastName.isDefined) ||

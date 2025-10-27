@@ -22,11 +22,11 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.action.request.{Auth
 import javax.inject.Inject
 
 class Actions @Inject() (
-    actionBuilder:                     DefaultActionBuilder,
-    preAuthSessionRefiner:             PreAuthSessionRefiner,
-    authorisedSessionRefiner:          AuthorisedSessionRefiner,
-    barsLockoutActionRefiner:          BarsLockoutActionRefiner,
-    barsLockedOutJourneyActionRefiner: BarsLockedOutJourneyActionRefiner
+  actionBuilder:                     DefaultActionBuilder,
+  preAuthSessionRefiner:             PreAuthSessionRefiner,
+  authorisedSessionRefiner:          AuthorisedSessionRefiner,
+  barsLockoutActionRefiner:          BarsLockoutActionRefiner,
+  barsLockedOutJourneyActionRefiner: BarsLockedOutJourneyActionRefiner
 ) {
 
   val default: ActionBuilder[Request, AnyContent] = actionBuilder
@@ -48,4 +48,3 @@ class Actions @Inject() (
       .andThen[AuthenticatedRequest](authorisedSessionRefiner)
       .andThen[LockedOutJourneyRequest](barsLockedOutJourneyActionRefiner)
 }
-

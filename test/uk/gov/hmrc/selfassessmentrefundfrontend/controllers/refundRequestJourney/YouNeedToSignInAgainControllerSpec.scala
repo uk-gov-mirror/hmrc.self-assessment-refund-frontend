@@ -37,10 +37,10 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.testdata.TdSupport.FakeRequestOp
 import scala.concurrent.Future
 
 class YouNeedToSignInAgainControllerSpec
-  extends ItSpec
-  with GuiceOneAppPerSuite
-  with WireMockSupport
-  with YouNeedToSignInAgainPageTesting {
+    extends ItSpec
+    with GuiceOneAppPerSuite
+    with WireMockSupport
+    with YouNeedToSignInAgainPageTesting {
   that: TestSuite =>
 
   private val youNeedToSignInAgainController = app.injector.instanceOf[YouNeedToSignInAgainController]
@@ -53,16 +53,16 @@ class YouNeedToSignInAgainControllerSpec
 
   override def fakeAuthConnector: Option[AuthConnector] = None
 
-  private val PageHeading = "For your security, you need to sign in again"
+  private val PageHeading      = "For your security, you need to sign in again"
   private val PageHeadingWelsh = "Er eich diogelwch, mae angen i chi fewngofnodi eto"
 
   @SuppressWarnings(Array("org.wartremover.warts.AnyVal"))
   override lazy val configOverrides: Map[String, Any] = Map(
-    "auditing.enabled" -> true,
+    "auditing.enabled"               -> true,
     "auditing.consumer.baseUri.port" -> wireMockServer.port
   )
 
-  val headers: Map[String, JsString] = Map[String, JsString](
+  val headers: Map[String, JsString]                 = Map[String, JsString](
     "Host" -> JsString("localhost")
   )
   val createRepaymentRequest: CreateRepaymentRequest = CreateRepaymentRequest(
@@ -72,16 +72,18 @@ class YouNeedToSignInAgainControllerSpec
   trait JourneyFixture {
     val sessionId: SessionId = SessionId(TdAll.sessionId)
     val journeyId: JourneyId = TdAll.journeyId
-    val nino: Nino = Nino("AA111111A")
+    val nino: Nino           = Nino("AA111111A")
   }
 
   trait RequestWithSessionFixture extends JourneyFixture {
-    val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(SessionKeys.sessionId -> sessionId.value).withAuthToken()
+    val request: FakeRequest[AnyContentAsEmpty.type] =
+      FakeRequest().withSession(SessionKeys.sessionId -> sessionId.value).withAuthToken()
   }
 
   "GET /sign-in-again" when {
     val fakeRequest = FakeRequest("GET", "/request-a-self-assessment-refund/sign-in-again")
-      .withSessionId().withAuthToken()
+      .withSessionId()
+      .withAuthToken()
 
     "called" should {
       "display 'you will need to sign in again' page with correct content" in {
@@ -91,11 +93,11 @@ class YouNeedToSignInAgainControllerSpec
         val result: Future[Result] = youNeedToSignInAgainController.onPageLoad(fakeRequest)
 
         result.checkPageIsDisplayed(
-          expectedHeading     = PageHeading,
+          expectedHeading = PageHeading,
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-          contentChecks       = checkPageContent,
-          expectedStatus      = Status.OK,
-          journey             = "request"
+          contentChecks = checkPageContent,
+          expectedStatus = Status.OK,
+          journey = "request"
         )
       }
       "display 'you will need to sign in again' page with correct content for Agents" in {
@@ -106,26 +108,27 @@ class YouNeedToSignInAgainControllerSpec
         val result: Future[Result] = youNeedToSignInAgainController.onPageLoad(fakeRequest)
 
         result.checkPageIsDisplayed(
-          expectedHeading     = PageHeading,
+          expectedHeading = PageHeading,
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/agents/claim-refund",
-          contentChecks       = checkPageContent,
-          expectedStatus      = Status.OK,
-          journey             = "request"
+          contentChecks = checkPageContent,
+          expectedStatus = Status.OK,
+          journey = "request"
         )
       }
       "display welsh 'you will need to sign in again' page with correct content" in {
         stubBackendJourneyId()
         stubBackendPersonalJourney()
 
-        val result: Future[Result] = youNeedToSignInAgainController.onPageLoad(fakeRequest.withCookies(Cookie("PLAY_LANG", "cy")))
+        val result: Future[Result] =
+          youNeedToSignInAgainController.onPageLoad(fakeRequest.withCookies(Cookie("PLAY_LANG", "cy")))
 
         result.checkPageIsDisplayed(
-          expectedHeading     = PageHeadingWelsh,
+          expectedHeading = PageHeadingWelsh,
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-          contentChecks       = checkPageContentWelsh,
-          expectedStatus      = Status.OK,
-          journey             = "request",
-          welsh               = true
+          contentChecks = checkPageContentWelsh,
+          expectedStatus = Status.OK,
+          journey = "request",
+          welsh = true
         )
       }
     }
@@ -133,7 +136,8 @@ class YouNeedToSignInAgainControllerSpec
 
   "POST /sign-in-again" when {
     val fakeRequest = FakeRequest("POST", "/request-a-self-assessment-refund/sign-in-again")
-      .withSessionId().withAuthToken()
+      .withSessionId()
+      .withAuthToken()
 
     "called" should {
       "redirect to /request-a-self-assessment-refund/reauthentication" in {
@@ -159,8 +163,11 @@ class YouNeedToSignInAgainControllerSpec
           status(response) shouldBe SEE_OTHER
           redirectLocation(response) shouldBe Some(s"/request-a-self-assessment-refund/refund-request-not-submitted")
 
-          AuditStub.verifyEventAudited("RefundRequest", Json.parse(
-            """
+          AuditStub.verifyEventAudited(
+            "RefundRequest",
+            Json
+              .parse(
+                """
               |{
               |  "etmpResult": "Fail",
               |  "userType": "Individual",
@@ -176,7 +183,9 @@ class YouNeedToSignInAgainControllerSpec
               |    "accountNumber": "12345678"
               |  }
               |}""".stripMargin
-          ).as[JsObject])
+              )
+              .as[JsObject]
+          )
         }
       }
 
@@ -189,8 +198,11 @@ class YouNeedToSignInAgainControllerSpec
           status(response) shouldBe SEE_OTHER
           redirectLocation(response) shouldBe Some(s"/request-a-self-assessment-refund/refund-request-not-submitted")
 
-          AuditStub.verifyEventAudited("RefundRequest", Json.parse(
-            """
+          AuditStub.verifyEventAudited(
+            "RefundRequest",
+            Json
+              .parse(
+                """
               |{
               |  "etmpResult": "Fail",
               |  "userType": "Individual",
@@ -206,7 +218,9 @@ class YouNeedToSignInAgainControllerSpec
               |    "accountNumber": "12345678"
               |  }
               |}""".stripMargin
-          ).as[JsObject])
+              )
+              .as[JsObject]
+          )
         }
       }
 
@@ -218,10 +232,15 @@ class YouNeedToSignInAgainControllerSpec
 
           val response = youNeedToSignInAgainController.reauthSuccessful(request)
           status(response) shouldBe SEE_OTHER
-          redirectLocation(response) shouldBe Some(s"/request-a-self-assessment-refund/refund-request-received/${TdAll.no1.value}")
+          redirectLocation(response) shouldBe Some(
+            s"/request-a-self-assessment-refund/refund-request-received/${TdAll.no1.value}"
+          )
 
-          AuditStub.verifyEventAudited("RefundRequest", Json.parse(
-            """
+          AuditStub.verifyEventAudited(
+            "RefundRequest",
+            Json
+              .parse(
+                """
               |{
               |  "etmpResult": "Success",
               |  "userType": "Individual",
@@ -238,7 +257,9 @@ class YouNeedToSignInAgainControllerSpec
               |    "accountNumber": "12345678"
               |  }
               |}""".stripMargin
-          ).as[JsObject])
+              )
+              .as[JsObject]
+          )
         }
 
         "redirect to GET /refund-request-confirmation/:journeyId (RepaymentCreatedResponse with no nrsSubmissionId variation)" in new RequestWithSessionFixture {
@@ -248,10 +269,15 @@ class YouNeedToSignInAgainControllerSpec
 
           val response = youNeedToSignInAgainController.reauthSuccessful(request)
           status(response) shouldBe SEE_OTHER
-          redirectLocation(response) shouldBe Some(s"/request-a-self-assessment-refund/refund-request-received/${TdAll.no1.value}")
+          redirectLocation(response) shouldBe Some(
+            s"/request-a-self-assessment-refund/refund-request-received/${TdAll.no1.value}"
+          )
 
-          AuditStub.verifyEventAudited("RefundRequest", Json.parse(
-            """
+          AuditStub.verifyEventAudited(
+            "RefundRequest",
+            Json
+              .parse(
+                """
               |{
               |  "etmpResult": "Success",
               |  "userType": "Individual",
@@ -268,7 +294,9 @@ class YouNeedToSignInAgainControllerSpec
               |    "accountNumber": "12345678"
               |  }
               |}""".stripMargin
-          ).as[JsObject])
+              )
+              .as[JsObject]
+          )
         }
       }
 
@@ -283,8 +311,11 @@ class YouNeedToSignInAgainControllerSpec
           status(response) shouldBe SEE_OTHER
           redirectLocation(response) shouldBe Some(s"/request-a-self-assessment-refund/refund-request-not-submitted")
 
-          AuditStub.verifyEventAudited("RefundRequest", Json.parse(
-            """
+          AuditStub.verifyEventAudited(
+            "RefundRequest",
+            Json
+              .parse(
+                """
               |{
               |  "etmpResult": "Fail",
               |  "userType": "Individual",
@@ -300,7 +331,9 @@ class YouNeedToSignInAgainControllerSpec
               |    "accountNumber": "12345678"
               |  }
               |}""".stripMargin
-          ).as[JsObject])
+              )
+              .as[JsObject]
+          )
         }
       }
     }

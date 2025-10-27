@@ -45,7 +45,8 @@ object TdSupport {
 
   implicit class FakeRequestOps[T](r: FakeRequest[T]) {
 
-    def withAuthToken(authToken: String = TdAll.authToken): FakeRequest[T] = r.withSession((SessionKeys.authToken, authToken))
+    def withAuthToken(authToken: String = TdAll.authToken): FakeRequest[T] =
+      r.withSession((SessionKeys.authToken, authToken))
 
     def withRequestId(requestId: String = TdAll.requestId): FakeRequest[T] = r.withHeaders(
       HeaderNames.xRequestId -> requestId

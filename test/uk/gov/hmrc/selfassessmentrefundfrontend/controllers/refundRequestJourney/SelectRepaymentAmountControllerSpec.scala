@@ -40,10 +40,10 @@ import java.time.OffsetDateTime
 import scala.concurrent.Future
 
 class SelectRepaymentAmountControllerSpec
-  extends ItSpec
-  with GuiceOneAppPerSuite
-  with WireMockSupport
-  with SelectAmountPageTesting {
+    extends ItSpec
+    with GuiceOneAppPerSuite
+    with WireMockSupport
+    with SelectAmountPageTesting {
   that: TestSuite =>
 
   override def beforeEach(): Unit = {
@@ -56,12 +56,13 @@ class SelectRepaymentAmountControllerSpec
 
   private val amountController = app.injector.instanceOf[SelectRepaymentAmountController]
 
-  private val selectAmountPageHeading = "How much do you want to be refunded?"
+  private val selectAmountPageHeading      = "How much do you want to be refunded?"
   private val selectAmountPageHeadingWelsh = "Faint o ad-daliad yr hoffech ei gael?"
 
   "GET /refund-amount" when {
     val fakeRequest = FakeRequest("GET", "/request-a-self-assessment-refund/refund-amount")
-      .withSessionId().withAuthToken()
+      .withSessionId()
+      .withAuthToken()
 
     "a journey is found" when {
       "an amount is found via the backend" should {
@@ -72,11 +73,11 @@ class SelectRepaymentAmountControllerSpec
           val result: Future[Result] = amountController.selectAmount(fakeRequest)
 
           result.checkPageIsDisplayed(
-            expectedHeading     = selectAmountPageHeading,
+            expectedHeading = selectAmountPageHeading,
             expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-            contentChecks       = checkPageContent(testAmount),
-            expectedStatus      = Status.OK,
-            journey             = "request"
+            contentChecks = checkPageContent(testAmount),
+            expectedStatus = Status.OK,
+            journey = "request"
           )
         }
 
@@ -87,17 +88,23 @@ class SelectRepaymentAmountControllerSpec
           val result: Future[Result] = amountController.selectAmount(fakeRequest.withCookies(Cookie("PLAY_LANG", "cy")))
 
           result.checkPageIsDisplayed(
-            expectedHeading     = selectAmountPageHeadingWelsh,
+            expectedHeading = selectAmountPageHeadingWelsh,
             expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-            contentChecks       = checkPageContentWelsh(testAmount),
-            expectedStatus      = Status.OK,
-            journey             = "request",
-            welsh               = true
+            contentChecks = checkPageContentWelsh(testAmount),
+            expectedStatus = Status.OK,
+            journey = "request",
+            welsh = true
           )
         }
 
         "display 'select amount' page without suggested amount option if unallocatedCredit is less than 0" in {
-          val amount = Amount(Some(BigDecimal(45.67)), None, None, totalCreditAvailableForRepayment = Some(BigDecimal(45.67)), unallocatedCredit = Some(BigDecimal(-122.34)))
+          val amount = Amount(
+            Some(BigDecimal(45.67)),
+            None,
+            None,
+            totalCreditAvailableForRepayment = Some(BigDecimal(45.67)),
+            unallocatedCredit = Some(BigDecimal(-122.34))
+          )
 
           stubBackendJourneyId()
           stubBackendBusinessJourney(backReturnUrl = true, amount = Some(amount))
@@ -105,16 +112,22 @@ class SelectRepaymentAmountControllerSpec
           val result: Future[Result] = amountController.selectAmount(fakeRequest)
 
           result.checkPageIsDisplayed(
-            expectedHeading     = selectAmountPageHeading,
+            expectedHeading = selectAmountPageHeading,
             expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-            contentChecks       = checkPageContent(amount, withoutSuggestedAmount = true),
-            expectedStatus      = Status.OK,
-            journey             = "request"
+            contentChecks = checkPageContent(amount, withoutSuggestedAmount = true),
+            expectedStatus = Status.OK,
+            journey = "request"
           )
         }
 
         "display 'select amount' page without suggested amount option if unallocatedCredit is 0" in {
-          val amount = Amount(Some(BigDecimal(45.67)), None, None, totalCreditAvailableForRepayment = Some(BigDecimal(45.67)), unallocatedCredit = Some(BigDecimal(0.0)))
+          val amount = Amount(
+            Some(BigDecimal(45.67)),
+            None,
+            None,
+            totalCreditAvailableForRepayment = Some(BigDecimal(45.67)),
+            unallocatedCredit = Some(BigDecimal(0.0))
+          )
 
           stubBackendJourneyId()
           stubBackendBusinessJourney(backReturnUrl = true, amount = Some(amount))
@@ -122,16 +135,22 @@ class SelectRepaymentAmountControllerSpec
           val result: Future[Result] = amountController.selectAmount(fakeRequest)
 
           result.checkPageIsDisplayed(
-            expectedHeading     = selectAmountPageHeading,
+            expectedHeading = selectAmountPageHeading,
             expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-            contentChecks       = checkPageContent(amount, withoutSuggestedAmount = true),
-            expectedStatus      = Status.OK,
-            journey             = "request"
+            contentChecks = checkPageContent(amount, withoutSuggestedAmount = true),
+            expectedStatus = Status.OK,
+            journey = "request"
           )
         }
 
         "display 'select amount' page without suggested amount option if unallocatedCredit is greater than total available for repayment" in {
-          val amount = Amount(Some(BigDecimal(45.67)), None, None, totalCreditAvailableForRepayment = Some(BigDecimal(45.67)), unallocatedCredit = Some(BigDecimal(123.45)))
+          val amount = Amount(
+            Some(BigDecimal(45.67)),
+            None,
+            None,
+            totalCreditAvailableForRepayment = Some(BigDecimal(45.67)),
+            unallocatedCredit = Some(BigDecimal(123.45))
+          )
 
           stubBackendJourneyId()
           stubBackendBusinessJourney(backReturnUrl = true, amount = Some(amount))
@@ -139,16 +158,22 @@ class SelectRepaymentAmountControllerSpec
           val result: Future[Result] = amountController.selectAmount(fakeRequest)
 
           result.checkPageIsDisplayed(
-            expectedHeading     = selectAmountPageHeading,
+            expectedHeading = selectAmountPageHeading,
             expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-            contentChecks       = checkPageContent(amount, withoutSuggestedAmount = true),
-            expectedStatus      = Status.OK,
-            journey             = "request"
+            contentChecks = checkPageContent(amount, withoutSuggestedAmount = true),
+            expectedStatus = Status.OK,
+            journey = "request"
           )
         }
 
         "display 'select amount' page without suggested amount option if unallocatedCredit is equal total available for repayment" in {
-          val amount = Amount(Some(BigDecimal(45.67)), None, None, totalCreditAvailableForRepayment = Some(BigDecimal(45.67)), unallocatedCredit = Some(BigDecimal(45.67)))
+          val amount = Amount(
+            Some(BigDecimal(45.67)),
+            None,
+            None,
+            totalCreditAvailableForRepayment = Some(BigDecimal(45.67)),
+            unallocatedCredit = Some(BigDecimal(45.67))
+          )
 
           stubBackendJourneyId()
           stubBackendBusinessJourney(backReturnUrl = true, amount = Some(amount))
@@ -156,16 +181,22 @@ class SelectRepaymentAmountControllerSpec
           val result: Future[Result] = amountController.selectAmount(fakeRequest)
 
           result.checkPageIsDisplayed(
-            expectedHeading     = selectAmountPageHeading,
+            expectedHeading = selectAmountPageHeading,
             expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-            contentChecks       = checkPageContent(amount, withoutSuggestedAmount = true),
-            expectedStatus      = Status.OK,
-            journey             = "request"
+            contentChecks = checkPageContent(amount, withoutSuggestedAmount = true),
+            expectedStatus = Status.OK,
+            journey = "request"
           )
         }
 
         "display 'there is a problem' page if amount from V&C is not matching the amount from HIP-API#5277" in {
-          val amount = Amount(Some(BigDecimal(123)), None, None, totalCreditAvailableForRepayment = Some(BigDecimal(122)), unallocatedCredit = Some(BigDecimal(45)))
+          val amount = Amount(
+            Some(BigDecimal(123)),
+            None,
+            None,
+            totalCreditAvailableForRepayment = Some(BigDecimal(122)),
+            unallocatedCredit = Some(BigDecimal(45))
+          )
 
           stubBackendJourneyId()
           stubBackendBusinessJourney(backReturnUrl = true, amount = Some(amount))
@@ -173,11 +204,11 @@ class SelectRepaymentAmountControllerSpec
           val result: Future[Result] = amountController.selectAmount(fakeRequest)
 
           result.checkPageIsDisplayed(
-            expectedHeading     = "Sorry, there is a problem with the service",
+            expectedHeading = "Sorry, there is a problem with the service",
             expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-            journey             = "request",
-            expectedStatus      = Status.INTERNAL_SERVER_ERROR,
-            withBackButton      = false
+            journey = "request",
+            expectedStatus = Status.INTERNAL_SERVER_ERROR,
+            withBackButton = false
           )
         }
 
@@ -188,26 +219,29 @@ class SelectRepaymentAmountControllerSpec
           val result: Future[Result] = amountController.selectAmount(fakeRequest)
 
           result.checkPageIsDisplayed(
-            expectedHeading     = "Sorry, there is a problem with the service",
+            expectedHeading = "Sorry, there is a problem with the service",
             expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-            journey             = "request",
-            expectedStatus      = Status.INTERNAL_SERVER_ERROR,
-            withBackButton      = false
+            journey = "request",
+            expectedStatus = Status.INTERNAL_SERVER_ERROR,
+            withBackButton = false
           )
         }
 
         "display 'there is a problem' page if totalCreditAvailableForRepayment in amount is missing" in {
           stubBackendJourneyId()
-          stubBackendBusinessJourney(backReturnUrl = true, amount = Some(testAmount.copy(totalCreditAvailableForRepayment = None)))
+          stubBackendBusinessJourney(
+            backReturnUrl = true,
+            amount = Some(testAmount.copy(totalCreditAvailableForRepayment = None))
+          )
 
           val result: Future[Result] = amountController.selectAmount(fakeRequest)
 
           result.checkPageIsDisplayed(
-            expectedHeading     = "Sorry, there is a problem with the service",
+            expectedHeading = "Sorry, there is a problem with the service",
             expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-            journey             = "request",
-            expectedStatus      = Status.INTERNAL_SERVER_ERROR,
-            withBackButton      = false
+            journey = "request",
+            expectedStatus = Status.INTERNAL_SERVER_ERROR,
+            withBackButton = false
           )
         }
 
@@ -218,41 +252,47 @@ class SelectRepaymentAmountControllerSpec
           val result: Future[Result] = amountController.selectAmount(fakeRequest)
 
           result.checkPageIsDisplayed(
-            expectedHeading     = "Sorry, there is a problem with the service",
+            expectedHeading = "Sorry, there is a problem with the service",
             expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-            journey             = "request",
-            expectedStatus      = Status.INTERNAL_SERVER_ERROR,
-            withBackButton      = false
+            journey = "request",
+            expectedStatus = Status.INTERNAL_SERVER_ERROR,
+            withBackButton = false
           )
         }
 
         "display 'there is a problem' page if totalCreditAvailableForRepayment in amount is 0" in {
           stubBackendJourneyId()
-          stubBackendBusinessJourney(backReturnUrl = true, amount = Some(testAmount.copy(totalCreditAvailableForRepayment = Some(0.0))))
+          stubBackendBusinessJourney(
+            backReturnUrl = true,
+            amount = Some(testAmount.copy(totalCreditAvailableForRepayment = Some(0.0)))
+          )
 
           val result: Future[Result] = amountController.selectAmount(fakeRequest)
 
           result.checkPageIsDisplayed(
-            expectedHeading     = "Sorry, there is a problem with the service",
+            expectedHeading = "Sorry, there is a problem with the service",
             expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-            journey             = "request",
-            expectedStatus      = Status.INTERNAL_SERVER_ERROR,
-            withBackButton      = false
+            journey = "request",
+            expectedStatus = Status.INTERNAL_SERVER_ERROR,
+            withBackButton = false
           )
         }
 
         "display 'there is a problem' page if totalCreditAvailableForRepayment in amount is less than 0" in {
           stubBackendJourneyId()
-          stubBackendBusinessJourney(backReturnUrl = true, amount = Some(testAmount.copy(totalCreditAvailableForRepayment = Some(-123.45))))
+          stubBackendBusinessJourney(
+            backReturnUrl = true,
+            amount = Some(testAmount.copy(totalCreditAvailableForRepayment = Some(-123.45)))
+          )
 
           val result: Future[Result] = amountController.selectAmount(fakeRequest)
 
           result.checkPageIsDisplayed(
-            expectedHeading     = "Sorry, there is a problem with the service",
+            expectedHeading = "Sorry, there is a problem with the service",
             expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-            journey             = "request",
-            expectedStatus      = Status.INTERNAL_SERVER_ERROR,
-            withBackButton      = false
+            journey = "request",
+            expectedStatus = Status.INTERNAL_SERVER_ERROR,
+            withBackButton = false
           )
         }
       }
@@ -261,7 +301,8 @@ class SelectRepaymentAmountControllerSpec
 
   "POST /refund-amount" when {
     val fakeRequestBase = FakeRequest("POST", "/request-a-self-assessment-refund/refund-amount")
-      .withSessionId().withAuthToken()
+      .withSessionId()
+      .withAuthToken()
 
     "form has errors (no amount selected)" should {
       stubBackendPersonalJourney()
@@ -275,12 +316,13 @@ class SelectRepaymentAmountControllerSpec
         val result: Future[Result] = amountController.submitAmount(fakeRequestWithFormWithError)
 
         result.checkPageIsDisplayed(
-          expectedHeading     = selectAmountPageHeading,
+          expectedHeading = selectAmountPageHeading,
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-          contentChecks       = checkPageWithFormError(testAmount, "Select how much you want to be refunded", "#choice-suggested"),
-          expectedStatus      = Status.OK,
-          withError           = true,
-          journey             = "request"
+          contentChecks =
+            checkPageWithFormError(testAmount, "Select how much you want to be refunded", "#choice-suggested"),
+          expectedStatus = Status.OK,
+          withError = true,
+          journey = "request"
         )
       }
 
@@ -288,16 +330,21 @@ class SelectRepaymentAmountControllerSpec
         stubGETJourneyWithBankDetails()
         stubBarsVerifyStatus()
 
-        val result: Future[Result] = amountController.submitAmount(fakeRequestWithFormWithError.withCookies(Cookie("PLAY_LANG", "cy")))
+        val result: Future[Result] =
+          amountController.submitAmount(fakeRequestWithFormWithError.withCookies(Cookie("PLAY_LANG", "cy")))
 
         result.checkPageIsDisplayed(
-          expectedHeading     = selectAmountPageHeadingWelsh,
+          expectedHeading = selectAmountPageHeadingWelsh,
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-          contentChecks       = checkPageWithFormErrorWelsh(testAmount, "Dewiswch faint o ad-daliad yr hoffech ei gael", "#choice-suggested"),
-          expectedStatus      = Status.OK,
-          withError           = true,
-          journey             = "request",
-          welsh               = true
+          contentChecks = checkPageWithFormErrorWelsh(
+            testAmount,
+            "Dewiswch faint o ad-daliad yr hoffech ei gael",
+            "#choice-suggested"
+          ),
+          expectedStatus = Status.OK,
+          withError = true,
+          journey = "request",
+          welsh = true
         )
       }
     }
@@ -308,7 +355,13 @@ class SelectRepaymentAmountControllerSpec
         .withFormUrlEncodedBody("nino" -> "AA999999A", "fullAmount" -> "123")
 
       "return 200, and html with the amount" in {
-        val amount = Amount(Some(BigDecimal(123)), None, None, totalCreditAvailableForRepayment = Some(BigDecimal(123)), unallocatedCredit = Some(BigDecimal(123)))
+        val amount = Amount(
+          Some(BigDecimal(123)),
+          None,
+          None,
+          totalCreditAvailableForRepayment = Some(BigDecimal(123)),
+          unallocatedCredit = Some(BigDecimal(123))
+        )
 
         stubGETJourneyWithBankDetails("", amount)
         stubBarsVerifyStatus()
@@ -316,31 +369,48 @@ class SelectRepaymentAmountControllerSpec
         val result: Future[Result] = amountController.submitAmount(fakeRequestWithFormWithError)
 
         result.checkPageIsDisplayed(
-          expectedHeading     = selectAmountPageHeading,
+          expectedHeading = selectAmountPageHeading,
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-          contentChecks       = checkPageWithFormError(amount, "Select how much you want to be refunded", "#choice-full", withoutSuggestedAmount = true),
-          expectedStatus      = Status.OK,
-          withError           = true,
-          journey             = "request"
+          contentChecks = checkPageWithFormError(
+            amount,
+            "Select how much you want to be refunded",
+            "#choice-full",
+            withoutSuggestedAmount = true
+          ),
+          expectedStatus = Status.OK,
+          withError = true,
+          journey = "request"
         )
       }
 
       "return 200, and welsh html with the amount" in {
-        val amount = Amount(Some(BigDecimal(123)), None, None, totalCreditAvailableForRepayment = Some(BigDecimal(123)), unallocatedCredit = Some(BigDecimal(123)))
+        val amount = Amount(
+          Some(BigDecimal(123)),
+          None,
+          None,
+          totalCreditAvailableForRepayment = Some(BigDecimal(123)),
+          unallocatedCredit = Some(BigDecimal(123))
+        )
 
         stubGETJourneyWithBankDetails("", amount)
         stubBarsVerifyStatus()
 
-        val result: Future[Result] = amountController.submitAmount(fakeRequestWithFormWithError.withCookies(Cookie("PLAY_LANG", "cy")))
+        val result: Future[Result] =
+          amountController.submitAmount(fakeRequestWithFormWithError.withCookies(Cookie("PLAY_LANG", "cy")))
 
         result.checkPageIsDisplayed(
-          expectedHeading     = selectAmountPageHeadingWelsh,
+          expectedHeading = selectAmountPageHeadingWelsh,
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-          contentChecks       = checkPageWithFormErrorWelsh(amount, "Dewiswch faint o ad-daliad yr hoffech ei gael", "#choice-full", withoutSuggestedAmount = true),
-          expectedStatus      = Status.OK,
-          withError           = true,
-          journey             = "request",
-          welsh               = true
+          contentChecks = checkPageWithFormErrorWelsh(
+            amount,
+            "Dewiswch faint o ad-daliad yr hoffech ei gael",
+            "#choice-full",
+            withoutSuggestedAmount = true
+          ),
+          expectedStatus = Status.OK,
+          withError = true,
+          journey = "request",
+          welsh = true
         )
       }
     }
@@ -357,12 +427,12 @@ class SelectRepaymentAmountControllerSpec
         val result: Future[Result] = amountController.submitAmount(fakeRequestWithFormWithError)
 
         result.checkPageIsDisplayed(
-          expectedHeading     = selectAmountPageHeading,
+          expectedHeading = selectAmountPageHeading,
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-          contentChecks       = checkPageWithFormError(testAmount, "Enter a refund amount", "#different-amount"),
-          expectedStatus      = Status.OK,
-          withError           = true,
-          journey             = "request"
+          contentChecks = checkPageWithFormError(testAmount, "Enter a refund amount", "#different-amount"),
+          expectedStatus = Status.OK,
+          withError = true,
+          journey = "request"
         )
       }
 
@@ -370,16 +440,18 @@ class SelectRepaymentAmountControllerSpec
         stubGETJourneyWithBankDetails()
         stubBarsVerifyStatus()
 
-        val result: Future[Result] = amountController.submitAmount(fakeRequestWithFormWithError.withCookies(Cookie("PLAY_LANG", "cy")))
+        val result: Future[Result] =
+          amountController.submitAmount(fakeRequestWithFormWithError.withCookies(Cookie("PLAY_LANG", "cy")))
 
         result.checkPageIsDisplayed(
-          expectedHeading     = selectAmountPageHeadingWelsh,
+          expectedHeading = selectAmountPageHeadingWelsh,
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-          contentChecks       = checkPageWithFormErrorWelsh(testAmount, "Nodwch swm ar gyfer yr ad-daliad", "#different-amount"),
-          expectedStatus      = Status.OK,
-          withError           = true,
-          journey             = "request",
-          welsh               = true
+          contentChecks =
+            checkPageWithFormErrorWelsh(testAmount, "Nodwch swm ar gyfer yr ad-daliad", "#different-amount"),
+          expectedStatus = Status.OK,
+          withError = true,
+          journey = "request",
+          welsh = true
         )
       }
     }
@@ -427,7 +499,9 @@ class SelectRepaymentAmountControllerSpec
 
             val result = amountController.submitAmount(fakeRequestWithValidFormFullAmount)
             status(result) shouldBe Status.SEE_OTHER
-            redirectLocation(result) shouldBe Some("/request-a-self-assessment-refund/how-your-client-will-get-the-refund")
+            redirectLocation(result) shouldBe Some(
+              "/request-a-self-assessment-refund/how-your-client-will-get-the-refund"
+            )
           }
         }
 
@@ -441,17 +515,33 @@ class SelectRepaymentAmountControllerSpec
 
             val result = amountController.submitAmount(fakeRequestWithValidFormFullAmount)
             status(result) shouldBe Status.SEE_OTHER
-            redirectLocation(result) shouldBe Some("/request-a-self-assessment-refund/we-need-your-clients-bank-details")
+            redirectLocation(result) shouldBe Some(
+              "/request-a-self-assessment-refund/we-need-your-clients-bank-details"
+            )
           }
         }
       }
     }
 
-    for (amountSamples <- Seq("80", " 80 ", "80.00", "8 0", " 8,0 ", "8,0.0", "£80", "£ 80.0")) //amounts with allowed characters: spaces, commas, full stops, pound sign
+    for (
+      amountSamples <- Seq("80", " 80 ", "80.00", "8 0", " 8,0 ", "8,0.0", "£80", "£ 80.0")
+    ) // amounts with allowed characters: spaces, commas, full stops, pound sign
       s"a partial amount has been selected [$amountSamples]" when {
         val fakeRequestWithValidFormPartialAmount = fakeRequestBase
-          .withFormUrlEncodedBody("nino" -> "AA999999A", "fullAmount" -> "123", "choice" -> "partial", "amount" -> amountSamples)
-        val testAmount: Amount = Amount(Some(BigDecimal(123)), Some(BigDecimal(80)), Some(true), totalCreditAvailableForRepayment = Some(BigDecimal(123)), unallocatedCredit = Some(BigDecimal(45)), Some(false))
+          .withFormUrlEncodedBody(
+            "nino"       -> "AA999999A",
+            "fullAmount" -> "123",
+            "choice"     -> "partial",
+            "amount"     -> amountSamples
+          )
+        val testAmount: Amount                    = Amount(
+          Some(BigDecimal(123)),
+          Some(BigDecimal(80)),
+          Some(true),
+          totalCreditAvailableForRepayment = Some(BigDecimal(123)),
+          unallocatedCredit = Some(BigDecimal(45)),
+          Some(false)
+        )
 
         val journey: Journey = Journey(
           Some(SessionId(TdAll.sessionId).value),
@@ -516,7 +606,9 @@ class SelectRepaymentAmountControllerSpec
 
               val result = amountController.submitAmount(fakeRequestWithValidFormPartialAmount)
               status(result) shouldBe Status.SEE_OTHER
-              redirectLocation(result) shouldBe Some("/request-a-self-assessment-refund/how-your-client-will-get-the-refund")
+              redirectLocation(result) shouldBe Some(
+                "/request-a-self-assessment-refund/how-your-client-will-get-the-refund"
+              )
 
               verifyUpdateJourneyCalled(journey)
             }
@@ -533,7 +625,9 @@ class SelectRepaymentAmountControllerSpec
 
               val result = amountController.submitAmount(fakeRequestWithValidFormPartialAmount)
               status(result) shouldBe Status.SEE_OTHER
-              redirectLocation(result) shouldBe Some("/request-a-self-assessment-refund/we-need-your-clients-bank-details")
+              redirectLocation(result) shouldBe Some(
+                "/request-a-self-assessment-refund/we-need-your-clients-bank-details"
+              )
 
               verifyUpdateJourneyCalled(journey)
             }
@@ -584,7 +678,9 @@ class SelectRepaymentAmountControllerSpec
 
             val result = amountController.submitAmount(fakeRequestWithValidFormSuggestedAmount)
             status(result) shouldBe Status.SEE_OTHER
-            redirectLocation(result) shouldBe Some("/request-a-self-assessment-refund/how-your-client-will-get-the-refund")
+            redirectLocation(result) shouldBe Some(
+              "/request-a-self-assessment-refund/how-your-client-will-get-the-refund"
+            )
           }
         }
 
@@ -598,7 +694,9 @@ class SelectRepaymentAmountControllerSpec
 
             val result = amountController.submitAmount(fakeRequestWithValidFormSuggestedAmount)
             status(result) shouldBe Status.SEE_OTHER
-            redirectLocation(result) shouldBe Some("/request-a-self-assessment-refund/we-need-your-clients-bank-details")
+            redirectLocation(result) shouldBe Some(
+              "/request-a-self-assessment-refund/we-need-your-clients-bank-details"
+            )
           }
         }
       }
@@ -615,11 +713,11 @@ class SelectRepaymentAmountControllerSpec
       val result = amountController.submitAmount(fakeRequestWithValidFormFullAmount)
 
       result.checkPageIsDisplayed(
-        expectedHeading     = "Sorry, there is a problem with the service",
+        expectedHeading = "Sorry, there is a problem with the service",
         expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-        journey             = "request",
-        expectedStatus      = Status.INTERNAL_SERVER_ERROR,
-        withBackButton      = false
+        journey = "request",
+        expectedStatus = Status.INTERNAL_SERVER_ERROR,
+        withBackButton = false
       )
     }
 
@@ -634,11 +732,11 @@ class SelectRepaymentAmountControllerSpec
       val result = amountController.submitAmount(fakeRequestWithValidFormFullAmount)
 
       result.checkPageIsDisplayed(
-        expectedHeading     = "Sorry, there is a problem with the service",
+        expectedHeading = "Sorry, there is a problem with the service",
         expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-        journey             = "request",
-        expectedStatus      = Status.INTERNAL_SERVER_ERROR,
-        withBackButton      = false
+        journey = "request",
+        expectedStatus = Status.INTERNAL_SERVER_ERROR,
+        withBackButton = false
       )
     }
 
@@ -653,11 +751,11 @@ class SelectRepaymentAmountControllerSpec
       val result = amountController.submitAmount(fakeRequestWithValidFormFullAmount)
 
       result.checkPageIsDisplayed(
-        expectedHeading     = "Sorry, there is a problem with the service",
+        expectedHeading = "Sorry, there is a problem with the service",
         expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-        journey             = "request",
-        expectedStatus      = Status.INTERNAL_SERVER_ERROR,
-        withBackButton      = false
+        journey = "request",
+        expectedStatus = Status.INTERNAL_SERVER_ERROR,
+        withBackButton = false
       )
     }
   }

@@ -36,15 +36,17 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class YouNeedToSignInAgainController @Inject() (
-    i18n:                     I18nSupport,
-    youNeedToSignInAgainPage: YouNeedToSignInAgainPage,
-    val authConnector:        AuthConnector,
-    auditService:             AuditService,
-    repaymentsConnector:      RepaymentsConnector,
-    journeyConnector:         JourneyConnector,
-    actions:                  Actions,
-    mcc:                      MessagesControllerComponents
-)(implicit ec: ExecutionContext) extends FrontendController(mcc) with AuthorisedFunctions {
+  i18n:                     I18nSupport,
+  youNeedToSignInAgainPage: YouNeedToSignInAgainPage,
+  val authConnector:        AuthConnector,
+  auditService:             AuditService,
+  repaymentsConnector:      RepaymentsConnector,
+  journeyConnector:         JourneyConnector,
+  actions:                  Actions,
+  mcc:                      MessagesControllerComponents
+)(implicit ec: ExecutionContext)
+    extends FrontendController(mcc)
+    with AuthorisedFunctions {
 
   import i18n._
 
@@ -60,51 +62,58 @@ class YouNeedToSignInAgainController @Inject() (
 
   val reauthSuccessful: Action[AnyContent] = actions.authenticatedRefundJourneyAction.async { implicit request =>
 
-    val journey = request.journey
+    val journey          = request.journey
     val hasStartedReauth = journey.hasStartedReauth
-    val headerData = new JsObject(request.headers.toMap.map(
-      x => x._1 -> JsString(x._2 mkString ",")
-    ))
+    val headerData       = new JsObject(request.headers.toMap.map(x => x._1 -> JsString(x._2 mkString ",")))
 
     hasStartedReauth match {
       case Some(true) =>
         (for {
           createRepaymentResponse <- repaymentsConnector.createRepayment(journey.id, headerData)
-          updatedJourney <- journeyConnector.findLatestBySessionId()
+          updatedJourney          <- journeyConnector.findLatestBySessionId()
         } yield (createRepaymentResponse, updatedJourney)).map {
           case (Right(RepaymentCreatedResponse(number, maybeNrsSubmissionId)), journey) =>
-            auditAndRedirect(Some(number), journey, maybeNrsSubmissionId, Some(request.affinityGroup.toString), request.agentReferenceNumber)
-          case (Left(upstreamError), journey) =>
+            auditAndRedirect(
+              Some(number),
+              journey,
+              maybeNrsSubmissionId,
+              Some(request.affinityGroup.toString),
+              request.agentReferenceNumber
+            )
+          case (Left(upstreamError), journey)                                           =>
             logger.warn(s"Failed to create repayment. Error: ${upstreamError.getMessage}")
             auditAndRedirect(None, journey, None, Some(request.affinityGroup.toString), request.agentReferenceNumber)
-        } recover {
-          case e =>
-            //create repayment already handles its upstream errors and so this recover should only trigger for the journey connector
-            logger.warn(s"[YouNeedToSignInAgainController][reauthSuccessful] Failed to retrieve journey. Error: ${e.getMessage}")
-            auditAndRedirect(None, journey, None, Some(request.affinityGroup.toString), request.agentReferenceNumber)
+        } recover { case e =>
+          // create repayment already handles its upstream errors and so this recover should only trigger for the journey connector
+          logger.warn(
+            s"[YouNeedToSignInAgainController][reauthSuccessful] Failed to retrieve journey. Error: ${e.getMessage}"
+          )
+          auditAndRedirect(None, journey, None, Some(request.affinityGroup.toString), request.agentReferenceNumber)
         }
-      case _ =>
-        logger.warn(s"[YouNeedToSignInAgainController][reauthSuccessful] Reauth callback endpoint called when hasStartedReauth=${hasStartedReauth.toString}")
-        Future.successful(auditAndRedirect(None, journey, None, Some(request.affinityGroup.toString), request.agentReferenceNumber))
+      case _          =>
+        logger.warn(
+          s"[YouNeedToSignInAgainController][reauthSuccessful] Reauth callback endpoint called when hasStartedReauth=${hasStartedReauth.toString}"
+        )
+        Future.successful(
+          auditAndRedirect(None, journey, None, Some(request.affinityGroup.toString), request.agentReferenceNumber)
+        )
     }
   }
 
   private def auditAndRedirect(
-      requestNumber:    Option[RequestNumber],
-      journey:          Journey,
-      optSubmissionId:  Option[String],
-      optAffinityGroup: Option[String],
-      optArn:           Option[String]
-  )(implicit hc: HeaderCarrier): Result = {
+    requestNumber:    Option[RequestNumber],
+    journey:          Journey,
+    optSubmissionId:  Option[String],
+    optAffinityGroup: Option[String],
+    optArn:           Option[String]
+  )(implicit hc: HeaderCarrier): Result =
     requestNumber match {
       case Some(number) =>
         auditService.auditRefundRequestEvent(journey, optSubmissionId, optAffinityGroup, optArn)
         Redirect(refundRequestJourney.routes.RepaymentConfirmationController.confirmation(number))
-      case None =>
+      case None         =>
         auditService.auditRefundRequestEvent(journey, None, optAffinityGroup, optArn)
         Redirect(refundRequestJourney.routes.YourRefundRequestNotSubmittedController.show)
     }
-  }
 
 }
-

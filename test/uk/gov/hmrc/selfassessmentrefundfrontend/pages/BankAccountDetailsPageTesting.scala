@@ -26,8 +26,8 @@ trait BankAccountDetailsPageTesting extends PageContentTesting {
   def checkPageContent(doc: Document): Unit = {
     val fields = doc.select(".govuk-form-group").select(".form-field-group").iterator().asScala.toList
 
-    val labels = fields.map(_.select(".govuk-label").text())
-    val hints = fields.map(_.select(".govuk-hint").text())
+    val labels     = fields.map(_.select(".govuk-label").text())
+    val hints      = fields.map(_.select(".govuk-hint").text())
     val fieldNames = textInputElementList(doc).map(_.attr("name"))
 
     doc.checkHasBackLinkWithUrl("#")
@@ -60,8 +60,8 @@ trait BankAccountDetailsPageTesting extends PageContentTesting {
   def checkPageContentWelsh(doc: Document): Unit = {
     val fields = doc.select(".govuk-form-group").select(".form-field-group").iterator().asScala.toList
 
-    val labels = fields.map(_.select(".govuk-label").text())
-    val hints = fields.map(_.select(".govuk-hint").text())
+    val labels     = fields.map(_.select(".govuk-label").text())
+    val hints      = fields.map(_.select(".govuk-hint").text())
     val fieldNames = textInputElementList(doc).map(_.attr("name"))
 
     doc.checkHasBackLinkWithUrl("#")
@@ -119,10 +119,8 @@ trait BankAccountDetailsPageTesting extends PageContentTesting {
 
     doc.checkHasMultipleErrorsWith(errorMessages.mkString(" "))
 
-    for (elem <- errorFieldMessagePairs) {
+    for (elem <- errorFieldMessagePairs)
       doc.checkHasErrorMessageAgainst(elem._1, elem._2)
-
-    }
 
   }
 
@@ -134,18 +132,15 @@ trait BankAccountDetailsPageTesting extends PageContentTesting {
 
     doc.checkHasMultipleErrorsWithWelsh(errorMessages.mkString(" "))
 
-    for (elem <- errorFieldMessagePairs) {
+    for (elem <- errorFieldMessagePairs)
       doc.checkHasErrorMessageAgainst(elem._1, elem._2, welsh = true)
 
-    }
-
   }
 
-  private def textInputElementList(doc: Document): List[Element] = {
+  private def textInputElementList(doc: Document): List[Element] =
     doc.select("input").attr("type", "text").iterator().asScala.toList
-  }
 
-  type ErrorField = String
+  type ErrorField   = String
   type ErrorMessage = String
 
 }
