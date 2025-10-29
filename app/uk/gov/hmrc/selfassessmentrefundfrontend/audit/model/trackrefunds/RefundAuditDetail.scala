@@ -25,12 +25,12 @@ import java.time.LocalDate
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.PaymentMethod
 
 final case class RefundAuditDetail(
-    refundReference:     RequestNumber,
-    amount:              BigDecimal,
-    status:              String,
-    dateRefundRequested: LocalDate,
-    repaymentDate:       Option[LocalDate],
-    repaymentMethod:     Option[PaymentMethod]
+  refundReference:     RequestNumber,
+  amount:              BigDecimal,
+  status:              String,
+  dateRefundRequested: LocalDate,
+  repaymentDate:       Option[LocalDate],
+  repaymentMethod:     Option[PaymentMethod]
 )
 
 object RefundAuditDetail {
@@ -38,33 +38,32 @@ object RefundAuditDetail {
   implicit val format: OFormat[RefundAuditDetail] = Json.format[RefundAuditDetail]
 
   def fromTaxRepayment(
-      taxRepayments: List[TaxRepayment]
-  ): List[RefundAuditDetail] = {
+    taxRepayments: List[TaxRepayment]
+  ): List[RefundAuditDetail] =
     taxRepayments.map { taxRepayment =>
       RefundAuditDetail(
-        refundReference     = taxRepayment.claim.key,
-        amount              = taxRepayment.claim.amount,
-        status              = taxRepayment match {
-          case ProcessingTaxRepayment(_) =>
+        refundReference = taxRepayment.claim.key,
+        amount = taxRepayment.claim.amount,
+        status = taxRepayment match {
+          case ProcessingTaxRepayment(_)        =>
             "Processing"
           case ProcessingRiskingTaxRepayment(_) =>
             "ProcessingRisking"
-          case ApprovedTaxRepayment(_, _) =>
+          case ApprovedTaxRepayment(_, _)       =>
             "Approved"
-          case RejectedTaxRepayment(_, _, _) =>
+          case RejectedTaxRepayment(_, _, _)    =>
             "Rejected"
         },
         dateRefundRequested = taxRepayment.claim.created,
-        repaymentDate       = taxRepayment match {
+        repaymentDate = taxRepayment match {
           case ProcessingRiskingTaxRepayment(_) | ProcessingTaxRepayment(_) =>
             None
-          case ApprovedTaxRepayment(_, completed) =>
+          case ApprovedTaxRepayment(_, completed)                           =>
             Some(completed)
-          case RejectedTaxRepayment(_, completed, _) =>
+          case RejectedTaxRepayment(_, completed, _)                        =>
             Some(completed)
         },
-        repaymentMethod     = taxRepayment.claim.repaymentMethod
+        repaymentMethod = taxRepayment.claim.repaymentMethod
       )
     }
-  }
 }

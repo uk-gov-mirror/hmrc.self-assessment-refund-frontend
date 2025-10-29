@@ -20,10 +20,10 @@ import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.{AccountNumber, AccountType, BankAccountInfo, SortCode}
 
 final case class BankAccountDetailsAudit(
-    accountType:       String,
-    accountHolderName: String,
-    sortCode:          String,
-    accountNumber:     String
+  accountType:       String,
+  accountHolderName: String,
+  sortCode:          String,
+  accountNumber:     String
 )
 
 object BankAccountDetailsAudit {
@@ -31,35 +31,34 @@ object BankAccountDetailsAudit {
   implicit val format: OFormat[BankAccountDetailsAudit] = Json.format[BankAccountDetailsAudit]
 
   def fromOptionalBankAccountInfo(
-      optAccountType:     Option[AccountType],
-      optBankAccountInfo: Option[BankAccountInfo]
-  ): Option[BankAccountDetailsAudit] = {
-
+    optAccountType:     Option[AccountType],
+    optBankAccountInfo: Option[BankAccountInfo]
+  ): Option[BankAccountDetailsAudit] =
     if (optAccountType.isEmpty && optBankAccountInfo.isEmpty) {
       None
     } else {
-      val accountType = optAccountType.getOrElse(AccountType("Account type is missing"))
+      val accountType     = optAccountType.getOrElse(AccountType("Account type is missing"))
       val bankAccountInfo = optBankAccountInfo.getOrElse(
         BankAccountInfo(
-          name          = "Bank account info is missing",
-          sortCode      = SortCode("Bank account info is missing"),
+          name = "Bank account info is missing",
+          sortCode = SortCode("Bank account info is missing"),
           accountNumber = AccountNumber("Bank account info is missing")
         )
       )
 
       fromBankAccountInfo(accountType, bankAccountInfo)
     }
-  }
 
   def fromBankAccountInfo(
-      accountType:     AccountType,
-      bankAccountInfo: BankAccountInfo
-  ): Option[BankAccountDetailsAudit] = {
-    Some(BankAccountDetailsAudit(
-      accountType       = accountType.name,
-      accountHolderName = bankAccountInfo.name,
-      sortCode          = bankAccountInfo.sortCode.value,
-      accountNumber     = bankAccountInfo.accountNumber.value
-    ))
-  }
+    accountType:     AccountType,
+    bankAccountInfo: BankAccountInfo
+  ): Option[BankAccountDetailsAudit] =
+    Some(
+      BankAccountDetailsAudit(
+        accountType = accountType.name,
+        accountHolderName = bankAccountInfo.name,
+        sortCode = bankAccountInfo.sortCode.value,
+        accountNumber = bankAccountInfo.accountNumber.value
+      )
+    )
 }

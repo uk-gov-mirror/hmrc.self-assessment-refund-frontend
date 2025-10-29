@@ -28,29 +28,40 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.trackRefundJourney
 import java.time.LocalDate
 
 final case class RefundTrackerPageModel(
-    refundTracker: List[RefundTrackerModel]
+  refundTracker: List[RefundTrackerModel]
 )
 
 object RefundTrackerPageModel {
 
-  final case class RefundTrackerModel(receivedOn: LocalDate, amountClaimed: String, status: RepaymentStatus, key: RequestNumber) {
+  final case class RefundTrackerModel(
+    receivedOn:    LocalDate,
+    amountClaimed: String,
+    status:        RepaymentStatus,
+    key:           RequestNumber
+  ) {
 
     def asRow(languageUtils: LanguageUtils)(implicit messages: Messages): List[TableRow] = List(
       TableRow(
-        content    = Text(languageUtils.Dates.formatDateAbbrMonth(receivedOn)),
+        content = Text(languageUtils.Dates.formatDateAbbrMonth(receivedOn)),
         attributes = Map("scope" -> "row"),
-        classes    = "govuk-!-font-weight-bold"
-      ), TableRow(
+        classes = "govuk-!-font-weight-bold"
+      ),
+      TableRow(
         content = Text(amountClaimed),
-        format  = Some("numeric")
-      ), TableRow(
-        content = HtmlContent(s"""<strong class="govuk-tag govuk-tag--${status.colour}">${messages(status.msgKey)}</strong>"""),
+        format = Some("numeric")
+      ),
+      TableRow(
+        content =
+          HtmlContent(s"""<strong class="govuk-tag govuk-tag--${status.colour}">${messages(status.msgKey)}</strong>""")
       ),
       TableRow(
         content = HtmlContent(
           s"""<a class="govuk-link" href="${linkForTrackerPage(status, key)}">
              |${messages("refund-tracker.view-details")}
-             |<span class="govuk-visually-hidden">  ${messages("refund-tracker.view-details.visually-hidden", languageUtils.Dates.formatDate(receivedOn))}</span>
+             |<span class="govuk-visually-hidden">  ${messages(
+              "refund-tracker.view-details.visually-hidden",
+              languageUtils.Dates.formatDate(receivedOn)
+            )}</span>
              |</a>""".stripMargin
         )
       )
@@ -60,7 +71,8 @@ object RefundTrackerPageModel {
       status match {
         case RepaymentStatus.Approved          => trackRefundJourney.routes.RefundApprovedController.showApprovedPage(key).url
         case RepaymentStatus.Processing        => trackRefundJourney.routes.RefundProcessingController.onPageLoad(key).url
-        case RepaymentStatus.ProcessingRisking => trackRefundJourney.routes.RefundProcessingController.onPageLoad(key).url
+        case RepaymentStatus.ProcessingRisking =>
+          trackRefundJourney.routes.RefundProcessingController.onPageLoad(key).url
         case RepaymentStatus.Rejected          => trackRefundJourney.routes.RefundRejectedController.onPageLoad(key).url
       }
   }

@@ -31,11 +31,16 @@ class ErrorHandlerSpec extends ItSpec with PageContentTesting {
 
     doc.checkPageTitle("Sorry, there is a problem with the service - Request a Self Assessment refund", welsh = false)
     doc.checkPageHeading("Sorry, there is a problem with the service")
-    doc.checkHasParagraphs(List(
-      "Try again later.",
-      "Contact HMRC if you need to speak to someone about your Self Assessment refund."
-    ))
-    doc.checkHasHyperlink("Contact HMRC", "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment")
+    doc.checkHasParagraphs(
+      List(
+        "Try again later.",
+        "Contact HMRC if you need to speak to someone about your Self Assessment refund."
+      )
+    )
+    doc.checkHasHyperlink(
+      "Contact HMRC",
+      "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
+    )
   }
 
   "should display internal server error page in welsh" in {
@@ -43,12 +48,20 @@ class ErrorHandlerSpec extends ItSpec with PageContentTesting {
 
     val doc = Jsoup.parse(result.body)
 
-    doc.checkPageTitle("Mae’n ddrwg gennym, mae problem gyda’r gwasanaeth - Gwneud cais am ad-daliad Hunanasesiad", welsh = true)
+    doc.checkPageTitle(
+      "Mae’n ddrwg gennym, mae problem gyda’r gwasanaeth - Gwneud cais am ad-daliad Hunanasesiad",
+      welsh = true
+    )
     doc.checkPageHeading("Mae’n ddrwg gennym, mae problem gyda’r gwasanaeth")
-    doc.checkHasParagraphs(List(
-      "Rhowch gynnig arall arni yn nes ymlaen.",
-      "Cysylltwch â CThEF os oes angen i chi siarad â rhywun am eich ad-daliad Hunanasesiad."
-    ))
-    doc.checkHasHyperlink("Cysylltwch â CThEF", "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/welsh-language-helplines")
+    doc.checkHasParagraphs(
+      List(
+        "Rhowch gynnig arall arni yn nes ymlaen.",
+        "Cysylltwch â CThEF os oes angen i chi siarad â rhywun am eich ad-daliad Hunanasesiad."
+      )
+    )
+    doc.checkHasHyperlink(
+      "Cysylltwch â CThEF",
+      "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/welsh-language-helplines"
+    )
   }
 }

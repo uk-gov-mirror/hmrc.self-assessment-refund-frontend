@@ -33,17 +33,17 @@ class Module extends AbstractModule {
   @Provides
   @Singleton
   def i18nSupport(
-      m:                 MessagesApi,
-      langs:             Langs,
-      httpConfiguration: HttpConfiguration
+    m:                 MessagesApi,
+    langs:             Langs,
+    httpConfiguration: HttpConfiguration
   ): I18nSupport = new I18nSupport {
     override def messagesApi: MessagesApi = new DefaultMessagesApi(
-      messages           = m.messages,
-      langs              = langs,
-      langCookieName     = m.langCookieName,
-      langCookieSecure   = m.langCookieSecure,
+      messages = m.messages,
+      langs = langs,
+      langCookieName = m.langCookieName,
+      langCookieSecure = m.langCookieSecure,
       langCookieHttpOnly = m.langCookieHttpOnly,
-      httpConfiguration  = httpConfiguration
+      httpConfiguration = httpConfiguration
     ) {
 
       // return the key wrapped around a specific pattern so that automated tests can detect

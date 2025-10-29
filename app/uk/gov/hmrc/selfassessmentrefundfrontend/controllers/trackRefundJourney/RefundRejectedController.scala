@@ -32,28 +32,39 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class RefundRejectedController @Inject() (
-    actions:            Actions,
-    appConfig:          AppConfig,
-    errorHandler:       ErrorHandler,
-    mcc:                MessagesControllerComponents,
-    refundRejectedPage: RefundRejectedPage,
-    repaymentsService:  RepaymentsService
+  actions:            Actions,
+  appConfig:          AppConfig,
+  errorHandler:       ErrorHandler,
+  mcc:                MessagesControllerComponents,
+  refundRejectedPage: RefundRejectedPage,
+  repaymentsService:  RepaymentsService
 )(implicit ec: ExecutionContext)
-  extends FrontendController(mcc) with I18nSupport with ApplicationLogging {
+    extends FrontendController(mcc)
+    with I18nSupport
+    with ApplicationLogging {
 
-  def onPageLoad(number: RequestNumber): Action[AnyContent] = actions.authenticatedTrackJourneyAction.async { implicit request =>
-    repaymentsService
-      .repayment(request.journey.nino.getOrElse(throw new Throwable("nino not found")), number)
-      .map { repayment =>
-        Ok(refundRejectedPage(RefundRejectedPageModel(
-          claim       = repayment.claim,
-          tryAgainUrl = if (request.isAgent) appConfig.creditAndRefundsAgentsUrl else appConfig.creditAndRefundsUrl
-        )))
-      }.recoverWith {
-        case e: Throwable =>
-          logger.error(s"[RefundRejectedController][onPageLoad] Error during page load: ${request.journey.toLogMessage}", e)
+  def onPageLoad(number: RequestNumber): Action[AnyContent] = actions.authenticatedTrackJourneyAction.async {
+    implicit request =>
+      repaymentsService
+        .repayment(request.journey.nino.getOrElse(throw new Throwable("nino not found")), number)
+        .map { repayment =>
+          Ok(
+            refundRejectedPage(
+              RefundRejectedPageModel(
+                claim = repayment.claim,
+                tryAgainUrl =
+                  if (request.isAgent) appConfig.creditAndRefundsAgentsUrl else appConfig.creditAndRefundsUrl
+              )
+            )
+          )
+        }
+        .recoverWith { case e: Throwable =>
+          logger.error(
+            s"[RefundRejectedController][onPageLoad] Error during page load: ${request.journey.toLogMessage}",
+            e
+          )
           errorHandler.internalServerErrorTemplate
             .map(InternalServerError(_))
-      }
+        }
   }
 }

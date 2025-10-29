@@ -17,7 +17,7 @@
 package uk.gov.hmrc.selfassessmentrefundfrontend.testdata
 
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.journey.JourneyId
-import uk.gov.hmrc.selfassessmentrefundfrontend.model.{BankAccountInfo, SortCode, AccountNumber}
+import uk.gov.hmrc.selfassessmentrefundfrontend.model.{AccountNumber, BankAccountInfo, SortCode}
 
 trait TdJourney {
 

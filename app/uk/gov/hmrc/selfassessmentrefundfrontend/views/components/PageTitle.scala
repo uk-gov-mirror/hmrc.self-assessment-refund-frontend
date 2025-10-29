@@ -21,17 +21,20 @@ import play.api.i18n.Messages
 
 object PageTitle {
   def apply(h1: String)(implicit messages: Messages): String = makeTitle(h1, "", None)
-  def apply(h1: String, serviceName: String)(implicit messages: Messages): String = makeTitle(h1, serviceName, None)
-  def apply(h1: String, serviceName: String, form: Form[_])(implicit messages: Messages): String = makeTitle(h1, serviceName, Some(form))
+  def apply(h1: String, serviceName:       String)(implicit messages: Messages): String = makeTitle(h1, serviceName, None)
+  def apply(h1: String, serviceName: String, form: Form[_])(implicit messages: Messages): String =
+    makeTitle(h1, serviceName, Some(form))
   def errorPageTitle(h1: String)(implicit messages: Messages): String = s"""$h1 - ${Messages("service.title.suffix")}"""
 
   private def makeTitle(
-      h1:          String,
-      serviceName: String,
-      maybeForm:   Option[Form[_]]
+    h1:          String,
+    serviceName: String,
+    maybeForm:   Option[Form[_]]
   )(implicit messages: Messages): String = {
-    //TODO: Line below will have no service name part if was not supplied. This to be checked in OPS-12750 (or other ticket) that each page has the correct title.
-    val title: String = s"""$h1 -${if (serviceName.nonEmpty) s" $serviceName -" else ""} ${Messages("service.title.suffix")}"""
+    // TODO: Line below will have no service name part if was not supplied. This to be checked in OPS-12750 (or other ticket) that each page has the correct title.
+    val title: String = s"""$h1 -${if (serviceName.nonEmpty) s" $serviceName -" else ""} ${Messages(
+        "service.title.suffix"
+      )}"""
     if (maybeForm.exists(_.hasErrors)) s"""${Messages("service.title.error-prefix")} $title""" else title
   }
 }

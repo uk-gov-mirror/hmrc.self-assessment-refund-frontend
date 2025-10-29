@@ -18,6 +18,7 @@ package uk.gov.hmrc.selfassessmentrefundfrontend.testonly.connectors
 
 import com.google.inject.{Inject, Singleton}
 import play.api.libs.json.JsObject
+import play.api.libs.ws.writeableOf_JsValue
 import uk.gov.hmrc.http.HttpReadsInstances.readUnit
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
@@ -26,17 +27,21 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.config.AppConfig
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-final case class StubsAdminConnector @Inject() (client: HttpClientV2, config: AppConfig)(implicit ec: ExecutionContext) {
+final case class StubsAdminConnector @Inject() (client: HttpClientV2, config: AppConfig)(implicit
+  ec: ExecutionContext
+) {
 
   def createAccount(nino: String, ifNotExists: Boolean = false)(implicit hc: HeaderCarrier): Future[Unit] = {
     val url = s"${config.selfAssessmentRefundStubsUrl}/admin/accounts/$nino"
 
     if (ifNotExists) {
-      client.post(url"$url")
+      client
+        .post(url"$url")
         .withBody(JsObject.empty)
         .execute[Unit]
     } else {
-      client.put(url"$url")
+      client
+        .put(url"$url")
         .withBody(JsObject.empty)
         .execute[Unit]
     }
@@ -45,7 +50,8 @@ final case class StubsAdminConnector @Inject() (client: HttpClientV2, config: Ap
   def updateAccount(nino: String, mock: Boolean = false)(implicit hc: HeaderCarrier): Future[Unit] = {
     val url = s"${config.selfAssessmentRefundStubsUrl}/admin/accounts/$nino?mock=${mock.toString}"
 
-    client.put(url"$url")
+    client
+      .put(url"$url")
       .withBody(JsObject.empty)
       .execute[Unit]
   }

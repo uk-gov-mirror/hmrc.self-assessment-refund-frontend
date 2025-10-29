@@ -19,25 +19,23 @@ package uk.gov.hmrc.selfassessmentrefundfrontend.audit.model
 import play.api.libs.json.{JsValue, Json, OFormat, OWrites, Reads}
 
 final case class RepaymentRequestAuditItem(
-    etmpResult:                       String,
-    userType:                         String,
-    agentReferenceNumber:             Option[String],
-    totalCreditAvailableForRepayment: String,
-    unallocatedCredit:                String,
-    amountChosen:                     String,
-    barsResponse:                     Option[JsValue],
-    reference:                        Option[String],
-    nino:                             String,
-    nrsSubmissionId:                  String,
-    bankAccount:                      Option[BankAccountDetailsAudit]
+  etmpResult:                       String,
+  userType:                         String,
+  agentReferenceNumber:             Option[String],
+  totalCreditAvailableForRepayment: String,
+  unallocatedCredit:                String,
+  amountChosen:                     String,
+  barsResponse:                     Option[JsValue],
+  reference:                        Option[String],
+  nino:                             String,
+  nrsSubmissionId:                  String,
+  bankAccount:                      Option[BankAccountDetailsAudit]
 )
 
 object RepaymentRequestAuditItem {
-  implicit def writes: OWrites[RepaymentRequestAuditItem] = Json.writes[RepaymentRequestAuditItem]
+  given OWrites[RepaymentRequestAuditItem] = Json.writes[RepaymentRequestAuditItem]
 
-  @SuppressWarnings(Array("org.wartremover.warts.Any"))
-  implicit val format: OFormat[BankAccountDetailsAudit] = Json.format[BankAccountDetailsAudit]
+  given OFormat[BankAccountDetailsAudit] = Json.format[BankAccountDetailsAudit]
 
-  @SuppressWarnings(Array("org.wartremover.warts.Any"))
-  implicit def reads: Reads[RepaymentRequestAuditItem] = Json.reads[RepaymentRequestAuditItem]
+  given Reads[RepaymentRequestAuditItem] = Json.reads[RepaymentRequestAuditItem]
 }

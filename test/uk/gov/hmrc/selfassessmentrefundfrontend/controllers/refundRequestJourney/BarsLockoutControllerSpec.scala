@@ -43,12 +43,13 @@ class BarsLockoutControllerSpec extends ItSpec with BarsLockoutPageTesting {
         val response = controller.barsLockout(TdAll.request)
 
         response.checkPageIsDisplayed(
-          expectedHeading     = "You’ve tried to confirm your bank details too many times",
+          expectedHeading = "You’ve tried to confirm your bank details too many times",
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-          contentChecks       = checkPageContent(TdBars.futureDateTime, "http://localhost:9081/report-quarterly/income-and-expenses/view"),
-          expectedStatus      = Status.OK,
-          withBackButton      = false,
-          journey             = "request"
+          contentChecks =
+            checkPageContent(TdBars.futureDateTime, "http://localhost:9081/report-quarterly/income-and-expenses/view"),
+          expectedStatus = Status.OK,
+          withBackButton = false,
+          journey = "request"
         )
       }
       "show 'bars lockout' page for Agent" in {
@@ -58,12 +59,15 @@ class BarsLockoutControllerSpec extends ItSpec with BarsLockoutPageTesting {
         val response = controller.barsLockout(TdAll.request)
 
         response.checkPageIsDisplayed(
-          expectedHeading     = "You’ve tried to confirm your bank details too many times",
+          expectedHeading = "You’ve tried to confirm your bank details too many times",
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/agents/claim-refund",
-          contentChecks       = checkPageContent(TdBars.futureDateTime, "http://localhost:9081/report-quarterly/income-and-expenses/view/agents"),
-          expectedStatus      = Status.OK,
-          withBackButton      = false,
-          journey             = "request"
+          contentChecks = checkPageContent(
+            TdBars.futureDateTime,
+            "http://localhost:9081/report-quarterly/income-and-expenses/view/agents"
+          ),
+          expectedStatus = Status.OK,
+          withBackButton = false,
+          journey = "request"
         )
       }
       "show welsh 'bars lockout' page" in {
@@ -72,13 +76,16 @@ class BarsLockoutControllerSpec extends ItSpec with BarsLockoutPageTesting {
         val response = controller.barsLockout(TdAll.welshRequest)
 
         response.checkPageIsDisplayed(
-          expectedHeading     = "Rydych wedi ceisio cadarnhau’ch manylion banc ormod o weithiau",
+          expectedHeading = "Rydych wedi ceisio cadarnhau’ch manylion banc ormod o weithiau",
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-          contentChecks       = checkPageContentWelsh(TdBars.futureDateTime, "http://localhost:9081/report-quarterly/income-and-expenses/view"),
-          expectedStatus      = Status.OK,
-          withBackButton      = false,
-          journey             = "request",
-          welsh               = true
+          contentChecks = checkPageContentWelsh(
+            TdBars.futureDateTime,
+            "http://localhost:9081/report-quarterly/income-and-expenses/view"
+          ),
+          expectedStatus = Status.OK,
+          withBackButton = false,
+          journey = "request",
+          welsh = true
         )
       }
     }

@@ -23,11 +23,12 @@ import play.api.{Configuration, Environment, Logging}
 import javax.inject.Inject
 
 class TestMessagesApiProvider @Inject() (
-    environment:       Environment,
-    config:            Configuration,
-    langs:             Langs,
-    httpConfiguration: HttpConfiguration
-) extends DefaultMessagesApiProvider(environment, config, langs, httpConfiguration) with Logging {
+  environment:       Environment,
+  config:            Configuration,
+  langs:             Langs,
+  httpConfiguration: HttpConfiguration
+) extends DefaultMessagesApiProvider(environment, config, langs, httpConfiguration)
+    with Logging {
 
   override lazy val get: MessagesApi =
     new DefaultMessagesApi(

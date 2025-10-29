@@ -19,5 +19,4 @@ package support
 import org.scalatest.diagrams.Diagrams
 import org.scalatest.matchers.should.Matchers
 
-trait RichMatchers extends Matchers
-  with Diagrams
+trait RichMatchers extends Matchers with Diagrams

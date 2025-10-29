@@ -19,4 +19,3 @@ package uk.gov.hmrc.selfassessmentrefundfrontend.util
 class WithName(string: String) {
   override val toString: String = string
 }
-

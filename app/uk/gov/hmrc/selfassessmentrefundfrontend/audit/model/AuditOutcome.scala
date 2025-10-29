@@ -19,8 +19,8 @@ package uk.gov.hmrc.selfassessmentrefundfrontend.audit.model
 import play.api.libs.json.{Json, OWrites}
 
 final case class AuditOutcome(
-    isSuccessful:  Boolean,
-    failureReason: Option[String] = None
+  isSuccessful:  Boolean,
+  failureReason: Option[String] = None
 )
 
 object AuditOutcome {
@@ -28,9 +28,11 @@ object AuditOutcome {
   implicit val writes: OWrites[AuditOutcome] = Json.writes[AuditOutcome]
 
   def fromFailureReason(failureReason: Option[String]): AuditOutcome =
-    failureReason.fold(AuditOutcome(
-      isSuccessful = true
-    )){ reason =>
-      AuditOutcome(isSuccessful  = false, failureReason = Some(reason))
+    failureReason.fold(
+      AuditOutcome(
+        isSuccessful = true
+      )
+    ) { reason =>
+      AuditOutcome(isSuccessful = false, failureReason = Some(reason))
     }
 }

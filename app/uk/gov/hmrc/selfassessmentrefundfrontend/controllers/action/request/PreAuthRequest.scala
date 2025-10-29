@@ -21,7 +21,7 @@ import uk.gov.hmrc.http.SessionId
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.journey.Journey
 
 class PreAuthRequest[A](
-    val request:   Request[A],
-    val journey:   Journey,
-    val sessionId: SessionId
+  val request:   Request[A],
+  val journey:   Journey,
+  val sessionId: SessionId
 ) extends WrappedRequest[A](request)

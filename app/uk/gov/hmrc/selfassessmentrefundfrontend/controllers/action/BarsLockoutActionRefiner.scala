@@ -29,9 +29,12 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class BarsLockoutActionRefiner @Inject() (
-    auditService:              AuditService,
-    barsVerifyStatusConnector: BarsVerifyStatusConnector
-)(implicit ec: ExecutionContext) extends ActionRefiner[AuthenticatedRequest, BarsVerifiedRequest] with Logging with Results {
+  auditService:              AuditService,
+  barsVerifyStatusConnector: BarsVerifyStatusConnector
+)(implicit ec: ExecutionContext)
+    extends ActionRefiner[AuthenticatedRequest, BarsVerifiedRequest]
+    with Logging
+    with Results {
 
   override protected def refine[A](request: AuthenticatedRequest[A]): Future[Either[Result, BarsVerifiedRequest[A]]] = {
     implicit val rh: Request[A] = request.request
@@ -44,40 +47,44 @@ class BarsLockoutActionRefiner @Inject() (
               val amount = request.journey.amount
               auditService.auditRefundAmount(
                 totalCreditAvailableForRepayment = amount.flatMap(_.totalCreditAvailableForRepayment),
-                unallocatedCredit                = amount.flatMap(_.unallocatedCredit),
-                amountChosen                     = amount.flatMap(_.repayment),
-                affinityGroup                    = Some(request.affinityGroup),
-                maybeNino                        = request.journey.nino,
-                maybeArn                         = request.agentReferenceNumber,
-                failureReason                    = Some("bars lockout")
+                unallocatedCredit = amount.flatMap(_.unallocatedCredit),
+                amountChosen = amount.flatMap(_.repayment),
+                affinityGroup = Some(request.affinityGroup),
+                maybeNino = request.journey.nino,
+                maybeArn = request.agentReferenceNumber,
+                failureReason = Some("bars lockout")
               )
 
               Left(Redirect(controllers.refundRequestJourney.routes.BarsLockoutController.barsLockout))
-            case None =>
-              Right(new BarsVerifiedRequest(
-                request                    = request,
-                journey                    = request.journey,
-                sessionId                  = request.sessionId,
-                numberOfBarsVerifyAttempts = status.attempts
-              ))
+            case None    =>
+              Right(
+                new BarsVerifiedRequest(
+                  request = request,
+                  journey = request.journey,
+                  sessionId = request.sessionId,
+                  numberOfBarsVerifyAttempts = status.attempts
+                )
+              )
           }
-        } recover {
-          case e =>
-            logger.error(s"[BarsLockoutActionRefiner] failed to retrieve BarsVerifyStatus for nino=${request.journey.nino.toString}, reason:${e.getMessage}")
-            Left(InternalServerError)
+        } recover { case e =>
+          logger.error(
+            s"[BarsLockoutActionRefiner] failed to retrieve BarsVerifyStatus for nino=${request.journey.nino.toString}, reason:${e.getMessage}"
+          )
+          Left(InternalServerError)
         }
-      case None =>
+      case None       =>
         // without a Nino we cannot lookup the BarsVerifyStatus, so just continue
         Future.successful(
-          Right(new BarsVerifiedRequest(
-            request   = request,
-            journey   = request.journey,
-            sessionId = request.sessionId
-          ))
+          Right(
+            new BarsVerifiedRequest(
+              request = request,
+              journey = request.journey,
+              sessionId = request.sessionId
+            )
+          )
         )
     }
   }
 
   override protected def executionContext: ExecutionContext = ec
 }
-

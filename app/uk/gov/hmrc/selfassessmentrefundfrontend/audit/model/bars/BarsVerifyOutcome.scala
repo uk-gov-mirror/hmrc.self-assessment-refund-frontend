@@ -20,16 +20,16 @@ import play.api.libs.json.{Json, OWrites}
 import uk.gov.hmrc.selfassessmentrefundfrontend.bars.model.response._
 
 final case class BarsVerifyOutcome(
-    isBankAccountValid:    Boolean,
-    unsuccessfulAttempts:  Int,
-    lockoutExpiryDateTime: Option[String],
-    barsResults:           Either[BarsError, VerifyResponse]
+  isBankAccountValid:    Boolean,
+  unsuccessfulAttempts:  Int,
+  lockoutExpiryDateTime: Option[String],
+  barsResults:           Either[BarsError, VerifyResponse]
 )
 
 object BarsVerifyOutcome {
 
-  implicit val responseWrites: OWrites[Either[BarsError, VerifyResponse]] = {
-    OWrites{
+  implicit val responseWrites: OWrites[Either[BarsError, VerifyResponse]] =
+    OWrites {
       case Left(e: BarsError) =>
         e.barsResponse match {
           case ValidateResponse(barsValidateResponse) => BarsValidateResponse.format.writes(barsValidateResponse)
@@ -37,11 +37,10 @@ object BarsVerifyOutcome {
           case SortCodeOnDenyList(barsErrorResponse)  => BarsErrorResponse.format.writes(barsErrorResponse)
         }
 
-      case Right(VerifyResponse(barsVerifyResponse: BarsVerifyResponse)) => BarsVerifyResponse.format.writes(barsVerifyResponse)
+      case Right(VerifyResponse(barsVerifyResponse: BarsVerifyResponse)) =>
+        BarsVerifyResponse.format.writes(barsVerifyResponse)
     }
-  }
 
   implicit val writes: OWrites[BarsVerifyOutcome] = Json.writes
 
 }
-

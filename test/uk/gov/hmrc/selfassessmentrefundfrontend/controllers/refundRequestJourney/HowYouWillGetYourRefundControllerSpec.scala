@@ -26,7 +26,8 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.testdata.TdAll
 
 class HowYouWillGetYourRefundControllerSpec extends ItSpec with HowYouWillGetYourRefundPageTesting {
 
-  val controller: HowYouWillGetYourRefundController = fakeApplication().injector.instanceOf[HowYouWillGetYourRefundController]
+  val controller: HowYouWillGetYourRefundController =
+    fakeApplication().injector.instanceOf[HowYouWillGetYourRefundController]
 
   "the How You Will Get Your Refund Controller" when {
     "called on 'onPageLoad" should {
@@ -34,23 +35,23 @@ class HowYouWillGetYourRefundControllerSpec extends ItSpec with HowYouWillGetYou
         setupStubsForShowRepayment(lastPaymentByCard = true)
         val response = controller.onPageLoad(TdAll.request)
         response.checkPageIsDisplayed(
-          expectedHeading     = "How you will get the refund",
+          expectedHeading = "How you will get the refund",
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-          contentChecks       = checkPageContent(isAgent = false),
-          expectedStatus      = Status.OK,
-          journey             = "request"
+          contentChecks = checkPageContent(isAgent = false),
+          expectedStatus = Status.OK,
+          journey = "request"
         )
       }
       "show welsh 'How You Will Get Your Refund' page" in {
         setupStubsForShowRepayment(lastPaymentByCard = true)
         val response = controller.onPageLoad(TdAll.welshRequest)
         response.checkPageIsDisplayed(
-          expectedHeading     = "Sut y byddwch yn cael yr ad-daliad",
+          expectedHeading = "Sut y byddwch yn cael yr ad-daliad",
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-          contentChecks       = checkPageContentWelsh(isAgent = false),
-          expectedStatus      = Status.OK,
-          journey             = "request",
-          welsh               = true
+          contentChecks = checkPageContentWelsh(isAgent = false),
+          expectedStatus = Status.OK,
+          journey = "request",
+          welsh = true
         )
       }
     }
@@ -59,23 +60,23 @@ class HowYouWillGetYourRefundControllerSpec extends ItSpec with HowYouWillGetYou
         setupStubsForShowRepayment(lastPaymentByCard = true)
         val response = controller.onPageLoadAgent(TdAll.request)
         response.checkPageIsDisplayed(
-          expectedHeading     = "How your client will get the refund",
+          expectedHeading = "How your client will get the refund",
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/agents/claim-refund",
-          contentChecks       = checkPageContent(isAgent = true),
-          expectedStatus      = Status.OK,
-          journey             = "request"
+          contentChecks = checkPageContent(isAgent = true),
+          expectedStatus = Status.OK,
+          journey = "request"
         )
       }
       "show welsh 'How Your Client Will Get The Refund' page" in {
         setupStubsForShowRepayment(lastPaymentByCard = true)
         val response = controller.onPageLoadAgent(TdAll.welshRequest)
         response.checkPageIsDisplayed(
-          expectedHeading     = "Sut y bydd eich cleient yn cael yr ad-daliad",
+          expectedHeading = "Sut y bydd eich cleient yn cael yr ad-daliad",
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/agents/claim-refund",
-          contentChecks       = checkPageContentWelsh(isAgent = true),
-          expectedStatus      = Status.OK,
-          journey             = "request",
-          welsh               = true
+          contentChecks = checkPageContentWelsh(isAgent = true),
+          expectedStatus = Status.OK,
+          journey = "request",
+          welsh = true
         )
       }
     }
@@ -89,15 +90,14 @@ class HowYouWillGetYourRefundControllerSpec extends ItSpec with HowYouWillGetYou
     }
   }
 
-  def setupStubsForShowRepayment(lastPaymentByCard: Boolean): StubMapping = {
+  def setupStubsForShowRepayment(lastPaymentByCard: Boolean): StubMapping =
     lastPaymentByCard match {
-      case true =>
+      case true  =>
         stubBackendLastPaymentMethod(Card)
         stubBackendBusinessJourney(method = Some(Card))
       case false =>
         stubBackendLastPaymentMethod(BACS)
         stubBackendBusinessJourney()
     }
-  }
 
 }

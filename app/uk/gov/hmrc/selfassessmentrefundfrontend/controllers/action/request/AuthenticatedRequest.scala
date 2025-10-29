@@ -21,14 +21,16 @@ import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
 import uk.gov.hmrc.http.SessionId
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.journey.Journey
+import uk.gov.hmrc.selfassessmentrefundfrontent.util.CanEqualGivens.affinityGroupCanEqual
 
 class AuthenticatedRequest[A](
-    override val request:     PreAuthRequest[A],
-    override val journey:     Journey,
-    override val sessionId:   SessionId,
-    val affinityGroup:        AffinityGroup,
-    val agentReferenceNumber: Option[String]
+  override val request:     PreAuthRequest[A],
+  override val journey:     Journey,
+  override val sessionId:   SessionId,
+  val affinityGroup:        AffinityGroup,
+  val agentReferenceNumber: Option[String]
 ) extends PreAuthRequest[A](request, journey, sessionId) {
+
   val isAgent: Boolean = affinityGroup match {
     case Agent                     => true
     case Individual | Organisation => false
@@ -37,5 +39,6 @@ class AuthenticatedRequest[A](
 }
 
 object AuthenticatedRequest {
-  implicit def request2Messages(implicit request: AuthenticatedRequest[_], messagesApi: MessagesApi): Messages = messagesApi.preferred(request)
+  implicit def request2Messages(implicit request: AuthenticatedRequest[_], messagesApi: MessagesApi): Messages =
+    messagesApi.preferred(request)
 }

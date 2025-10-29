@@ -26,16 +26,20 @@ trait HowYouWillGetYourRefundPageTesting extends PageContentTesting {
     doc.checkHasBackLinkWithUrl("#")
 
     if (isAgent) {
-      doc.checkHasList(List(
-        "We will send the refund to the card used to pay your client’s last Self Assessment tax bill.",
-        "If we cannot do this, we need your client’s bank details as a backup."
-      ))
+      doc.checkHasList(
+        List(
+          "We will send the refund to the card used to pay your client’s last Self Assessment tax bill.",
+          "If we cannot do this, we need your client’s bank details as a backup."
+        )
+      )
     } else {
-      doc.checkHasList(List(
-        "We will send the refund to the card used to pay your last Self Assessment tax bill.",
-        "If we cannot do this, we need your bank details as a backup.",
-        "You can enter your own or your agent’s bank details."
-      ))
+      doc.checkHasList(
+        List(
+          "We will send the refund to the card used to pay your last Self Assessment tax bill.",
+          "If we cannot do this, we need your bank details as a backup.",
+          "You can enter your own or your agent’s bank details."
+        )
+      )
     }
 
     doc.checkHasFormActionAsContinueButton(
@@ -48,16 +52,20 @@ trait HowYouWillGetYourRefundPageTesting extends PageContentTesting {
     doc.checkHasBackLinkWithUrl("#")
 
     if (isAgent) {
-      doc.checkHasList(List(
-        "Byddwn yn anfon yr ad-daliad i’r cerdyn a ddefnyddiwyd i dalu bil treth Hunanasesiad diwethaf eich cleient.",
-        "Os na allwn wneud hyn, bydd angen arnom fanylion banc eich cleient, fel opsiwn wrth gefn."
-      ))
+      doc.checkHasList(
+        List(
+          "Byddwn yn anfon yr ad-daliad i’r cerdyn a ddefnyddiwyd i dalu bil treth Hunanasesiad diwethaf eich cleient.",
+          "Os na allwn wneud hyn, bydd angen arnom fanylion banc eich cleient, fel opsiwn wrth gefn."
+        )
+      )
     } else {
-      doc.checkHasList(List(
-        "Byddwn yn anfon yr ad-daliad i’r cerdyn a ddefnyddiwyd i dalu’ch bil treth Hunanasesiad diwethaf.",
-        "Os na allwn wneud hyn, bydd angen arnom eich manylion banc, fel opsiwn wrth gefn.",
-        "Gallwch nodi eich manylion banc chi, neu rai eich asiant."
-      ))
+      doc.checkHasList(
+        List(
+          "Byddwn yn anfon yr ad-daliad i’r cerdyn a ddefnyddiwyd i dalu’ch bil treth Hunanasesiad diwethaf.",
+          "Os na allwn wneud hyn, bydd angen arnom eich manylion banc, fel opsiwn wrth gefn.",
+          "Gallwch nodi eich manylion banc chi, neu rai eich asiant."
+        )
+      )
     }
 
     doc.checkHasFormActionAsContinueButton(

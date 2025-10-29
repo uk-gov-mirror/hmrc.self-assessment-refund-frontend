@@ -33,31 +33,41 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class RefundProcessingController @Inject() (
-    actions:              Actions,
-    mcc:                  MessagesControllerComponents,
-    refundProcessingPage: RefundProcessingPage,
-    languageUtils:        LanguageUtils,
-    repaymentsService:    RepaymentsService,
-    errorHandler:         ErrorHandler
+  actions:              Actions,
+  mcc:                  MessagesControllerComponents,
+  refundProcessingPage: RefundProcessingPage,
+  languageUtils:        LanguageUtils,
+  repaymentsService:    RepaymentsService,
+  errorHandler:         ErrorHandler
 )(implicit ec: ExecutionContext)
-  extends FrontendController(mcc) with I18nSupport with ApplicationLogging {
+    extends FrontendController(mcc)
+    with I18nSupport
+    with ApplicationLogging {
 
-  def onPageLoad(number: RequestNumber): Action[AnyContent] = actions.authenticatedTrackJourneyAction.async { implicit request =>
-    repaymentsService
-      .repayment(request.journey.nino.getOrElse(throw new Throwable("nino not found")), number)
-      .map { repayment =>
-        val claim = repayment.claim
-        Ok(refundProcessingPage(RefundProcessingPageModel(
-          amount       = AmountFormatter.formatAmount(claim.amount),
-          reference    = claim.key,
-          requestDate  = languageUtils.Dates.formatDate(claim.created),
-          refundByDate = languageUtils.Dates.formatDate(claim.created.plusDays(38))
-        )))
-      }.recoverWith {
-        case e: Throwable =>
-          logger.error(s"[RefundProcessingController][onPageLoad] Error during page load: ${request.journey.toLogMessage}", e)
+  def onPageLoad(number: RequestNumber): Action[AnyContent] = actions.authenticatedTrackJourneyAction.async {
+    implicit request =>
+      repaymentsService
+        .repayment(request.journey.nino.getOrElse(throw new Throwable("nino not found")), number)
+        .map { repayment =>
+          val claim = repayment.claim
+          Ok(
+            refundProcessingPage(
+              RefundProcessingPageModel(
+                amount = AmountFormatter.formatAmount(claim.amount),
+                reference = claim.key,
+                requestDate = languageUtils.Dates.formatDate(claim.created),
+                refundByDate = languageUtils.Dates.formatDate(claim.created.plusDays(38))
+              )
+            )
+          )
+        }
+        .recoverWith { case e: Throwable =>
+          logger.error(
+            s"[RefundProcessingController][onPageLoad] Error during page load: ${request.journey.toLogMessage}",
+            e
+          )
           errorHandler.internalServerErrorTemplate
             .map(InternalServerError(_))
-      }
+        }
   }
 }

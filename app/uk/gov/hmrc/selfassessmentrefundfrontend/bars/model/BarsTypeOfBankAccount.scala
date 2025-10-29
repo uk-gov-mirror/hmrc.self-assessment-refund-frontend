@@ -16,14 +16,6 @@
 
 package uk.gov.hmrc.selfassessmentrefundfrontend.bars.model
 
-import enumeratum._
-
-sealed trait BarsTypeOfBankAccount extends EnumEntry
-
-object BarsTypesOfBankAccount extends Enum[BarsTypeOfBankAccount] {
-
-  case object Personal extends BarsTypeOfBankAccount
-  case object Business extends BarsTypeOfBankAccount
-
-  override val values = findValues
+enum BarsTypeOfBankAccount derives CanEqual {
+  case Personal, Business
 }

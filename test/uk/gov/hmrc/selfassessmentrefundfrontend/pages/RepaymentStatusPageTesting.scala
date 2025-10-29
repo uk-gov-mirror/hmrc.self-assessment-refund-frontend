@@ -21,8 +21,7 @@ import support.PageContentTesting
 
 trait RepaymentStatusPageTesting extends PageContentTesting {
 
-  def checkInProgressPageContent(doc: Document, welsh: Boolean = false): Unit = {
-
+  def checkInProgressPageContent(doc: Document, welsh: Boolean = false): Unit =
     if (welsh) {
       doc.checkHasParagraphs(Paragraphs.inProgressWelsh)
       doc.checkHasBackToTaxAccountButton()
@@ -33,10 +32,7 @@ trait RepaymentStatusPageTesting extends PageContentTesting {
       doc.checkHasBackLinkWithUrl("#")
     }
 
-  }
-
-  def checkRejectedPageContent(doc: Document, welsh: Boolean = false): Unit = {
-
+  def checkRejectedPageContent(doc: Document, welsh: Boolean = false): Unit =
     if (welsh) {
       doc.checkHasParagraphs(Paragraphs.rejectedWelsh)
       doc.checkHasBackToTaxAccountButton()
@@ -46,10 +42,8 @@ trait RepaymentStatusPageTesting extends PageContentTesting {
       doc.checkHasBackToTaxAccountButton()
       doc.checkHasBackLinkWithUrl("#")
     }
-  }
 
-  def checkPaidPageContent(doc: Document, welsh: Boolean = false): Unit = {
-
+  def checkPaidPageContent(doc: Document, welsh: Boolean = false): Unit =
     if (welsh) {
       doc.checkHasParagraphs(Paragraphs.paid)
       doc.checkHasActionAsButton(
@@ -66,21 +60,17 @@ trait RepaymentStatusPageTesting extends PageContentTesting {
       doc.checkHasBackLinkWithUrl("#")
     }
 
-  }
-
   implicit class RepaymentStatusPageDocTestingSyntax(doc: Document) {
-    def checkHasBackToTaxAccountButton(): Unit = {
+    def checkHasBackToTaxAccountButton(): Unit      =
       doc.checkHasActionAsButton(
         "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
         "Back to tax account"
       )
-    }
-    def checkHasBackToTaxAccountButtonWelsh(): Unit = {
+    def checkHasBackToTaxAccountButtonWelsh(): Unit =
       doc.checkHasActionAsButton(
         "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
         "Yn ôl i’r cyfrif treth"
       )
-    }
 
   }
 

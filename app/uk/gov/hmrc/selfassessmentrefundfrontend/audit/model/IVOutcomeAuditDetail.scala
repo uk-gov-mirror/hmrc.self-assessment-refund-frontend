@@ -20,9 +20,9 @@ import play.api.libs.json.{Json, OWrites}
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.customer.Nino
 
 final case class IVOutcomeAuditDetail(
-    isSuccessful: Boolean,
-    nino:         Option[Nino],
-    userType:     Option[String]
+  isSuccessful: Boolean,
+  nino:         Option[Nino],
+  userType:     Option[String]
 )
 
 object IVOutcomeAuditDetail {

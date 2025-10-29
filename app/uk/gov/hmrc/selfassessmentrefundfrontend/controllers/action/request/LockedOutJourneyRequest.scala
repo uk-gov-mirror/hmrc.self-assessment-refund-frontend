@@ -24,10 +24,10 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.model.journey.Journey
 import java.time.Instant
 
 class LockedOutJourneyRequest[A](
-    override val request:           AuthenticatedRequest[A],
-    override val journey:           Journey,
-    override val sessionId:         SessionId,
-    val barsLockoutExpiryTime:      Instant,
-    val numberOfBarsVerifyAttempts: NumberOfBarsVerifyAttempts,
-    val returnUrl:                  Option[ReturnUrl]
+  override val request:           AuthenticatedRequest[A],
+  override val journey:           Journey,
+  override val sessionId:         SessionId,
+  val barsLockoutExpiryTime:      Instant,
+  val numberOfBarsVerifyAttempts: NumberOfBarsVerifyAttempts,
+  val returnUrl:                  Option[ReturnUrl]
 ) extends AuthenticatedRequest[A](request, journey, sessionId, request.affinityGroup, request.agentReferenceNumber)

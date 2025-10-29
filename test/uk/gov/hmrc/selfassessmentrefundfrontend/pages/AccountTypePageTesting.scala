@@ -28,10 +28,12 @@ trait AccountTypePageTesting extends PageContentTesting {
 
     doc.checkHasHint("The bank details you provide must be for a UK bank account")
 
-    doc.checkHasRadioButtonOptionsWith(List(
-      ("Business bank account", None),
-      ("Personal bank account", None)
-    ))
+    doc.checkHasRadioButtonOptionsWith(
+      List(
+        ("Business bank account", None),
+        ("Personal bank account", None)
+      )
+    )
 
     doc.checkHasFormActionAsContinueButton(routes.AccountTypeController.postAccountType)
   }
@@ -43,16 +45,18 @@ trait AccountTypePageTesting extends PageContentTesting {
 
     doc.checkHasErrorMessageAgainst("accountType", "Select a type of account")
   }
-  def checkPageContentWelsh(doc: Document): Unit = {
+  def checkPageContentWelsh(doc: Document): Unit  = {
 
     doc.checkHasBackLinkWithUrl("#")
 
     doc.checkHasHint("Mae’n rhaid i’r manylion banc rydych yn eu darparu fod ar gyfer cyfrif banc yn y DU")
 
-    doc.checkHasRadioButtonOptionsWith(List(
-      ("Cyfrif banc busnes", None),
-      ("Cyfrif banc personol", None)
-    ))
+    doc.checkHasRadioButtonOptionsWith(
+      List(
+        ("Cyfrif banc busnes", None),
+        ("Cyfrif banc personol", None)
+      )
+    )
 
     doc.checkHasFormActionAsContinueButton(routes.AccountTypeController.postAccountType, true)
   }

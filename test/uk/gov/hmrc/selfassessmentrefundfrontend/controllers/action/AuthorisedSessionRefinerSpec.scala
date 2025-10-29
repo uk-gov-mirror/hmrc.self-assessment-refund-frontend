@@ -30,6 +30,7 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.action.request.{Auth
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.customer.Nino
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.journey.JourneyTypes.TrackJourney
 import uk.gov.hmrc.selfassessmentrefundfrontend.testdata.TdSupport.FakeRequestOps
+import uk.gov.hmrc.selfassessmentrefundfrontent.util.CanEqualGivens.sessionIdCanEqual
 
 import scala.concurrent.Future
 
@@ -37,7 +38,7 @@ class AuthorisedSessionRefinerSpec extends ItSpec {
 
   @SuppressWarnings(Array("org.wartremover.warts.AnyVal"))
   override lazy val configOverrides: Map[String, Any] = Map(
-    "auditing.enabled" -> true,
+    "auditing.enabled"               -> true,
     "auditing.consumer.baseUri.port" -> wireMockServer.port
   )
 
@@ -45,18 +46,19 @@ class AuthorisedSessionRefinerSpec extends ItSpec {
 
   implicit val materializer: Materializer = app.injector.instanceOf[Materializer]
 
-  val defaultActionBuilder: DefaultActionBuilder = app.injector.instanceOf[DefaultActionBuilder]
+  val defaultActionBuilder: DefaultActionBuilder         = app.injector.instanceOf[DefaultActionBuilder]
   val authorisedSessionRefiner: AuthorisedSessionRefiner = app.injector.instanceOf[AuthorisedSessionRefiner]
-  val preAuthSessionRefiner: PreAuthSessionRefiner = app.injector.instanceOf[PreAuthSessionRefiner]
+  val preAuthSessionRefiner: PreAuthSessionRefiner       = app.injector.instanceOf[PreAuthSessionRefiner]
 
   val authenticatedJourneyAction: ActionBuilder[AuthenticatedRequest, AnyContent] =
     defaultActionBuilder
       .andThen[PreAuthRequest](preAuthSessionRefiner)
       .andThen[AuthenticatedRequest](authorisedSessionRefiner)
 
-  def doTest(request: Request[_], expectedSessionId: SessionId): Future[Result] = authenticatedJourneyAction { request =>
-    request.sessionId shouldBe expectedSessionId
-    Ok
+  def doTest(request: Request[_], expectedSessionId: SessionId): Future[Result] = authenticatedJourneyAction {
+    request =>
+      request.sessionId shouldBe expectedSessionId
+      Ok
   }(request).run()
 
   def doTestNoSessionId(request: Request[_]): Future[Result] = authenticatedJourneyAction { _ =>
@@ -64,10 +66,16 @@ class AuthorisedSessionRefinerSpec extends ItSpec {
   }(request).run()
 
   def fakeRequestRefundRequest(didReturnFromIV: Boolean = false): FakeRequest[AnyContentAsEmpty.type] =
-    FakeRequest("GET", s"/request-a-self-assessment-refund/refund-amount${if (didReturnFromIV) "?journeyId=1234" else ""}")
+    FakeRequest(
+      "GET",
+      s"/request-a-self-assessment-refund/refund-amount${if (didReturnFromIV) "?journeyId=1234" else ""}"
+    )
 
   def fakeRequestTrackRefund(didReturnFromIV: Boolean = false): FakeRequest[AnyContentAsEmpty.type] =
-    FakeRequest("GET", s"/track-a-self-assessment-refund/refund-request-tracker/start${if (didReturnFromIV) "?journeyId=1234" else ""}")
+    FakeRequest(
+      "GET",
+      s"/track-a-self-assessment-refund/refund-request-tracker/start${if (didReturnFromIV) "?journeyId=1234" else ""}"
+    )
 
   val fakeRequest: FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest("GET", "/self-assessment-refund-frontend/auth/authorise")
@@ -106,32 +114,44 @@ class AuthorisedSessionRefinerSpec extends ItSpec {
         stubBackendBusinessJourney(nino = Some(Nino("AA111111A")))
         AuthStub.authorise(AffinityGroup.Individual, ConfidenceLevel.L250)
 
-        val result = doTest(fakeRequestRefundRequest(true).withSessionId().withAuthToken(), SessionId("session-deadbeef"))
+        val result =
+          doTest(fakeRequestRefundRequest(true).withSessionId().withAuthToken(), SessionId("session-deadbeef"))
         status(result) shouldBe OK
 
-        AuditStub.verifyEventAudited("IdentityVerificationOutcome", Json.parse(
-          s"""{
+        AuditStub.verifyEventAudited(
+          "IdentityVerificationOutcome",
+          Json
+            .parse(
+              s"""{
              |  "isSuccessful": true,
              |  "nino":"AA111111A",
              |  "userType":"Individual"
              |}""".stripMargin
-        ).as[JsObject])
+            )
+            .as[JsObject]
+        )
       }
 
       "they are Organisation" in {
         stubBackendBusinessJourney(nino = Some(Nino("AA111111A")))
         AuthStub.authorise(AffinityGroup.Organisation, ConfidenceLevel.L250)
 
-        val result = doTest(fakeRequestRefundRequest(true).withSessionId().withAuthToken(), SessionId("session-deadbeef"))
+        val result =
+          doTest(fakeRequestRefundRequest(true).withSessionId().withAuthToken(), SessionId("session-deadbeef"))
         status(result) shouldBe OK
 
-        AuditStub.verifyEventAudited("IdentityVerificationOutcome", Json.parse(
-          s"""{
+        AuditStub.verifyEventAudited(
+          "IdentityVerificationOutcome",
+          Json
+            .parse(
+              s"""{
              |  "isSuccessful": true,
              |  "nino":"AA111111A",
              |  "userType":"Organisation"
              |}""".stripMargin
-        ).as[JsObject])
+            )
+            .as[JsObject]
+        )
       }
     }
 
@@ -143,13 +163,18 @@ class AuthorisedSessionRefinerSpec extends ItSpec {
         val result = doTest(fakeRequestTrackRefund(true).withSessionId().withAuthToken(), SessionId("session-deadbeef"))
         status(result) shouldBe OK
 
-        AuditStub.verifyEventAudited("IdentityVerificationOutcome", Json.parse(
-          s"""{
+        AuditStub.verifyEventAudited(
+          "IdentityVerificationOutcome",
+          Json
+            .parse(
+              s"""{
              |  "isSuccessful": true,
              |  "nino":"AA111111A",
              |  "userType":"Individual"
              |}""".stripMargin
-        ).as[JsObject])
+            )
+            .as[JsObject]
+        )
       }
 
       "they are Organisation" in {
@@ -159,13 +184,18 @@ class AuthorisedSessionRefinerSpec extends ItSpec {
         val result = doTest(fakeRequestTrackRefund(true).withSessionId().withAuthToken(), SessionId("session-deadbeef"))
         status(result) shouldBe OK
 
-        AuditStub.verifyEventAudited("IdentityVerificationOutcome", Json.parse(
-          s"""{
+        AuditStub.verifyEventAudited(
+          "IdentityVerificationOutcome",
+          Json
+            .parse(
+              s"""{
              |  "isSuccessful": true,
              |  "nino":"AA111111A",
              |  "userType":"Organisation"
              |}""".stripMargin
-        ).as[JsObject])
+            )
+            .as[JsObject]
+        )
       }
     }
 
@@ -177,9 +207,18 @@ class AuthorisedSessionRefinerSpec extends ItSpec {
         val result = doTest(fakeRequestRefundRequest().withSessionId().withAuthToken(), SessionId("session-deadbeef"))
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some("http://localhost:9948/iv-stub/uplift?confidenceLevel=250&origin=self-assessment-refund&completionURL=http%3A%2F%2Flocalhost%3A9171%2Frequest-a-self-assessment-refund%2Frefund-amount&failureURL=http%3A%2F%2Flocalhost%3A9171%2Frequest-a-self-assessment-refund%2Fcannot-confirm-identity%3FuserType%3DIndividual")
+        redirectLocation(result) shouldBe Some(
+          "http://localhost:9948/iv-stub/uplift?confidenceLevel=250&origin=self-assessment-refund&completionURL=http%3A%2F%2Flocalhost%3A9171%2Frequest-a-self-assessment-refund%2Frefund-amount&failureURL=http%3A%2F%2Flocalhost%3A9171%2Frequest-a-self-assessment-refund%2Fcannot-confirm-identity%3FuserType%3DIndividual"
+        )
 
-        AuditStub.verifyEventAudited("RefundAmount", Json.parse("""{"outcome":{"isSuccessful":false,"failureReason":"low confidence level"},"userType":"Individual"}""").as[JsObject])
+        AuditStub.verifyEventAudited(
+          "RefundAmount",
+          Json
+            .parse(
+              """{"outcome":{"isSuccessful":false,"failureReason":"low confidence level"},"userType":"Individual"}"""
+            )
+            .as[JsObject]
+        )
       }
       "they have incorrect ConfidenceLevel for Organisation" in {
         AuthStub.authorise(AffinityGroup.Organisation, ConfidenceLevel.L50)
@@ -187,9 +226,18 @@ class AuthorisedSessionRefinerSpec extends ItSpec {
 
         val result = doTest(fakeRequestRefundRequest().withSessionId().withAuthToken(), SessionId("session-deadbeef"))
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some("http://localhost:9948/iv-stub/uplift?confidenceLevel=250&origin=self-assessment-refund&completionURL=http%3A%2F%2Flocalhost%3A9171%2Frequest-a-self-assessment-refund%2Frefund-amount&failureURL=http%3A%2F%2Flocalhost%3A9171%2Frequest-a-self-assessment-refund%2Fcannot-confirm-identity%3FuserType%3DOrganisation")
+        redirectLocation(result) shouldBe Some(
+          "http://localhost:9948/iv-stub/uplift?confidenceLevel=250&origin=self-assessment-refund&completionURL=http%3A%2F%2Flocalhost%3A9171%2Frequest-a-self-assessment-refund%2Frefund-amount&failureURL=http%3A%2F%2Flocalhost%3A9171%2Frequest-a-self-assessment-refund%2Fcannot-confirm-identity%3FuserType%3DOrganisation"
+        )
 
-        AuditStub.verifyEventAudited("RefundAmount", Json.parse("""{"outcome":{"isSuccessful":false,"failureReason":"low confidence level"},"userType":"Organisation"}""").as[JsObject])
+        AuditStub.verifyEventAudited(
+          "RefundAmount",
+          Json
+            .parse(
+              """{"outcome":{"isSuccessful":false,"failureReason":"low confidence level"},"userType":"Organisation"}"""
+            )
+            .as[JsObject]
+        )
       }
     }
 
@@ -201,9 +249,18 @@ class AuthorisedSessionRefinerSpec extends ItSpec {
         val result = doTest(fakeRequestTrackRefund().withSessionId().withAuthToken(), SessionId("session-deadbeef"))
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some("http://localhost:9948/iv-stub/uplift?confidenceLevel=250&origin=self-assessment-refund&completionURL=http%3A%2F%2Flocalhost%3A9171%2Ftrack-a-self-assessment-refund%2Frefund-request-tracker%2Fstart&failureURL=http%3A%2F%2Flocalhost%3A9171%2Ftrack-a-self-assessment-refund%2Fcannot-confirm-identity%3FuserType%3DIndividual")
+        redirectLocation(result) shouldBe Some(
+          "http://localhost:9948/iv-stub/uplift?confidenceLevel=250&origin=self-assessment-refund&completionURL=http%3A%2F%2Flocalhost%3A9171%2Ftrack-a-self-assessment-refund%2Frefund-request-tracker%2Fstart&failureURL=http%3A%2F%2Flocalhost%3A9171%2Ftrack-a-self-assessment-refund%2Fcannot-confirm-identity%3FuserType%3DIndividual"
+        )
 
-        AuditStub.verifyEventAudited("ViewRefundStatus", Json.parse("""{"outcome":{"isSuccessful":false,"failureReason":"low confidence level"},"origin":"view and change","userType":"Individual","refunds":[]}""").as[JsObject])
+        AuditStub.verifyEventAudited(
+          "ViewRefundStatus",
+          Json
+            .parse(
+              """{"outcome":{"isSuccessful":false,"failureReason":"low confidence level"},"origin":"view and change","userType":"Individual","refunds":[]}"""
+            )
+            .as[JsObject]
+        )
       }
       "they have incorrect ConfidenceLevel for Organisation" in {
         AuthStub.authorise(AffinityGroup.Organisation, ConfidenceLevel.L50)
@@ -211,9 +268,18 @@ class AuthorisedSessionRefinerSpec extends ItSpec {
 
         val result = doTest(fakeRequestTrackRefund().withSessionId().withAuthToken(), SessionId("session-deadbeef"))
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some("http://localhost:9948/iv-stub/uplift?confidenceLevel=250&origin=self-assessment-refund&completionURL=http%3A%2F%2Flocalhost%3A9171%2Ftrack-a-self-assessment-refund%2Frefund-request-tracker%2Fstart&failureURL=http%3A%2F%2Flocalhost%3A9171%2Ftrack-a-self-assessment-refund%2Fcannot-confirm-identity%3FuserType%3DOrganisation")
+        redirectLocation(result) shouldBe Some(
+          "http://localhost:9948/iv-stub/uplift?confidenceLevel=250&origin=self-assessment-refund&completionURL=http%3A%2F%2Flocalhost%3A9171%2Ftrack-a-self-assessment-refund%2Frefund-request-tracker%2Fstart&failureURL=http%3A%2F%2Flocalhost%3A9171%2Ftrack-a-self-assessment-refund%2Fcannot-confirm-identity%3FuserType%3DOrganisation"
+        )
 
-        AuditStub.verifyEventAudited("ViewRefundStatus", Json.parse("""{"outcome":{"isSuccessful":false,"failureReason":"low confidence level"},"origin":"view and change","userType":"Organisation","refunds":[]}""").as[JsObject])
+        AuditStub.verifyEventAudited(
+          "ViewRefundStatus",
+          Json
+            .parse(
+              """{"outcome":{"isSuccessful":false,"failureReason":"low confidence level"},"origin":"view and change","userType":"Organisation","refunds":[]}"""
+            )
+            .as[JsObject]
+        )
       }
     }
 
@@ -224,7 +290,9 @@ class AuthorisedSessionRefinerSpec extends ItSpec {
         val result = doTestNoSessionId(fakeRequest.withAuthToken())
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some("http://localhost:9949/auth-login-stub/gg-sign-in?continue=http://localhost:9171/self-assessment-refund/self-assessment-refund/test-only")
+        redirectLocation(result) shouldBe Some(
+          "http://localhost:9949/auth-login-stub/gg-sign-in?continue=http://localhost:9171/self-assessment-refund/self-assessment-refund/test-only"
+        )
       }
 
       "no bearer token is found" in {
@@ -233,7 +301,9 @@ class AuthorisedSessionRefinerSpec extends ItSpec {
         val result = doTest(fakeRequest.withSession(), SessionId("session-deadbeef"))
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some("http://localhost:9949/auth-login-stub/gg-sign-in?continue=http://localhost:9171/self-assessment-refund/self-assessment-refund/test-only")
+        redirectLocation(result) shouldBe Some(
+          "http://localhost:9949/auth-login-stub/gg-sign-in?continue=http://localhost:9171/self-assessment-refund/self-assessment-refund/test-only"
+        )
       }
     }
   }

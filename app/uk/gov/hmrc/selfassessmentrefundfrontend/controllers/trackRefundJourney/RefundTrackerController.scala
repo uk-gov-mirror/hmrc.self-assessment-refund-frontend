@@ -31,29 +31,34 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class RefundTrackerController @Inject() (
-    actions:                Actions,
-    mcc:                    MessagesControllerComponents,
-    appConfig:              AppConfig,
-    refundTrackerPage:      RefundTrackerPage,
-    repaymentService:       RepaymentsService,
-    errorHandler:           ErrorHandler,
-    refundTackerViewHelper: RefundTrackerViewHelper
+  actions:                Actions,
+  mcc:                    MessagesControllerComponents,
+  appConfig:              AppConfig,
+  refundTrackerPage:      RefundTrackerPage,
+  repaymentService:       RepaymentsService,
+  errorHandler:           ErrorHandler,
+  refundTackerViewHelper: RefundTrackerViewHelper
 )(implicit ec: ExecutionContext)
-  extends FrontendController(mcc) with I18nSupport with Logging {
+    extends FrontendController(mcc)
+    with I18nSupport
+    with Logging {
 
   val startRefundTracker: Action[AnyContent] = actions.authenticatedTrackJourneyAction {
     Redirect(trackRefundJourney.routes.RefundTrackerController.refundTracker)
   }
 
   val refundTracker: Action[AnyContent] = actions.authenticatedTrackJourneyAction.async { implicit request =>
-    val creditAndRefundsUrl = if (request.isAgent) appConfig.creditAndRefundsAgentsUrl else appConfig.creditAndRefundsUrl
-    repaymentService.repayments(request.journey.nino.getOrElse(sys.error("nino not found"))).map(taxRepayments => {
-      val yearlyRefundsModel = refundTackerViewHelper.refundTrackerYearModelMap(taxRepayments)
-      Ok(refundTrackerPage(yearlyRefundsModel, creditAndRefundsUrl))
-    }).recoverWith {
-      case e: Exception =>
+    val creditAndRefundsUrl =
+      if (request.isAgent) appConfig.creditAndRefundsAgentsUrl else appConfig.creditAndRefundsUrl
+    repaymentService
+      .repayments(request.journey.nino.getOrElse(sys.error("nino not found")))
+      .map { taxRepayments =>
+        val yearlyRefundsModel = refundTackerViewHelper.refundTrackerYearModelMap(taxRepayments)
+        Ok(refundTrackerPage(yearlyRefundsModel, creditAndRefundsUrl))
+      }
+      .recoverWith { case e: Exception =>
         logger.warn(s"[RefundTrackerController][refundTracker] - Unsuccessful retrieval from the repayments service", e)
         errorHandler.internalServerErrorTemplate.map(InternalServerError(_))
-    }
+      }
   }
 }

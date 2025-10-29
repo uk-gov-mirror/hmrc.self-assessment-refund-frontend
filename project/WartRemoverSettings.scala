@@ -19,11 +19,11 @@ object WartRemoverSettings {
         Wart.SortedMaxMinOption,
         Wart.Throw,
         Wart.ToString,
+        Wart.Equals,
         Wart.PlatformDefault
       ),
       Test / compile / wartremoverErrors --= Seq(
         Wart.Any,
-        Wart.Equals,
         Wart.GlobalExecutionContext,
         Wart.Null,
         Wart.NonUnitStatements,

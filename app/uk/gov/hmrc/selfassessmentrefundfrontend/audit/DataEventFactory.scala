@@ -21,27 +21,27 @@ import play.api.mvc.Request
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.play.audit.AuditExtensions.auditHeaderCarrier
 import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
-import uk.gov.hmrc.selfassessmentrefundfrontend.audit.model.{AuditOutcome, IVOutcomeAuditDetail}
 import uk.gov.hmrc.selfassessmentrefundfrontend.audit.model.bars._
 import uk.gov.hmrc.selfassessmentrefundfrontend.audit.model.startclaimjourney.RefundAmountAuditDetail
 import uk.gov.hmrc.selfassessmentrefundfrontend.audit.model.trackrefunds._
+import uk.gov.hmrc.selfassessmentrefundfrontend.audit.model.{AuditOutcome, IVOutcomeAuditDetail}
 import uk.gov.hmrc.selfassessmentrefundfrontend.bars.model.response.{BarsError, VerifyResponse}
 import uk.gov.hmrc.selfassessmentrefundfrontend.connectors.barsLockout.model.BarsVerifyStatusResponse
+import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.action.RequestSupport
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.customer.Nino
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.journey.{JourneyType, JourneyTypes}
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.{AccountType, BankAccountInfo}
 import uk.gov.hmrc.selfassessmentrefundfrontend.services.RepaymentsService.TaxRepayment
-import uk.gov.hmrc.selfassessmentrefundfrontend.util.RequestSupport
 
 object DataEventFactory {
   def barsCheckEvent(
-      bankDetails:          BankAccountInfo,
-      barsResponse:         Either[BarsError, VerifyResponse],
-      verifyStatusResponse: BarsVerifyStatusResponse,
-      maybeAccountType:     Option[AccountType],
-      affinityGroup:        Option[AffinityGroup],
-      maybeNino:            Option[Nino],
-      maybeArn:             Option[String]
+    bankDetails:          BankAccountInfo,
+    barsResponse:         Either[BarsError, VerifyResponse],
+    verifyStatusResponse: BarsVerifyStatusResponse,
+    maybeAccountType:     Option[AccountType],
+    affinityGroup:        Option[AffinityGroup],
+    maybeNino:            Option[Nino],
+    maybeArn:             Option[String]
   )(implicit request: Request[_]): ExtendedDataEvent = {
 
     val detail = BarsCheckAuditDetail(
@@ -53,85 +53,90 @@ object DataEventFactory {
     )
 
     makeExtendedDataEvent(
-      auditType       = "BARSCheck",
-      detail          = Json.toJson(detail),
+      auditType = "BARSCheck",
+      detail = Json.toJson(detail),
       transactionName = "BARSCheck"
     )
   }
 
   def viewRefundStatusEvent(
-      maybeTaxRepayments: Option[List[TaxRepayment]],
-      affinityGroup:      Option[AffinityGroup],
-      maybeNino:          Option[Nino],
-      maybeArn:           Option[String],
-      journeyType:        JourneyType,
-      failureReason:      Option[String]
+    maybeTaxRepayments: Option[List[TaxRepayment]],
+    affinityGroup:      Option[AffinityGroup],
+    maybeNino:          Option[Nino],
+    maybeArn:           Option[String],
+    journeyType:        JourneyType,
+    failureReason:      Option[String]
   )(implicit request: Request[_]): ExtendedDataEvent = {
 
     val detail = ViewRefundStatusAuditDetail(
-      outcome              = AuditOutcome.fromFailureReason(failureReason),
-      origin               = journeyType match {
-        case JourneyTypes.TrackJourney =>
+      outcome = AuditOutcome.fromFailureReason(failureReason),
+      origin = journeyType match {
+        case JourneyTypes.TrackJourney  =>
           "view and change"
         case JourneyTypes.RefundJourney =>
           "claim journey"
       },
-      nino                 = maybeNino,
-      userType             = affinityGroup,
+      nino = maybeNino,
+      userType = affinityGroup,
       agentReferenceNumber = maybeArn,
-      refunds              = maybeTaxRepayments.fold[List[RefundAuditDetail]](List.empty) { taxRepayments =>
+      refunds = maybeTaxRepayments.fold[List[RefundAuditDetail]](List.empty) { taxRepayments =>
         RefundAuditDetail.fromTaxRepayment(taxRepayments)
       }
     )
 
     makeExtendedDataEvent(
-      auditType       = "ViewRefundStatus",
-      detail          = Json.toJson(detail),
+      auditType = "ViewRefundStatus",
+      detail = Json.toJson(detail),
       transactionName = "ViewRefundStatus"
     )
   }
 
   def startClaimJourneyEvent(
-      totalCreditAvailableForRepayment: Option[BigDecimal],
-      unallocatedCredit:                Option[BigDecimal],
-      amountChosen:                     Option[BigDecimal],
-      affinityGroup:                    Option[AffinityGroup],
-      maybeNino:                        Option[Nino],
-      maybeArn:                         Option[String],
-      failureReason:                    Option[String]
+    totalCreditAvailableForRepayment: Option[BigDecimal],
+    unallocatedCredit:                Option[BigDecimal],
+    amountChosen:                     Option[BigDecimal],
+    affinityGroup:                    Option[AffinityGroup],
+    maybeNino:                        Option[Nino],
+    maybeArn:                         Option[String],
+    failureReason:                    Option[String]
   )(implicit request: Request[_]): ExtendedDataEvent = {
     val detail = RefundAmountAuditDetail(
-      outcome                          = AuditOutcome.fromFailureReason(failureReason),
+      outcome = AuditOutcome.fromFailureReason(failureReason),
       totalCreditAvailableForRepayment = totalCreditAvailableForRepayment,
-      unallocatedCredit                = unallocatedCredit,
-      amountChosen                     = amountChosen,
-      nino                             = maybeNino,
-      agentReferenceNumber             = maybeArn,
-      userType                         = affinityGroup
+      unallocatedCredit = unallocatedCredit,
+      amountChosen = amountChosen,
+      nino = maybeNino,
+      agentReferenceNumber = maybeArn,
+      userType = affinityGroup
     )
 
     makeExtendedDataEvent(
-      auditType       = "RefundAmount",
-      detail          = Json.toJson(detail),
+      auditType = "RefundAmount",
+      detail = Json.toJson(detail),
       transactionName = "RefundAmount"
     )
   }
 
-  def identityVerificationOutcomeEvent(isSuccessful: Boolean, maybeNino: Option[Nino], affinityGroup: Option[String])(implicit request: Request[_]): ExtendedDataEvent = {
+  def identityVerificationOutcomeEvent(isSuccessful: Boolean, maybeNino: Option[Nino], affinityGroup: Option[String])(
+    implicit request: Request[_]
+  ): ExtendedDataEvent = {
     val detail = IVOutcomeAuditDetail(
       isSuccessful = isSuccessful,
-      nino         = maybeNino,
-      userType     = affinityGroup
+      nino = maybeNino,
+      userType = affinityGroup
     )
 
     makeExtendedDataEvent(
-      auditType       = "IdentityVerificationOutcome",
-      detail          = Json.toJson(detail),
+      auditType = "IdentityVerificationOutcome",
+      detail = Json.toJson(detail),
       transactionName = "IdentityVerificationOutcome"
     )
   }
 
-  private def auditUserEnteredDetails(bankDetails: BankAccountInfo, maybeAccountType: Option[AccountType]): BarsUserEnteredDetails =
+  private def auditUserEnteredDetails(
+    bankDetails:      BankAccountInfo,
+    maybeAccountType: Option[AccountType]
+  ): BarsUserEnteredDetails =
     BarsUserEnteredDetails(
       maybeAccountType.fold("")(_.name),
       bankDetails.name,
@@ -140,27 +145,29 @@ object DataEventFactory {
       bankDetails.rollNumber.map(_.value)
     )
 
-  private def auditBarsOutcome(barsResponse: Either[BarsError, VerifyResponse], verifyStatusResponse: BarsVerifyStatusResponse): BarsVerifyOutcome = {
+  private def auditBarsOutcome(
+    barsResponse:         Either[BarsError, VerifyResponse],
+    verifyStatusResponse: BarsVerifyStatusResponse
+  ): BarsVerifyOutcome =
     BarsVerifyOutcome(
-      isBankAccountValid    = barsResponse.isRight,
-      unsuccessfulAttempts  = verifyStatusResponse.attempts.value,
+      isBankAccountValid = barsResponse.isRight,
+      unsuccessfulAttempts = verifyStatusResponse.attempts.value,
       lockoutExpiryDateTime = verifyStatusResponse.lockoutExpiryDateTime.map(_.toString),
-      barsResults           = barsResponse
+      barsResults = barsResponse
     )
-  }
 
   private def makeExtendedDataEvent(
-      auditType:       String,
-      detail:          JsValue,
-      transactionName: String
+    auditType:       String,
+    detail:          JsValue,
+    transactionName: String
   )(implicit request: Request[_]): ExtendedDataEvent = {
 
     val hc = RequestSupport.hc
     ExtendedDataEvent(
       auditSource = "self-assessment-refund-frontend",
-      auditType   = auditType,
-      detail      = detail,
-      tags        = hc.toAuditTags(transactionName, request.uri) ++ Map(hc.names.deviceID -> hc.deviceID.getOrElse("-"))
+      auditType = auditType,
+      detail = detail,
+      tags = hc.toAuditTags(transactionName, request.uri) ++ Map(hc.names.deviceID -> hc.deviceID.getOrElse("-"))
     )
   }
 

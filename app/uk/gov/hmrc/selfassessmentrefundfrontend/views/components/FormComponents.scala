@@ -22,9 +22,9 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.views.html.components.FormContin
 import javax.inject.Inject
 
 final case class FormComponents @Inject() (
-    form:     uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
-    input:    uk.gov.hmrc.govukfrontend.views.html.components.GovukInput,
-    radios:   uk.gov.hmrc.govukfrontend.views.html.components.GovukRadios,
-    continue: FormContinue,
-    button:   GovukButton
+  form:     uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
+  input:    uk.gov.hmrc.govukfrontend.views.html.components.GovukInput,
+  radios:   uk.gov.hmrc.govukfrontend.views.html.components.GovukRadios,
+  continue: FormContinue,
+  button:   GovukButton
 )

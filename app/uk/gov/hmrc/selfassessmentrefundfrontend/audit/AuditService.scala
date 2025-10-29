@@ -38,51 +38,64 @@ import scala.util.control.NonFatal
 import scala.util.{Failure, Success}
 
 @Singleton
-class AuditService @Inject() (auditConnector: AuditConnector)(implicit ec: ExecutionContext) extends ApplicationLogging {
+class AuditService @Inject() (auditConnector: AuditConnector)(implicit ec: ExecutionContext)
+    extends ApplicationLogging {
 
   def auditBarsCheck(
-      bankDetails:          BankAccountInfo,
-      result:               Either[BarsError, VerifyResponse],
-      verifyStatusResponse: BarsVerifyStatusResponse,
-      maybeAccountType:     Option[AccountType],
-      affinityGroup:        Option[AffinityGroup],
-      maybeNino:            Option[Nino],
-      maybeArn:             Option[String]
+    bankDetails:          BankAccountInfo,
+    result:               Either[BarsError, VerifyResponse],
+    verifyStatusResponse: BarsVerifyStatusResponse,
+    maybeAccountType:     Option[AccountType],
+    affinityGroup:        Option[AffinityGroup],
+    maybeNino:            Option[Nino],
+    maybeArn:             Option[String]
   )(implicit request: Request[_]): Unit = {
-    val event = DataEventFactory.barsCheckEvent(bankDetails, result, verifyStatusResponse, maybeAccountType, affinityGroup, maybeNino, maybeArn)
+    val event = DataEventFactory.barsCheckEvent(
+      bankDetails,
+      result,
+      verifyStatusResponse,
+      maybeAccountType,
+      affinityGroup,
+      maybeNino,
+      maybeArn
+    )
 
     sendExtendedEvent(event)
   }
 
   def auditRefundRequestEvent(
-      journey:         Journey,
-      nrsSubmissionId: Option[String],
-      affinityGroup:   Option[String],
-      maybeArn:        Option[String]
-  )(implicit hc: HeaderCarrier): Unit = {
+    journey:         Journey,
+    nrsSubmissionId: Option[String],
+    affinityGroup:   Option[String],
+    maybeArn:        Option[String]
+  )(implicit hc: HeaderCarrier): Unit =
     try {
-      val totalCreditAvailableForRepayment = journey.amount.map(_.totalCreditAvailableForRepayment.getOrElse(BigDecimal("0"))).getOrElse(BigDecimal("0")).setScale(2)
-      val unallocatedCredit = journey.amount.map(_.unallocatedCredit.getOrElse(BigDecimal("0"))).getOrElse(BigDecimal("0")).setScale(2)
-      val amountChosen = journey.amount.map(_.repay).getOrElse(BigDecimal("0")).setScale(2)
+      val totalCreditAvailableForRepayment = journey.amount
+        .map(_.totalCreditAvailableForRepayment.getOrElse(BigDecimal("0")))
+        .getOrElse(BigDecimal("0"))
+        .setScale(2)
+      val unallocatedCredit                =
+        journey.amount.map(_.unallocatedCredit.getOrElse(BigDecimal("0"))).getOrElse(BigDecimal("0")).setScale(2)
+      val amountChosen                     = journey.amount.map(_.repay).getOrElse(BigDecimal("0")).setScale(2)
 
       val repaymentRequestAuditItem = RepaymentRequestAuditItem(
-        etmpResult                       = journey.repaymentConfirmation.fold("Fail")(_ => "Success"),
-        userType                         = affinityGroup.getOrElse("MissingAffinityGroup"),
-        agentReferenceNumber             = maybeArn,
+        etmpResult = journey.repaymentConfirmation.fold("Fail")(_ => "Success"),
+        userType = affinityGroup.getOrElse("MissingAffinityGroup"),
+        agentReferenceNumber = maybeArn,
         totalCreditAvailableForRepayment = totalCreditAvailableForRepayment.toString(),
-        unallocatedCredit                = unallocatedCredit.toString(),
-        amountChosen                     = amountChosen.toString(),
-        barsResponse                     = None,
-        reference                        = journey.repaymentConfirmation.map(_.repaymentRequestNumber.value),
-        nino                             = journey.nino.map(_.value).getOrElse("MissingNino"),
-        nrsSubmissionId                  = nrsSubmissionId.getOrElse("MissingNrsSubmissionId"),
-        bankAccount                      = BankAccountDetailsAudit.fromOptionalBankAccountInfo(journey.accountType, journey.bankAccountInfo)
+        unallocatedCredit = unallocatedCredit.toString(),
+        amountChosen = amountChosen.toString(),
+        barsResponse = None,
+        reference = journey.repaymentConfirmation.map(_.repaymentRequestNumber.value),
+        nino = journey.nino.map(_.value).getOrElse("MissingNino"),
+        nrsSubmissionId = nrsSubmissionId.getOrElse("MissingNrsSubmissionId"),
+        bankAccount = BankAccountDetailsAudit.fromOptionalBankAccountInfo(journey.accountType, journey.bankAccountInfo)
       )
-      val event = ExtendedDataEvent(
+      val event                     = ExtendedDataEvent(
         auditSource = "self-assessment-refund-frontend",
-        auditType   = "RefundRequest",
-        detail      = Json.toJsObject(repaymentRequestAuditItem),
-        tags        = AuditExtensions.auditHeaderCarrier(hc).toAuditTags()
+        auditType = "RefundRequest",
+        detail = Json.toJsObject(repaymentRequestAuditItem),
+        tags = AuditExtensions.auditHeaderCarrier(hc).toAuditTags()
       )
 
       sendExtendedEvent(event)
@@ -90,36 +103,52 @@ class AuditService @Inject() (auditConnector: AuditConnector)(implicit ec: Execu
       case e: Throwable =>
         logger.error("[AuditService][auditRefundRequestEvent] Unable to create audit: " + e.getMessage)
     }
-  }
 
   def auditViewRefundStatus(
-      taxRepayments: Option[List[TaxRepayment]],
-      affinityGroup: Option[AffinityGroup],
-      maybeNino:     Option[Nino],
-      maybeArn:      Option[String],
-      journeyType:   JourneyType,
-      failureReason: Option[String]             = None
+    taxRepayments: Option[List[TaxRepayment]],
+    affinityGroup: Option[AffinityGroup],
+    maybeNino:     Option[Nino],
+    maybeArn:      Option[String],
+    journeyType:   JourneyType,
+    failureReason: Option[String] = None
   )(implicit request: Request[_]): Unit = {
-    val event = DataEventFactory.viewRefundStatusEvent(taxRepayments, affinityGroup, maybeNino, maybeArn, journeyType, failureReason)
+    val event = DataEventFactory.viewRefundStatusEvent(
+      taxRepayments,
+      affinityGroup,
+      maybeNino,
+      maybeArn,
+      journeyType,
+      failureReason
+    )
 
     sendExtendedEvent(event)
   }
 
   def auditRefundAmount(
-      totalCreditAvailableForRepayment: Option[BigDecimal],
-      unallocatedCredit:                Option[BigDecimal],
-      amountChosen:                     Option[BigDecimal],
-      affinityGroup:                    Option[AffinityGroup],
-      maybeNino:                        Option[Nino],
-      maybeArn:                         Option[String],
-      failureReason:                    Option[String]        = None
+    totalCreditAvailableForRepayment: Option[BigDecimal],
+    unallocatedCredit:                Option[BigDecimal],
+    amountChosen:                     Option[BigDecimal],
+    affinityGroup:                    Option[AffinityGroup],
+    maybeNino:                        Option[Nino],
+    maybeArn:                         Option[String],
+    failureReason:                    Option[String] = None
   )(implicit request: Request[_]): Unit = {
-    val event = DataEventFactory.startClaimJourneyEvent(totalCreditAvailableForRepayment, unallocatedCredit, amountChosen, affinityGroup, maybeNino, maybeArn, failureReason)
+    val event = DataEventFactory.startClaimJourneyEvent(
+      totalCreditAvailableForRepayment,
+      unallocatedCredit,
+      amountChosen,
+      affinityGroup,
+      maybeNino,
+      maybeArn,
+      failureReason
+    )
 
     sendExtendedEvent(event)
   }
 
-  def auditIVOutcome(isSuccessful: Boolean, maybeNino: Option[Nino], affinityGroup: Option[String])(implicit request: Request[_]): Unit = {
+  def auditIVOutcome(isSuccessful: Boolean, maybeNino: Option[Nino], affinityGroup: Option[String])(implicit
+    request: Request[_]
+  ): Unit = {
     val event = DataEventFactory.identityVerificationOutcomeEvent(isSuccessful, maybeNino, affinityGroup)
 
     sendExtendedEvent(event)
@@ -128,8 +157,13 @@ class AuditService @Inject() (auditConnector: AuditConnector)(implicit ec: Execu
   private def sendExtendedEvent(event: ExtendedDataEvent): Unit = {
     val checkEventResult = auditConnector.sendExtendedEvent(event)
     checkEventResult.onComplete {
-      case Success(value)       => logger.info(s"Send audit event outcome: audit event ${event.auditType} successfully posted - ${value.toString}")
-      case Failure(NonFatal(e)) => logger.warn(s"Send audit event outcome: unable to post audit event of type ${event.auditType} to audit connector", e)
+      case Success(value)       =>
+        logger.info(s"Send audit event outcome: audit event ${event.auditType} successfully posted - ${value.toString}")
+      case Failure(NonFatal(e)) =>
+        logger.warn(
+          s"Send audit event outcome: unable to post audit event of type ${event.auditType} to audit connector",
+          e
+        )
       case _                    => logger.info(s"Send audit event outcome: Event audited ${event.auditType}")
     }
   }

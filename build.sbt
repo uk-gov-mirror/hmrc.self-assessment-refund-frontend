@@ -5,7 +5,7 @@ import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings}
 
 val appName = "self-assessment-refund-frontend"
 
-scalaVersion  := "2.13.16"
+scalaVersion  := "3.3.6"
 
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
@@ -30,11 +30,9 @@ lazy val microservice = Project(appName, file("."))
       "uk.gov.hmrc.selfassessmentrefundfrontend.testonly.model.StartJourneyOptions"
     )
   )
+  .settings(scalafmtOnCompile := true)
   .settings(commands ++= SbtCommands.commands)
   .settings((Test / fork) := false)
   .settings(ScoverageSettings.settings *)
   .settings(SbtUpdatesSettings.sbtUpdatesSettings *)
-  .settings(ScalariformSettings.scalariformSettings *)
   .settings(WartRemoverSettings.wartRemoverSettings *)
-
-  addCompilerPlugin("org.typelevel" % "kind-projector" % "0.13.4" cross CrossVersion.full)

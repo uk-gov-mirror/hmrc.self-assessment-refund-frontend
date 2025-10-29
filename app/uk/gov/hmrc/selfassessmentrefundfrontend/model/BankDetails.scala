@@ -19,14 +19,19 @@ package uk.gov.hmrc.selfassessmentrefundfrontend.model
 import cats.implicits.catsSyntaxEq
 import play.api.libs.json.{Json, OFormat}
 
-final case class BankDetails(accountType: String, name: String, sortCode: String, accountNumber: String, rollNumber: Option[String]) {
-  def matches(accountType: AccountType, bankAccountInfo: BankAccountInfo): Boolean = {
+final case class BankDetails(
+  accountType:   String,
+  name:          String,
+  sortCode:      String,
+  accountNumber: String,
+  rollNumber:    Option[String]
+) {
+  def matches(accountType: AccountType, bankAccountInfo: BankAccountInfo): Boolean =
     this.accountType === accountType.name &&
       this.name === bankAccountInfo.name &&
       this.sortCode === bankAccountInfo.sortCode.value &&
       this.accountNumber === bankAccountInfo.accountNumber.value &&
       this.rollNumber === bankAccountInfo.rollNumber.map(_.toString)
-  }
 }
 
 object BankDetails {

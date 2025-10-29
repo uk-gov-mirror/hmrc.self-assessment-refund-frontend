@@ -17,20 +17,22 @@
 package uk.gov.hmrc.selfassessmentrefundfrontend.model.journey
 
 import enumeratum.{Enum, EnumEntry}
-import play.api.libs.json.{Format, Reads, Writes, JsString, JsSuccess, JsError}
+import play.api.libs.json.{Format, JsError, JsString, JsSuccess, Reads, Writes}
 
-sealed trait JourneyType extends EnumEntry
+sealed trait JourneyType extends EnumEntry derives CanEqual
 
-@SuppressWarnings(Array("org.wartremover.warts.Serializable", "org.wartremover.warts.JavaSerializable", "org.wartremover.warts.Product"))
+@SuppressWarnings(
+  Array("org.wartremover.warts.Serializable", "org.wartremover.warts.JavaSerializable", "org.wartremover.warts.Product")
+)
 object JourneyType {
   implicit val format: Format[JourneyType] = Format(
-    Reads{
+    Reads {
       case JsString(value) =>
         JourneyTypes
           .withNameOption(value)
           .map(JsSuccess(_))
           .getOrElse(JsError(s"Unknown JourneyType value: $value"))
-      case _ => JsError("Can only parse String")
+      case _               => JsError("Can only parse String")
     },
     Writes(v => JsString(v.entryName))
   )
@@ -38,7 +40,7 @@ object JourneyType {
 
 object JourneyTypes extends Enum[JourneyType] {
   case object RefundJourney extends JourneyType
-  case object TrackJourney extends JourneyType
+  case object TrackJourney  extends JourneyType
 
   override val values = findValues
 }

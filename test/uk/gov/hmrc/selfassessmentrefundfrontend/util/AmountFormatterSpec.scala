@@ -58,11 +58,10 @@ class AmountFormatterSpec extends AnyWordSpec with RichMatchers {
   }
 
   "sanitize" should {
-    for (sample <- Seq(" 1000.00", " 1000.00 ", "1,000.00", "1 000.00", "  1, 000.00  ", "£1,000.00")) {
+    for (sample <- Seq(" 1000.00", " 1000.00 ", "1,000.00", "1 000.00", "  1, 000.00  ", "£1,000.00"))
       s"remove the whitespaces, commas, pound signs from the amount: [$sample]" in {
         AmountFormatter.sanitize(Some(sample)) shouldBe "1000.00"
       }
-    }
 
     "throw IllegalArgumentException if provided amount is an empty string" in {
       an[IllegalArgumentException] shouldBe thrownBy {

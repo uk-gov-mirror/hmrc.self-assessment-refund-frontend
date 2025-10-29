@@ -29,20 +29,23 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class ReauthController @Inject() (
-    appConfig:         AppConfig,
-    actions:           Actions,
-    journeyConnector:  JourneyConnector,
-    val authConnector: AuthConnector,
-    mcc:               MessagesControllerComponents
-)(implicit ec: ExecutionContext) extends FrontendController(mcc) with AuthorisedFunctions {
+  appConfig:         AppConfig,
+  actions:           Actions,
+  journeyConnector:  JourneyConnector,
+  val authConnector: AuthConnector,
+  mcc:               MessagesControllerComponents
+)(implicit ec: ExecutionContext)
+    extends FrontendController(mcc)
+    with AuthorisedFunctions {
 
   val reauthentication: Action[AnyContent] = actions.authenticatedRefundJourneyAction.async { implicit request =>
-    val continue = refundRequestJourney.routes.YouNeedToSignInAgainController.reauthSuccessful.url
+    val continue  = refundRequestJourney.routes.YouNeedToSignInAgainController.reauthSuccessful.url
     val journeyId = request.journey.id
 
     val base = appConfig.reauthenticationUrl
-    val url = s"$base/reauthentication?continue=$continue"
-    journeyConnector.setJourney(journeyId, request.journey.copy(hasStartedReauth = Some(true)))
+    val url  = s"$base/reauthentication?continue=$continue"
+    journeyConnector
+      .setJourney(journeyId, request.journey.copy(hasStartedReauth = Some(true)))
       .map(_ => Redirect(url))
   }
 

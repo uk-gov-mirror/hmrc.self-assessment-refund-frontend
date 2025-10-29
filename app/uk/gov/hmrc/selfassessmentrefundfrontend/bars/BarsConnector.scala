@@ -18,6 +18,7 @@ package uk.gov.hmrc.selfassessmentrefundfrontend.bars
 
 import cats.implicits.toBifunctorOps
 import play.api.libs.json.Json
+import play.api.libs.ws.writeableOf_JsValue
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -30,52 +31,52 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.action.RequestSuppor
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-/**
- * Connects to the Bank Account Reputation Service to validate bank accounts.
- */
+/** Connects to the Bank Account Reputation Service to validate bank accounts.
+  */
 class BarsConnector @Inject() (
-    httpClient: HttpClientV2,
-    appConfig:  AppConfig
+  httpClient: HttpClientV2,
+  appConfig:  AppConfig
 )(implicit ec: ExecutionContext) {
 
   val baseUrl: String = appConfig.barsBaseUrl
 
-  /**
-   * "The Validate Bank Details endpoint combines several functions to provide an aggregated validation result"
-   */
+  /** "The Validate Bank Details endpoint combines several functions to provide an aggregated validation result"
+    */
   private val validateUrl: String = s"$baseUrl/validate/bank-details"
 
-  def validateBankDetails(barsValidateRequest: BarsValidateRequest)(implicit requestHeader: RequestHeader): Future[HttpResponse] = {
+  def validateBankDetails(
+    barsValidateRequest: BarsValidateRequest
+  )(implicit requestHeader: RequestHeader): Future[HttpResponse] =
     httpClient
       .post(url"$validateUrl")
       .withBody(Json.toJson(barsValidateRequest))
       .execute[HttpResponse]
-  }
 
-  /**
-   * "This endpoint checks the likely correctness of a given personal bank account
-   *  and it's likely connection to the given account holder (aka the subject)"
-   */
+  /** "This endpoint checks the likely correctness of a given personal bank account and it's likely connection to the
+    * given account holder (aka the subject)"
+    */
   private val verifyPersonalUrl: String = s"$baseUrl/verify/personal"
 
-  def verifyPersonal(barsVerifyPersonalRequest: BarsVerifyPersonalRequest)(implicit requestHeader: RequestHeader): Future[BarsVerifyResponse] = {
+  def verifyPersonal(
+    barsVerifyPersonalRequest: BarsVerifyPersonalRequest
+  )(implicit requestHeader: RequestHeader): Future[BarsVerifyResponse] =
     httpClient
       .post(url"$verifyPersonalUrl")
       .withBody(Json.toJson(barsVerifyPersonalRequest))
       .execute[Either[UpstreamErrorResponse, BarsVerifyResponse]]
       .map(_.leftMap(throw _).merge)
-  }
 
-  /**
-   * "This endpoint checks the likely correctness of a given business bank account and it's likely connection to the given business"
-   */
+  /** "This endpoint checks the likely correctness of a given business bank account and it's likely connection to the
+    * given business"
+    */
   private val verifyBusinessUrl: String = s"$baseUrl/verify/business"
 
-  def verifyBusiness(barsVerifyBusinessRequest: BarsVerifyBusinessRequest)(implicit requestHeader: RequestHeader): Future[BarsVerifyResponse] = {
+  def verifyBusiness(
+    barsVerifyBusinessRequest: BarsVerifyBusinessRequest
+  )(implicit requestHeader: RequestHeader): Future[BarsVerifyResponse] =
     httpClient
       .post(url"$verifyBusinessUrl")
       .withBody(Json.toJson(barsVerifyBusinessRequest))
       .execute[Either[UpstreamErrorResponse, BarsVerifyResponse]]
       .map(_.leftMap(throw _).merge)
-  }
 }

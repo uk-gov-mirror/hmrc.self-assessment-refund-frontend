@@ -19,8 +19,8 @@ package uk.gov.hmrc.selfassessmentrefundfrontend.bars.model.request
 import play.api.libs.json.{Json, OFormat}
 
 final case class BarsBusiness(
-    companyName: String, // Must be between 1 and 70 characters long
-    address:     Option[BarsAddress]
+  companyName: String, // Must be between 1 and 70 characters long
+  address:     Option[BarsAddress]
 )
 
 object BarsBusiness {

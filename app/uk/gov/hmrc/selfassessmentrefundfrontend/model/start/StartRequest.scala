@@ -28,19 +28,16 @@ sealed trait StartRequest extends Product with Serializable {
 object StartRequest {
 
   final case class StartRefund(
-      nino:               String,
-      fullAmount:         BigDecimal,
-      lastPaymentViaCard: Option[Boolean]   = None,
-      returnUrl:          Option[ReturnUrl]
+    nino:               String,
+    fullAmount:         BigDecimal,
+    lastPaymentViaCard: Option[Boolean] = None,
+    returnUrl:          Option[ReturnUrl]
   ) extends StartRequest {
     override val replyUrl = "/self-assessment-refund/refund-amount"
-
-    def getLastPaymentViaCard: Boolean = lastPaymentViaCard.getOrElse(false)
   }
 
   object StartRefund {
-    @SuppressWarnings(Array("org.wartremover.warts.Any"))
-    implicit def format: OFormat[StartRefund] = Json.format[StartRefund]
+    given format: OFormat[StartRefund] = Json.format[StartRefund]
   }
 
   final case class ViewHistory(nino: String) extends StartRequest {
@@ -48,10 +45,10 @@ object StartRequest {
   }
 
   object ViewHistory {
-    implicit def format: OFormat[ViewHistory] = Json.format[ViewHistory]
+    given format: OFormat[ViewHistory] = Json.format[ViewHistory]
   }
 
-  implicit def writes: Writes[StartRequest] = OWrites[StartRequest] {
+  given Writes[StartRequest] = OWrites[StartRequest] {
     case x: StartRefund => StartRefund.format.writes(x)
     case x: ViewHistory => ViewHistory.format.writes(x)
   }

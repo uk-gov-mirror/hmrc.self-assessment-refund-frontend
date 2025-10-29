@@ -39,9 +39,10 @@ class BarsLockoutActionRefinerSpec extends ItSpec {
       stubBackendJourney()
       BarsVerifyStatusStub.statusUnlocked()
 
-      val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/request-a-self-assessment-refund/check-your-answers")
-        .withAuthToken()
-        .withSessionId()
+      val fakeRequest: FakeRequest[AnyContentAsEmpty.type] =
+        FakeRequest("GET", "/request-a-self-assessment-refund/check-your-answers")
+          .withAuthToken()
+          .withSessionId()
 
       val result = controller.start(fakeRequest)
 
@@ -54,9 +55,10 @@ class BarsLockoutActionRefinerSpec extends ItSpec {
       stubBackendBusinessJourney(Some(Nino("123456")))
       BarsVerifyStatusStub.statusLocked(expiry)
 
-      val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/request-a-self-assessment-refund/check-your-answers")
-        .withAuthToken()
-        .withSessionId()
+      val fakeRequest: FakeRequest[AnyContentAsEmpty.type] =
+        FakeRequest("GET", "/request-a-self-assessment-refund/check-your-answers")
+          .withAuthToken()
+          .withSessionId()
 
       val result = controller.start(fakeRequest)
 

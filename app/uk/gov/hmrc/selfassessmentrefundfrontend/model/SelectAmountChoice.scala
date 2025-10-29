@@ -18,13 +18,13 @@ package uk.gov.hmrc.selfassessmentrefundfrontend.model
 
 import enumeratum._
 
-sealed trait SelectAmountChoice extends EnumEntry
+sealed trait SelectAmountChoice extends EnumEntry derives CanEqual
 
 object SelectAmountChoice extends Enum[SelectAmountChoice] {
 
-  case object Full extends SelectAmountChoice
+  case object Full      extends SelectAmountChoice
   case object Suggested extends SelectAmountChoice
-  case object Partial extends SelectAmountChoice
+  case object Partial   extends SelectAmountChoice
 
   override val values = findValues
 }

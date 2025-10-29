@@ -20,11 +20,11 @@ import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.selfassessmentrefundfrontend.audit.AuditService
 import uk.gov.hmrc.selfassessmentrefundfrontend.connectors.{JourneyConnector, RepaymentsConnector}
+import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.action.RequestSupport
 import uk.gov.hmrc.selfassessmentrefundfrontend.controllers.action.request.AuthenticatedRequest
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.customer.Nino
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.repayment.{RepaymentStatus, RequestNumber}
 import uk.gov.hmrc.selfassessmentrefundfrontend.services.RepaymentsService.TaxRepayment
-import uk.gov.hmrc.selfassessmentrefundfrontend.util.RequestSupport
 
 import java.time.LocalDate
 import javax.inject.{Inject, Singleton}
@@ -33,17 +33,19 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.model.PaymentMethod
 
 @Singleton
 class RepaymentsService @Inject() (
-    auditService:        AuditService,
-    journeyConnector:    JourneyConnector,
-    repaymentsConnector: RepaymentsConnector
-)(implicit ec: ExecutionContext) extends Logging {
+  auditService:        AuditService,
+  journeyConnector:    JourneyConnector,
+  repaymentsConnector: RepaymentsConnector
+)(implicit ec: ExecutionContext)
+    extends Logging {
 
   def repayments(nino: Nino)(implicit request: AuthenticatedRequest[_]): Future[List[TaxRepayment]] = {
     import RequestSupport.hc
 
     logger.debug(s"retrieving TaxRepayments for nino ${nino.value}")
     val resp =
-      repaymentsConnector.taxPayerRepayments(nino)
+      repaymentsConnector
+        .taxPayerRepayments(nino)
         .map { taxRepayments =>
           logger.debug(s"""returned tax repayments ${taxRepayments.mkString(", ")}""")
 
@@ -57,7 +59,7 @@ class RepaymentsService @Inject() (
             )
 
             val auditFlags = request.journey.audit.copy(hasSentViewRefund = true)
-            val _ = journeyConnector.setJourney(request.journey.id, request.journey.copy(audit = auditFlags))
+            val _          = journeyConnector.setJourney(request.journey.id, request.journey.copy(audit = auditFlags))
           }
 
           taxRepayments
@@ -80,11 +82,11 @@ class RepaymentsService @Inject() (
 object RepaymentsService {
 
   final case class Claim(
-      key:             RequestNumber,
-      nino:            Nino,
-      amount:          BigDecimal,
-      created:         LocalDate,
-      repaymentMethod: Option[PaymentMethod]
+    key:             RequestNumber,
+    nino:            Nino,
+    amount:          BigDecimal,
+    created:         LocalDate,
+    repaymentMethod: Option[PaymentMethod]
   )
 
   sealed trait TaxRepayment {
@@ -104,7 +106,8 @@ object RepaymentsService {
     def status: RepaymentStatus = RepaymentStatus.Approved
   }
 
-  final case class RejectedTaxRepayment(claim: Claim, completed: LocalDate, message: Option[String] = None) extends TaxRepayment {
+  final case class RejectedTaxRepayment(claim: Claim, completed: LocalDate, message: Option[String] = None)
+      extends TaxRepayment {
     def status: RepaymentStatus = RepaymentStatus.Rejected
   }
 }

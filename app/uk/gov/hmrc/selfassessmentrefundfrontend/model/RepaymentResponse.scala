@@ -22,8 +22,8 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.model.repayment.RequestNumber
 import java.time.OffsetDateTime
 
 final case class RepaymentResponse(
-    processingDate:         OffsetDateTime,
-    repaymentRequestNumber: RequestNumber
+  processingDate:         OffsetDateTime,
+  repaymentRequestNumber: RequestNumber
 )
 
 object RepaymentResponse {
@@ -32,4 +32,3 @@ object RepaymentResponse {
   implicit val format: OFormat[RepaymentResponse] = Json.format[RepaymentResponse]
 
 }
-

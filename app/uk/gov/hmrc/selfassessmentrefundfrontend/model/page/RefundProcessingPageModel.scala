@@ -19,12 +19,10 @@ package uk.gov.hmrc.selfassessmentrefundfrontend.model.page
 import uk.gov.hmrc.selfassessmentrefundfrontend.model.repayment.RequestNumber
 
 final case class RefundProcessingPageModel(
-    amount:       String,
-    reference:    RequestNumber,
-    requestDate:  String,
-    refundByDate: String
+  amount:       String,
+  reference:    RequestNumber,
+  requestDate:  String,
+  refundByDate: String
 )
 
-object RefundProcessingPageModel {
-
-}
+object RefundProcessingPageModel {}

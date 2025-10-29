@@ -59,10 +59,10 @@ object VerifyResponse {
     def unapply(response: VerifyResponse): Boolean = {
       val resp = response.barsVerifyResponse
       (resp.accountNumberIsWellFormatted === Yes || resp.accountNumberIsWellFormatted === Indeterminate) &&
-        resp.sortCodeIsPresentOnEISCD === Yes &&
-        resp.accountExists === Yes &&
-        resp.nameMatches === Yes &&
-        resp.sortCodeSupportsDirectCredit === Yes
+      resp.sortCodeIsPresentOnEISCD === Yes &&
+      resp.accountExists === Yes &&
+      resp.nameMatches === Yes &&
+      resp.sortCodeSupportsDirectCredit === Yes
     }
   }
 
@@ -108,9 +108,9 @@ object VerifyResponse {
 
       (resp.accountNumberIsWellFormatted === Yes ||
         resp.accountNumberIsWellFormatted === Indeterminate) &&
-        resp.accountExists === No &&
-        resp.sortCodeIsPresentOnEISCD === Yes &&
-        resp.sortCodeSupportsDirectCredit === Yes
+      resp.accountExists === No &&
+      resp.sortCodeIsPresentOnEISCD === Yes &&
+      resp.sortCodeSupportsDirectCredit === Yes
     }
   }
 

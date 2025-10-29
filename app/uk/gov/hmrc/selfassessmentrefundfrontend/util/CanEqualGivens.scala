@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.selfassessmentrefundfrontend.model
+package uk.gov.hmrc.selfassessmentrefundfrontent.util
 
-import play.api.libs.json.{Format, Json}
+import uk.gov.hmrc.auth.core.AffinityGroup
+import uk.gov.hmrc.http.SessionId
 
-final case class SaUtr(sautr: Option[String])
+object CanEqualGivens:
+  given affinityGroupCanEqual: CanEqual[AffinityGroup, AffinityGroup] = CanEqual.derived
 
-object SaUtr {
-  given Format[SaUtr] = Json.format[SaUtr]
-}
+  given sessionIdCanEqual: CanEqual[SessionId, SessionId] = CanEqual.derived

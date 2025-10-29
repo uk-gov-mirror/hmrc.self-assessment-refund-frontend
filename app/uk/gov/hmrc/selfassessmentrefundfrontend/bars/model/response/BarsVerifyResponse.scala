@@ -21,16 +21,16 @@ import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.selfassessmentrefundfrontend.bars.model.response.BarsAssessmentType.Yes
 
 final case class BarsVerifyResponse(
-    accountNumberIsWellFormatted:             BarsAssessmentType,
-    accountExists:                            BarsAssessmentType,
-    nameMatches:                              BarsAssessmentType,
-    nonStandardAccountDetailsRequiredForBacs: BarsAssessmentType,
-    sortCodeIsPresentOnEISCD:                 BarsAssessmentType,
-    sortCodeSupportsDirectDebit:              BarsAssessmentType,
-    sortCodeSupportsDirectCredit:             BarsAssessmentType,
-    accountName:                              Option[String],
-    sortCodeBankName:                         Option[String],
-    iban:                                     Option[String]
+  accountNumberIsWellFormatted:             BarsAssessmentType,
+  accountExists:                            BarsAssessmentType,
+  nameMatches:                              BarsAssessmentType,
+  nonStandardAccountDetailsRequiredForBacs: BarsAssessmentType,
+  sortCodeIsPresentOnEISCD:                 BarsAssessmentType,
+  sortCodeSupportsDirectDebit:              BarsAssessmentType,
+  sortCodeSupportsDirectCredit:             BarsAssessmentType,
+  accountName:                              Option[String],
+  sortCodeBankName:                         Option[String],
+  iban:                                     Option[String]
 )
 
 object BarsVerifyResponse {

@@ -35,22 +35,33 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class AccountTypeController @Inject() (
-    mcc:              MessagesControllerComponents,
-    journeyConnector: JourneyConnector,
-    actions:          Actions,
-    accountTypePage:  AccountTypePage
-)(implicit ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
+  mcc:              MessagesControllerComponents,
+  journeyConnector: JourneyConnector,
+  actions:          Actions,
+  accountTypePage:  AccountTypePage
+)(implicit ec: ExecutionContext)
+    extends FrontendController(mcc)
+    with I18nSupport {
 
   val getAccountType: Action[AnyContent] = actions.authenticatedRefundJourneyAction { implicit request =>
-    Ok(accountTypePage(accountTypePageModel(request.journey.accountType.map(AccountTypeEnum.accountType2Enum), AccountTypeRequest.form, request.isAgent)))
+    Ok(
+      accountTypePage(
+        accountTypePageModel(
+          request.journey.accountType.map(AccountTypeEnum.accountType2Enum),
+          AccountTypeRequest.form,
+          request.isAgent
+        )
+      )
+    )
   }
 
   val postAccountType: Action[AnyContent] = actions.authenticatedRefundJourneyAction.async { implicit request =>
     withFormData(request.isAgent) { formAccountTypeEnum =>
 
       val formAccountType: AccountType = AccountTypeEnum.accountEnum2Type(formAccountTypeEnum)
-      val isResponseTheSame: Boolean = request.journey.accountType.contains(formAccountType)
-      val isFromCyaPage = request.session.get("self-assessment-refund.changing-account-from-cya-page").contains("redirectToCYA")
+      val isResponseTheSame: Boolean   = request.journey.accountType.contains(formAccountType)
+      val isFromCyaPage                =
+        request.session.get("self-assessment-refund.changing-account-from-cya-page").contains("redirectToCYA")
 
       val (call: Call, bankAccountInfo: Option[BankAccountInfo]) = if (isResponseTheSame && isFromCyaPage) {
         (refundRequestJourney.routes.CheckYourAnswersPageController.start, request.journey.bankAccountInfo)
@@ -58,27 +69,35 @@ class AccountTypeController @Inject() (
         (refundRequestJourney.routes.BankAccountDetailsController.getAccountDetails, None)
       }
 
-      journeyConnector.setJourney(
-        request.journey.id,
-        request.journey.copy(accountType     = Some(formAccountType), bankAccountInfo = bankAccountInfo)
-      ).map { _ =>
+      journeyConnector
+        .setJourney(
+          request.journey.id,
+          request.journey.copy(accountType = Some(formAccountType), bankAccountInfo = bankAccountInfo)
+        )
+        .map { _ =>
           Redirect(call).removingFromSession("self-assessment-refund.changing-account-from-cya-page")
         }
 
     }
   }
 
-  private def withFormData(isAgent: Boolean)(f: AccountTypeEnum => Future[Result])(implicit messages: Messages, request: Request[_]): Future[Result] = {
-    AccountTypeRequest.form.bindFromRequest().fold(
-      frm => Future.successful(BadRequest(accountTypePage(accountTypePageModel(None, frm, isAgent)(messages))(messages, request))),
-      r => f(r.accountType)
-    )
-  }
+  private def withFormData(
+    isAgent: Boolean
+  )(f: AccountTypeEnum => Future[Result])(implicit messages: Messages, request: Request[_]): Future[Result] =
+    AccountTypeRequest.form
+      .bindFromRequest()
+      .fold(
+        frm =>
+          Future.successful(
+            BadRequest(accountTypePage(accountTypePageModel(None, frm, isAgent)(messages))(messages, request))
+          ),
+        r => f(r.accountType)
+      )
 }
 
 object AccountTypeController {
 
-  sealed trait AccountTypeEnum extends Product with Serializable
+  sealed trait AccountTypeEnum extends Product with Serializable derives CanEqual
 
   object AccountTypeEnum extends Enumerable.Implicits {
     case object Personal extends WithName("personal") with AccountTypeEnum
@@ -105,6 +124,9 @@ object AccountTypeController {
 
   object AccountTypeRequest {
 
+    def unapply(accountTypeRequest: AccountTypeRequest): Option[AccountTypeEnum] =
+      Some(accountTypeRequest.accountType)
+
     val form: Form[AccountTypeRequest] =
       Form(
         mapping(
@@ -114,28 +136,42 @@ object AccountTypeController {
 
     // Need to do this as if the radio buttons are not selected then we don't get the parameter at all.
     def accountTypeMapping: Mapping[AccountTypeEnum] = {
-        def permissiveStringFormatter: Formatter[AccountTypeEnum] =
-          new Formatter[AccountTypeEnum] {
-            def bind(key: String, data: Map[String, String]): Either[Seq[FormError], AccountTypeEnum] = {
-              val accountType = data.get(key).flatMap(AccountTypeEnum.enumerable.withName)
-              accountType.fold[Either[Seq[FormError], AccountTypeEnum]](Left[Seq[FormError], AccountTypeEnum](Seq(FormError("accountType", "accountType.error.required")))){ x => Right[Seq[FormError], AccountTypeEnum](x) }
-            }
-
-            def unbind(key: String, value: AccountTypeEnum): Map[String, String] = Map(key -> value.toString)
+      def permissiveStringFormatter: Formatter[AccountTypeEnum] =
+        new Formatter[AccountTypeEnum] {
+          def bind(key: String, data: Map[String, String]): Either[Seq[FormError], AccountTypeEnum] = {
+            val accountType = data.get(key).flatMap(AccountTypeEnum.enumerable.withName)
+            accountType.fold[Either[Seq[FormError], AccountTypeEnum]](
+              Left[Seq[FormError], AccountTypeEnum](Seq(FormError("accountType", "accountType.error.required")))
+            )(x => Right[Seq[FormError], AccountTypeEnum](x))
           }
+
+          def unbind(key: String, value: AccountTypeEnum): Map[String, String] = Map(key -> value.toString)
+        }
+
       of[AccountTypeEnum](permissiveStringFormatter)
     }
   }
 
-  final case class AccountTypePageModel(title: String, heading: String, text: String, form: Form[AccountTypeRequest], postAccountType: Call, isBusinessAccount: Boolean, isPersonalAccount: Boolean, isAgent: Boolean)
+  final case class AccountTypePageModel(
+    title:             String,
+    heading:           String,
+    text:              String,
+    form:              Form[AccountTypeRequest],
+    postAccountType:   Call,
+    isBusinessAccount: Boolean,
+    isPersonalAccount: Boolean,
+    isAgent:           Boolean
+  )
 
-  def accountTypePageModel(accountType: Option[AccountTypeEnum], frm: Form[AccountTypeRequest], isAgent: Boolean)(implicit messages: Messages): AccountTypePageModel = {
-    val postCall = routes.AccountTypeController.postAccountType
+  def accountTypePageModel(accountType: Option[AccountTypeEnum], frm: Form[AccountTypeRequest], isAgent: Boolean)(
+    implicit messages: Messages
+  ): AccountTypePageModel = {
+    val postCall          = routes.AccountTypeController.postAccountType
     val isBusinessAccount = accountType.contains(AccountTypeEnum.Business)
     val isPersonalAccount = accountType.contains(AccountTypeEnum.Personal)
-    val title = if (frm.hasErrors) messages("accountType.error.title") else messages("accountType.title")
-    val heading = messages("accountType.heading")
-    val text = messages("accountType.text")
+    val title             = if (frm.hasErrors) messages("accountType.error.title") else messages("accountType.title")
+    val heading           = messages("accountType.heading")
+    val text              = messages("accountType.text")
     AccountTypePageModel(title, heading, text, frm, postCall, isBusinessAccount, isPersonalAccount, isAgent)
   }
 

@@ -18,10 +18,8 @@ package uk.gov.hmrc.selfassessmentrefundfrontend.model
 
 import play.api.libs.json.{Json, OFormat}
 
-final case class ReplyURL(nextUrl: String)
+final case class ReplyURL(nextUrl: String) derives CanEqual
 
 object ReplyURL {
-
-  implicit val format: OFormat[ReplyURL] = Json.format[ReplyURL]
-
+  given OFormat[ReplyURL] = Json.format[ReplyURL]
 }

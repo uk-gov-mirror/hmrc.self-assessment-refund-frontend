@@ -20,8 +20,8 @@ import org.apache.commons.lang3.StringUtils
 import play.api.libs.json.{Json, OFormat}
 
 final case class BarsBankAccount(
-    sortCode:      String,
-    accountNumber: String
+  sortCode:      String,
+  accountNumber: String
 )
 
 object BarsBankAccount {
@@ -29,10 +29,9 @@ object BarsBankAccount {
   @SuppressWarnings(Array("org.wartremover.warts.Any"))
   implicit val format: OFormat[BarsBankAccount] = Json.format
 
-/***
-   * frontend validation should probably be responsible for ensuring sortCode and accountNumber
-   * are of the correct form (and accepted by BARs), but for some services this isn't the case
-   */
+  /** * frontend validation should probably be responsible for ensuring sortCode and accountNumber are of the correct
+    * form (and accepted by BARs), but for some services this isn't the case
+    */
   def normalise(sortCode: String, accountNumber: String): BarsBankAccount =
     BarsBankAccount(sortCode.filter(_.isDigit), leftPad(accountNumber))
 

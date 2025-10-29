@@ -39,7 +39,7 @@ object Enumerable {
           ev.withName(str)
             .map[JsResult[A]](JsSuccess(_))
             .getOrElse(JsError("error.invalid"))
-        case _ =>
+        case _             =>
           JsError("error.invalid")
       }
 

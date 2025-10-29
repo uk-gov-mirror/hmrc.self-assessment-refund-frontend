@@ -29,12 +29,13 @@ import scala.concurrent.Future
 
 @Singleton
 class HowYouWillGetYourRefundController @Inject() (
-    i18n:                        I18nSupport,
-    howYouWillGetYourRefundPage: HowYouWillGetYourRefundPage,
-    val authConnector:           AuthConnector,
-    actions:                     Actions,
-    mcc:                         MessagesControllerComponents
-) extends FrontendController(mcc) with AuthorisedFunctions {
+  i18n:                        I18nSupport,
+  howYouWillGetYourRefundPage: HowYouWillGetYourRefundPage,
+  val authConnector:           AuthConnector,
+  actions:                     Actions,
+  mcc:                         MessagesControllerComponents
+) extends FrontendController(mcc)
+    with AuthorisedFunctions {
 
   import i18n._
 

@@ -20,7 +20,7 @@ import enumeratum._
 
 import scala.collection.immutable
 
-sealed trait PrimeStubsOption extends EnumEntry {
+sealed trait PrimeStubsOption extends EnumEntry derives CanEqual {
   val label: String
 }
 

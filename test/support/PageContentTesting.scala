@@ -21,7 +21,7 @@ import org.jsoup.helper.Validate.fail
 import org.jsoup.nodes.Document
 import org.scalatest.AppendedClues.convertToClueful
 import org.scalatest.matchers.must.Matchers.{endWith, include}
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.matchers.should.Matchers.{should, shouldBe}
 import play.api.mvc.{Call, Result}
 import play.api.test.Helpers._
 
@@ -33,15 +33,15 @@ trait PageContentTesting {
   implicit class ResultsTestingSyntax(result: Future[Result]) {
 
     def checkPageIsDisplayed(
-        expectedHeading:          String,
-        expectedServiceLink:      String,
-        contentChecks:            Document => Unit = _ => (),
-        expectedStatus:           Int              = OK,
-        withError:                Boolean          = false,
-        expectedTitleIfDifferent: Option[String]   = None,
-        journey:                  String           = "",
-        withBackButton:           Boolean          = true,
-        welsh:                    Boolean          = false
+      expectedHeading:          String,
+      expectedServiceLink:      String,
+      contentChecks:            Document => Unit = _ => (),
+      expectedStatus:           Int = OK,
+      withError:                Boolean = false,
+      expectedTitleIfDifferent: Option[String] = None,
+      journey:                  String = "",
+      withBackButton:           Boolean = true,
+      welsh:                    Boolean = false
     ): Unit = {
 
       status(result) shouldBe expectedStatus
@@ -92,14 +92,15 @@ trait PageContentTesting {
     }
 
     def checkHasSignOutLink(): Unit = {
-      val signOutUrl: String = "http://localhost:9553/bas-gateway/sign-out-without-state?continue=http://localhost:9171/self-assessment-refund/test-only"
+      val signOutUrl: String =
+        "http://localhost:9553/bas-gateway/sign-out-without-state?continue=http://localhost:9171/self-assessment-refund/test-only"
       doc.select("a").select(".hmrc-sign-out-nav__link").attr("href") shouldBe signOutUrl
       ()
     }
 
     def checkForMissingMessageKeys(): Unit = {
       val bodyText = doc.select("body").text
-      val regex = """not_found_message\((.*?)\)""".r
+      val regex    = """not_found_message\((.*?)\)""".r
 
       val regexResult = regex.findAllMatchIn(bodyText).toList
       if (regexResult.nonEmpty) fail(s"Missing message keys: ${regexResult.map(_.group(1)).mkString(", ")}")
@@ -110,22 +111,34 @@ trait PageContentTesting {
       ()
     }
 
-    def checkPageTitle(expectedHeading: String, withError: Boolean = false, expectedTitleIfDifferent: Option[String] = None, journey: String = "", welsh: Boolean): Unit = {
+    def checkPageTitle(
+      expectedHeading:          String,
+      withError:                Boolean = false,
+      expectedTitleIfDifferent: Option[String] = None,
+      journey:                  String = "",
+      welsh:                    Boolean
+    ): Unit = {
       welsh match {
-        case true =>
+        case true  =>
           val expectedTitleContent = expectedTitleIfDifferent.fold(expectedHeading)(identity)
-          val optionalErrorPrefix = if (withError) "Gwall: " else ""
-            def serviceName = if (journey.equals("request")) { " - Gwneud cais am ad-daliad Hunanasesiad" }
+          val optionalErrorPrefix  = if (withError) "Gwall: " else ""
+
+          def serviceName =
+            if (journey.equals("request")) { " - Gwneud cais am ad-daliad Hunanasesiad" }
             else if (journey.equals("track")) { " - Olrhain ad-daliad Hunanasesiad" }
             else { "" }
+
           val expectedTitle = optionalErrorPrefix + expectedTitleContent + serviceName + " - GOV.UK"
           doc.title() shouldBe expectedTitle
         case false =>
           val expectedTitleContent = expectedTitleIfDifferent.fold(expectedHeading)(identity)
-          val optionalErrorPrefix = if (withError) "Error: " else ""
-            def serviceName = if (journey.equals("request")) { " - Request a Self Assessment refund" }
+          val optionalErrorPrefix  = if (withError) "Error: " else ""
+
+          def serviceName =
+            if (journey.equals("request")) { " - Request a Self Assessment refund" }
             else if (journey.equals("track")) { " - Track a Self Assessment refund" }
             else { "" }
+
           val expectedTitle = optionalErrorPrefix + expectedTitleContent + serviceName + " - GOV.UK"
           doc.title() shouldBe expectedTitle
       }
@@ -146,7 +159,7 @@ trait PageContentTesting {
 
     def checkHasParagraphs(text: List[String]): Unit = {
       val pContent = doc.select("p").iterator().asScala.map(_.text()).toList
-      for (p <- text) { pContent.contains(p) shouldBe true withClue s"Expected: [$p] in ${pContent.toString()}" }
+      for (p <- text) pContent.contains(p) shouldBe true withClue s"Expected: [$p] in ${pContent.toString()}"
       ()
     }
 
@@ -158,7 +171,7 @@ trait PageContentTesting {
 
     def checkHasList(text: List[String]): Unit = {
       val listContent = doc.select("li").iterator().asScala
-      for (listItem <- text) { listContent.exists(element => element.text() == listItem) shouldBe true }
+      for (listItem <- text) listContent.exists(element => element.text() == listItem) shouldBe true
       ()
     }
 
@@ -171,7 +184,7 @@ trait PageContentTesting {
     def checkHasRadioButtonOptionsWith(expectedLabelHintPairs: List[(String, Option[String])]): Unit = {
       val radios = doc.select(".govuk-radios__item").iterator().asScala.toList
       val labels = radios.map(_.select(".govuk-label").text())
-      val hints = radios.map(r => Option(r.select(".govuk-hint").text()).filter(_.nonEmpty))
+      val hints  = radios.map(r => Option(r.select(".govuk-hint").text()).filter(_.nonEmpty))
 
       for (i <- expectedLabelHintPairs.indices) {
         labels(i) shouldBe expectedLabelHintPairs(i)._1
@@ -237,11 +250,10 @@ trait PageContentTesting {
       ()
     }
 
-    def checkHasFormActionAsContinueButton(call: Call, welsh: Boolean = false): Unit = {
+    def checkHasFormActionAsContinueButton(call: Call, welsh: Boolean = false): Unit =
       if (welsh) {
         checkHasFormAction("Yn eich blaen", call)
       } else checkHasFormAction("Continue", call)
-    }
 
     def checkHasFormAction(buttonText: String, call: Call): Unit = {
       val action = doc.select("form")
@@ -267,10 +279,10 @@ trait PageContentTesting {
     }
 
     def checkHasSummaryList(
-        keyValuePairs:          List[(String, String)],
-        maybeLinkTextHrefPairs: Option[List[(String, String)]] = None
+      keyValuePairs:          List[(String, String)],
+      maybeLinkTextHrefPairs: Option[List[(String, String)]] = None
     ): Unit = {
-      val listItemsKeys = doc.select(".govuk-summary-list__key").iterator().asScala.toList
+      val listItemsKeys   = doc.select(".govuk-summary-list__key").iterator().asScala.toList
       val listItemsValues = doc.select(".govuk-summary-list__value").iterator().asScala.toList
 
       for (i <- keyValuePairs.indices) {
@@ -279,13 +291,12 @@ trait PageContentTesting {
       }
 
       maybeLinkTextHrefPairs foreach { linkTextHrefPairs =>
-        linkTextHrefPairs.foreach {
-          case (text: String, href: String) =>
-            doc
-              .select("a")
-              .select(".govuk-link")
-              .select(s"""[href="$href"]""")
-              .text() should include(text)
+        linkTextHrefPairs.foreach { case (text: String, href: String) =>
+          doc
+            .select("a")
+            .select(".govuk-link")
+            .select(s"""[href="$href"]""")
+            .text() should include(text)
         }
       }
       ()
@@ -293,28 +304,25 @@ trait PageContentTesting {
 
     def checkHasTabs(tabItems: List[String]): Unit = {
       val tabItemContent = doc.select(".govuk-tabs__tab").iterator().asScala.toList
-      for (i <- tabItems.indices) {
+      for (i <- tabItems.indices)
         tabItemContent(i).text() shouldBe tabItems(i)
-      }
     }
 
     def checkHasTable(columnHeaders: List[String], rowHeaders: List[String], cells: List[String]): Unit = {
 
-      val tableColHeaderContent = doc.select("""[scope="col"]""").select(".govuk-table__header").iterator().asScala.toList
-      for (i <- columnHeaders.indices) {
+      val tableColHeaderContent =
+        doc.select("""[scope="col"]""").select(".govuk-table__header").iterator().asScala.toList
+      for (i <- columnHeaders.indices)
         tableColHeaderContent(i).text() shouldBe columnHeaders(i)
-      }
 
       val tableRowHeaderContent = doc.select("""[scope="row"]""").select(".govuk-table__cell").iterator().asScala.toList
 
-      for (i <- rowHeaders.indices) {
+      for (i <- rowHeaders.indices)
         tableRowHeaderContent(i).text() shouldBe rowHeaders(i)
-      }
 
       val tableCellContent = doc.select(".govuk-table__cell").iterator().asScala.toList
-      for (i <- cells.indices) {
-        tableCellContent(i).text() should include (cells(i))
-      }
+      for (i <- cells.indices)
+        tableCellContent(i).text() should include(cells(i))
     }
 
   }

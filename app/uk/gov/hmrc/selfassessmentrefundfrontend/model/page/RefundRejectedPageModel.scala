@@ -21,17 +21,16 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.services.RepaymentsService.Claim
 import uk.gov.hmrc.selfassessmentrefundfrontend.util.AmountFormatter
 
 final case class RefundRejectedPageModel(
-    amount:      String,
-    reference:   RequestNumber,
-    tryAgainUrl: String
+  amount:      String,
+  reference:   RequestNumber,
+  tryAgainUrl: String
 )
 
 object RefundRejectedPageModel {
-  def apply(claim: Claim, tryAgainUrl: String): RefundRejectedPageModel = {
+  def apply(claim: Claim, tryAgainUrl: String): RefundRejectedPageModel =
     RefundRejectedPageModel(
-      amount      = AmountFormatter.formatAmount(claim.amount),
-      reference   = claim.key,
+      amount = AmountFormatter.formatAmount(claim.amount),
+      reference = claim.key,
       tryAgainUrl = tryAgainUrl
     )
-  }
 }

@@ -21,27 +21,33 @@ import support.PageContentTesting
 
 trait YourRefundRequestNotSubmittedPageTesting extends PageContentTesting {
 
-  def checkPageContent(isAgent: Boolean)(doc: Document): Unit = {
+  def checkPageContent(isAgent: Boolean)(doc: Document): Unit      = {
     doc.checkHasNoBackLink()
-    doc.checkHasParagraphs(List(
-      "There was a problem processing your refund request.",
-      "You will need to start again."
-    ))
+    doc.checkHasParagraphs(
+      List(
+        "There was a problem processing your refund request.",
+        "You will need to start again."
+      )
+    )
 
     doc.checkHasActionAsButton(
-      if (isAgent) "http://localhost:9081/report-quarterly/income-and-expenses/view/agents/claim-refund" else "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
+      if (isAgent) "http://localhost:9081/report-quarterly/income-and-expenses/view/agents/claim-refund"
+      else "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
       "Start again"
     )
   }
   def checkPageContentWelsh(isAgent: Boolean)(doc: Document): Unit = {
     doc.checkHasNoBackLink()
-    doc.checkHasParagraphs(List(
-      "Roedd problem wrth brosesu’ch cais am ad-daliad.",
-      "Bydd angen i chi ddechrau eto."
-    ))
+    doc.checkHasParagraphs(
+      List(
+        "Roedd problem wrth brosesu’ch cais am ad-daliad.",
+        "Bydd angen i chi ddechrau eto."
+      )
+    )
 
     doc.checkHasActionAsButton(
-      if (isAgent) "http://localhost:9081/report-quarterly/income-and-expenses/view/agents/claim-refund" else "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
+      if (isAgent) "http://localhost:9081/report-quarterly/income-and-expenses/view/agents/claim-refund"
+      else "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
       "Dechrau eto"
     )
   }

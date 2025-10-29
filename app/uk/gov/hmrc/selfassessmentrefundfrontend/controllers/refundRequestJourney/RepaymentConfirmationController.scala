@@ -37,44 +37,54 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class RepaymentConfirmationController @Inject() (
-    i18n:                      I18nSupport,
-    actions:                   Actions,
-    mcc:                       MessagesControllerComponents,
-    languageUtils:             LanguageUtils,
-    repaymentsConnector:       RepaymentsConnector,
-    repaymentConfirmationPage: RepaymentConfirmationPage
-)(implicit appConfig: AppConfig, ec: ExecutionContext) extends FrontendController(mcc) with Logging {
+  i18n:                      I18nSupport,
+  actions:                   Actions,
+  mcc:                       MessagesControllerComponents,
+  languageUtils:             LanguageUtils,
+  repaymentsConnector:       RepaymentsConnector,
+  repaymentConfirmationPage: RepaymentConfirmationPage
+)(implicit appConfig: AppConfig, ec: ExecutionContext)
+    extends FrontendController(mcc)
+    with Logging {
 
   import i18n._
 
   private val REFUND_PROCESSING_DAYS = 38
 
-  def confirmation(@unused requestNumber: RequestNumber): Action[AnyContent] = actions.authenticatedRefundJourneyAction.async { implicit request =>
-    val futureSaUtr: Future[SaUtr] = if (request.isAgent) {
-      repaymentsConnector.getSaUtr(request.journey.nino.getOrElse(sys.error("Could not find nino")))
-    } else {
-      Future.successful(SaUtr(None))
-    }
+  def confirmation(@unused requestNumber: RequestNumber): Action[AnyContent] =
+    actions.authenticatedRefundJourneyAction.async { implicit request =>
+      val futureSaUtr: Future[SaUtr] = if (request.isAgent) {
+        repaymentsConnector.getSaUtr(request.journey.nino.getOrElse(sys.error("Could not find nino")))
+      } else {
+        Future.successful(SaUtr(None))
+      }
 
-    futureSaUtr.map{ saUtr =>
-      val amount = request.journey.amount.getOrElse(sys.error("Could not find amount"))
-      val refundConfirmation = request.journey.repaymentConfirmation.getOrElse(sys.error("Could not find refund confirmation"))
-      val isLastPaymentByCard = request.journey.paymentMethod.contains(Card)
-      val bankAccountEndingDigits = request.journey.bankAccountInfo.getOrElse(sys.error("Bank account info missing")).accountNumber.value.takeRight(3)
-      val bankAccountName = request.journey.bankAccountInfo.getOrElse(sys.error("Bank account name missing")).name
-      val model = RefundConfirmationPageModel(
-        refundConfirmation.repaymentRequestNumber,
-        languageUtils.Dates.formatDate(refundConfirmation.processingDate.toLocalDate),
-        AmountFormatter.formatAmount(amount.repay),
-        languageUtils.Dates.formatDate(refundConfirmation.processingDate.plusDays(REFUND_PROCESSING_DAYS).toLocalDate),
-        bankAccountEndingDigits,
-        bankAccountName,
-        isLastPaymentByCard,
-        request.isAgent,
-        saUtr
-      )
+      futureSaUtr.map { saUtr =>
+        val amount                  = request.journey.amount.getOrElse(sys.error("Could not find amount"))
+        val refundConfirmation      =
+          request.journey.repaymentConfirmation.getOrElse(sys.error("Could not find refund confirmation"))
+        val isLastPaymentByCard     = request.journey.paymentMethod.contains(Card)
+        val bankAccountEndingDigits = request.journey.bankAccountInfo
+          .getOrElse(sys.error("Bank account info missing"))
+          .accountNumber
+          .value
+          .takeRight(3)
+        val bankAccountName         = request.journey.bankAccountInfo.getOrElse(sys.error("Bank account name missing")).name
+        val model                   = RefundConfirmationPageModel(
+          refundConfirmation.repaymentRequestNumber,
+          languageUtils.Dates.formatDate(refundConfirmation.processingDate.toLocalDate),
+          AmountFormatter.formatAmount(amount.repay),
+          languageUtils.Dates.formatDate(
+            refundConfirmation.processingDate.plusDays(REFUND_PROCESSING_DAYS).toLocalDate
+          ),
+          bankAccountEndingDigits,
+          bankAccountName,
+          isLastPaymentByCard,
+          request.isAgent,
+          saUtr
+        )
 
-      Ok(repaymentConfirmationPage(model))
+        Ok(repaymentConfirmationPage(model))
+      }
     }
-  }
 }

@@ -23,4 +23,3 @@ final case class BarsUpdateVerifyStatusParams(id: BarVerifyStatusId)
 object BarsUpdateVerifyStatusParams {
   implicit val format: Format[BarsUpdateVerifyStatusParams] = Json.format
 }
-

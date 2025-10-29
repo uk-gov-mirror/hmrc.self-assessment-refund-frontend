@@ -29,17 +29,19 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.views.html.refundrequestjourney.
 
 @Singleton
 class BarsLockoutController @Inject() (
-    barsLockoutView: BarsLockout,
-    actions:         Actions,
-    mcc:             MessagesControllerComponents
-)(implicit config: AppConfig, languageUtils: LanguageUtils) extends FrontendController(mcc) with I18nSupport {
+  barsLockoutView: BarsLockout,
+  actions:         Actions,
+  mcc:             MessagesControllerComponents
+)(implicit config: AppConfig, languageUtils: LanguageUtils)
+    extends FrontendController(mcc)
+    with I18nSupport {
 
-  //checking for a return url, returning urls when none is found
+  // checking for a return url, returning urls when none is found
   override def messagesApi: MessagesApi = mcc.messagesApi
-  val barsLockout: Action[AnyContent] = actions.barsLockedOutJourneyAction { implicit request =>
+  val barsLockout: Action[AnyContent]   = actions.barsLockedOutJourneyAction { implicit request =>
     val returnUrl = request.returnUrl match {
       case Some(url) => url.value
-      case None =>
+      case None      =>
         if (request.request.affinityGroup.toString === AffinityGroup.Agent.toString) {
           config.viewAndChangeHubAgentUrl
         } else {

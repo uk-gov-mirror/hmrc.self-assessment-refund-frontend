@@ -26,11 +26,12 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.views.html.refundrequestjourney.
 
 @Singleton
 class YourRefundRequestNotSubmittedController @Inject() (
-    mcc:                           MessagesControllerComponents,
-    i18n:                          I18nSupport,
-    actions:                       Actions,
-    refundRequestNotSubmittedPage: YourRefundRequestNotSubmittedPage
-)(implicit appConfig: AppConfig) extends FrontendController(mcc) {
+  mcc:                           MessagesControllerComponents,
+  i18n:                          I18nSupport,
+  actions:                       Actions,
+  refundRequestNotSubmittedPage: YourRefundRequestNotSubmittedPage
+)(implicit appConfig: AppConfig)
+    extends FrontendController(mcc) {
 
   import i18n._
 

@@ -24,8 +24,9 @@ import uk.gov.hmrc.selfassessmentrefundfrontend.pages.YourRefundRequestNotSubmit
 import uk.gov.hmrc.selfassessmentrefundfrontend.testdata.TdAll
 
 class YourRefundRequestNotSubmittedControllerSpec extends ItSpec with YourRefundRequestNotSubmittedPageTesting {
-  override def fakeAuthConnector: Option[AuthConnector] = None
-  val controller: YourRefundRequestNotSubmittedController = fakeApplication().injector.instanceOf[YourRefundRequestNotSubmittedController]
+  override def fakeAuthConnector: Option[AuthConnector]   = None
+  val controller: YourRefundRequestNotSubmittedController =
+    fakeApplication().injector.instanceOf[YourRefundRequestNotSubmittedController]
 
   "YourRefundRequestNotSubmittedController" when {
     "called on 'show'" should {
@@ -35,12 +36,12 @@ class YourRefundRequestNotSubmittedControllerSpec extends ItSpec with YourRefund
         val result = controller.show(TdAll.request)
 
         result.checkPageIsDisplayed(
-          expectedHeading     = "Your refund request has not been submitted",
+          expectedHeading = "Your refund request has not been submitted",
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-          contentChecks       = checkPageContent(isAgent = false),
-          expectedStatus      = Status.OK,
-          withBackButton      = false,
-          journey             = "request"
+          contentChecks = checkPageContent(isAgent = false),
+          expectedStatus = Status.OK,
+          withBackButton = false,
+          journey = "request"
         )
       }
       "show welsh 'Your Refund Request Not Submitted' page with button link for Individuals" in {
@@ -49,13 +50,13 @@ class YourRefundRequestNotSubmittedControllerSpec extends ItSpec with YourRefund
         val result = controller.show(TdAll.welshRequest)
 
         result.checkPageIsDisplayed(
-          expectedHeading     = "Nid yw’ch cais am ad-daliad wedi’i gyflwyno",
+          expectedHeading = "Nid yw’ch cais am ad-daliad wedi’i gyflwyno",
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-          contentChecks       = checkPageContentWelsh(isAgent = false),
-          expectedStatus      = Status.OK,
-          withBackButton      = false,
-          journey             = "request",
-          welsh               = true
+          contentChecks = checkPageContentWelsh(isAgent = false),
+          expectedStatus = Status.OK,
+          withBackButton = false,
+          journey = "request",
+          welsh = true
         )
       }
 
@@ -65,12 +66,12 @@ class YourRefundRequestNotSubmittedControllerSpec extends ItSpec with YourRefund
         val result = controller.show(TdAll.request)
 
         result.checkPageIsDisplayed(
-          expectedHeading     = "Your refund request has not been submitted",
+          expectedHeading = "Your refund request has not been submitted",
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/claim-refund",
-          contentChecks       = checkPageContent(isAgent = false),
-          expectedStatus      = Status.OK,
-          withBackButton      = false,
-          journey             = "request"
+          contentChecks = checkPageContent(isAgent = false),
+          expectedStatus = Status.OK,
+          withBackButton = false,
+          journey = "request"
         )
       }
 
@@ -80,12 +81,12 @@ class YourRefundRequestNotSubmittedControllerSpec extends ItSpec with YourRefund
         val result = controller.show(TdAll.request)
 
         result.checkPageIsDisplayed(
-          expectedHeading     = "Your refund request has not been submitted",
+          expectedHeading = "Your refund request has not been submitted",
           expectedServiceLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/agents/claim-refund",
-          contentChecks       = checkPageContent(isAgent = true),
-          expectedStatus      = Status.OK,
-          withBackButton      = false,
-          journey             = "request"
+          contentChecks = checkPageContent(isAgent = true),
+          expectedStatus = Status.OK,
+          withBackButton = false,
+          journey = "request"
         )
       }
     }
